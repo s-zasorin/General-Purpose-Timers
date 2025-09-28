@@ -76,8 +76,8 @@
     1: Счетчик запущен  
 
 ### Регистр предделителия TIM_PSC
-<img src="/img/PSC.PNG" width="800" height="200">  
+<img src="img/PSC.PNG" width="1000" height="200">  
 Содержит коэффициент деления
 
 ### Регистр генерации событий TIM_EGR
-<img src="/img/TIM_EGR.PNG" width="800" height="200"> 
+<img src="img/TIM_EGR.PNG" width="1000" height="200"> 
