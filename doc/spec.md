@@ -133,9 +133,47 @@ Duty cycle = $\frac{CCR2}{CCR1}\cdot 100$%
 Импульс может быть сгенерирован с определенной длительностью (определяется как TIMx_ARR - TIMx_CCR + 1) и с конкретной задержкой (задается значением TIMx_CCR) после прихода триггера на вход таймера.
 
 ## Сигналы ввода-вывода
+```verilog
+module gpt #(parameter CHANNEL_NUM       = 4,
+             parameter WIDTH_REG_ADDRESS = 16,
+             parameter WSTRB_LEN         = WIDTH_REG_ADDRESS / 8) (
+   input  logic           clk_i    ,
+   input  logic           aresetn_i,
+   input  logic [N - 1:0] ch_i     ,
+   input  logic           etr_i    ,
+   output logic           trg_o    ,
+   output logic [N - 1:0] ch_o     ,
 
+   // AXI4-Lite
+   
+   // Write Address Channel
+   input  logic                           awvalid_i,
+   input  logic [WIDTH_REG_ADDRESS - 1:0] awaddr_i ,
+   input  logic [WSTRB_LEN         - 1:0] awstrb_i ,
+   output logic                           awready_o,
+   
+   // Write Data Channel
+   input  logic                           wdata_i  ,
+   input  logic                           wvalid_i ,
+   output logic                           wready_o ,
+
+   // Response Channel
+   input  logic                           bready_i ,
+   output logic                           bvalid_o ,
+   output logic                           bresp_o  ,
+   // Read Address Channel 
+   input  logic                           arready_i,
+   output logic                           arvalid_i,
+   output logic [WIDTH_REG_ADDRESS - 1:0] araddr_i ,
+
+   // Read Data Channel
+   input  logic                           rready_i ,
+   output logic                           rvalid_o ,
+   output logic                           rdata_o
+);
+```
 ## Интерфейсы
-
+AXI4-Lite
 ## Программная модель
 ### Управляющий регистр таймера №1 (TIM_CR1)
 
