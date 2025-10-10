@@ -137,12 +137,12 @@ Duty cycle = $\frac{CCR2}{CCR1}\cdot 100$%
 module gpt #(parameter CHANNEL_NUM       = 4,
              parameter WIDTH_REG_ADDRESS = 16,
              parameter WSTRB_LEN         = WIDTH_REG_ADDRESS / 8) (
-   input  logic           clk_i    ,
-   input  logic           aresetn_i,
-   input  logic [N - 1:0] ch_i     ,
-   input  logic           etr_i    ,
-   output logic           trg_o    ,
-   output logic [N - 1:0] ch_o     ,
+   input  logic           clk_i                    ,
+   input  logic           aresetn_i                ,
+   input  logic [N - 1:0] ch_i                     ,
+   input  logic           etr_i                    ,
+   output logic           trg_o                    ,
+   output logic [N - 1:0] ch_o                     ,
 
    // AXI4-Lite
    
@@ -161,6 +161,7 @@ module gpt #(parameter CHANNEL_NUM       = 4,
    input  logic                           bready_i ,
    output logic                           bvalid_o ,
    output logic                           bresp_o  ,
+
    // Read Address Channel 
    input  logic                           arready_i,
    output logic                           arvalid_i,
