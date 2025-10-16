@@ -5,6 +5,8 @@
 2. Master/Slave Mode Controller.  
 3. Канал TIM.
 
+image::../img/top_scheme.png[Top module scheme, 1000, 800]
+
 === Time-base unit
 Данный блок включает в себя:  
 [ul]

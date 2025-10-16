@@ -12,18 +12,14 @@
 // == Обзор
 include::gpt_01_overview.adoc[]
 
-<<< 
-// == Конфигурационные параметры
-include::gpt_02_config_parameters.adoc[]
-
 <<<
 // == Общее описание
-include::gpt_03_general_description.adoc[]
+include::gpt_02_general_description.adoc[]
 
 <<<
 // == Сигналы ввода-вывода
-include::gpt_04_signal_list.adoc[]
+include::gpt_03_signal_list.adoc[]
 
 <<<
 // == Программная модель
-include::gpt_05_program_model.adoc[]
+include::gpt_04_program_model.adoc[]
