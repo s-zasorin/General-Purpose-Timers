@@ -7,7 +7,6 @@
 
 = Микроархитектурная спецификация: General Purpose Timers
 
-:!sectnums:
 <<<
 // == Обзор
 include::gpt_01_overview.adoc[]
@@ -23,3 +22,7 @@ include::gpt_03_signal_list.adoc[]
 <<<
 // == Программная модель
 include::gpt_04_program_model.adoc[]
+
+<<<
+// == Сценарии программирования
+include::gpt_05_programming.adoc[]
