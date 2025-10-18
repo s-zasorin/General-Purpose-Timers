@@ -1,0 +1,49 @@
+`include "gpt.tim_cr1.rdl"
+`include "gpt.tim_cr2.rdl"
+`include "gpt.tim_smcr.rdl"
+`include "gpt.tim_dier.rdl"
+`include "gpt.tim_sr.rdl"
+`include "gpt.tim_egr.rdl"
+`include "gpt.tim_ccmr.rdl"
+`include "gpt.tim_ccer.rdl"
+`include "gpt.tim_cnt.rdl"
+`include "gpt.tim_psc.rdl"
+`include "gpt.tim_arr.rdl"
+`include "gpt.tim_ccr.rdl"
+
+addrmap CSR_GPT {
+  default regwidth = 32;
+  <%
+    my $BASE_ADDR      = 0x00;
+    my $REG_SIZE       = 0x04; 
+    my $CH_PAIRS_NUM   = 2;
+    my $current_offset = $BASE_ADDR;
+    my @registers      = ("TIM_CR1", "TIM_CR2", "TIM_SMCR", "TIM_DIER", "TIM_SR", "TIM_EGR", "TIM_CCMR", "TIM_CCER", "TIM_CNT", "TIM_PSC", "TIM_ARR", "TIM_CCR");
+
+    for (my $i = 0; $i <= $#registers; $i++) {
+      my $reg_name = $registers[$i];
+      if ($reg_name eq "TIM_CCMR") {
+        for (my $j = 0; $j < $CH_PAIRS_NUM; $j++) { %>
+          <%=$reg_name%> <%=$reg_name%><%=($j + 1)%> @<%=$current_offset%>;
+<%
+          $current_offset += $REG_SIZE;
+       }
+      }
+      elsif ($reg_name eq "TIM_CCR") {
+        for (my $j = 0; $j < 2 * $CH_PAIRS_NUM; $j++) { %>
+          <%=$reg_name%> <%=$reg_name%><%=($j + 1)%> @<%=$current_offset%>;
+<%
+          $current_offset += $REG_SIZE;
+        }
+      }
+      else {
+%>
+        <%=$reg_name%> <%=$reg_name%> @<%=$current_offset%>;
+<%
+      }
+      $current_offset += $REG_SIZE;
+    } 
+%>
+
+};
+

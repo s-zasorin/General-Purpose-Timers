@@ -1,0 +1,14 @@
+`ifndef TIM_ARR_REG
+`define TIM_ARR_REG
+
+reg TIM_ARR {
+  name = "Регистр автоматической перезагрузки";
+  desc = "Данный регистр является Preload регистром для теневого регистра ARR.";
+  field {
+    name = "ARR";
+    hw = rw;
+    sw = rw;
+  } ARR[31:0];
+};
+
+`endif // TIM_ARR_REG

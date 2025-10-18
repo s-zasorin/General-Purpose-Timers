@@ -1,0 +1,14 @@
+`ifndef TIM_CNT_REG
+`define TIM_CNT_REG
+
+reg TIM_CNT {
+  name = "Регистр основного счетчика";
+  desc = "Счетчик разрядностью 32";
+  field {
+    name = "CNT";
+    hw = rw;
+    sw = rw;
+  } CNT[31:0];
+};
+
+`endif // TIM_CNT_REG

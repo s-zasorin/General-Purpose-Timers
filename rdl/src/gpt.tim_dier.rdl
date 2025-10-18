@@ -1,0 +1,125 @@
+`ifndef TIM_DIER_REG
+`define TIM_DIER_REG
+
+reg TIM_DIER {
+    name = "Регистр разрешения DMA/прерываний";
+    desc = "Регистр разрешения DMA/прерываний TIMx";
+    regwidth = 32;
+    
+    field {
+      name = "UIE";
+      desc = "Разрешение прерывания по обновлению";
+      hw = rw;
+      sw = rw;
+    } UIE [0:0];
+    
+    field {
+      name = "CC1IE";
+      desc = "Разрешение прерывания захвата/сравнения 1";
+      hw = rw;
+      sw = rw;
+    } CC1IE [1:1];
+    
+    field {
+      name = "CC2IE";
+      desc = "Разрешение прерывания захвата/сравнения 2";
+      hw = rw;
+      sw = rw;
+    } CC2IE [2:2];
+    
+    field {
+      name = "CC3IE";
+      desc = "Разрешение прерывания захвата/сравнения 3";
+      hw = rw;
+      sw = rw;
+    } CC3IE [3:3];
+    
+    field {
+      name = "CC4IE";
+      desc = "Разрешение прерывания захвата/сравнения 4";
+      hw = rw;
+      sw = rw;
+    } CC4IE [4:4];
+    
+    field {
+      name = "reserved_5";
+      desc = "Зарезервирован, должен сохранять значение сброса";
+      hw = r;
+      sw = r;
+      reset = 0;
+    } reserved_5 [5:5];
+    
+    field {
+      name = "TIE";
+      desc = "Разрешение прерывания по триггеру";
+      hw = rw;
+      sw = rw;
+    } TIE [6:6];
+    
+    field {
+      name = "reserved_7";
+      desc = "Зарезервирован, должен сохранять значение сброса";
+      hw = r;
+      sw = r;
+      reset = 0;
+    } reserved_7 [7:7];
+    
+    field {
+      name = "UDE";
+      desc = "Разрешение DMA запроса по обновлению";
+      hw = rw;
+      sw = rw;
+    } UDE [8:8];
+    
+    field {
+      name = "CC1DE";
+      desc = "Разрешение DMA запроса захвата/сравнения 1";
+      hw = rw;
+      sw = rw;
+    } CC1DE [9:9];
+    
+    field {
+      name = "CC2DE";
+      desc = "Разрешение DMA запроса захвата/сравнения 2";
+      hw = rw;
+      sw = rw;
+    } CC2DE [10:10];
+    
+    field {
+      name = "CC3DE";
+      desc = "Разрешение DMA запроса захвата/сравнения 3";
+      hw = rw;
+      sw = rw;
+    } CC3DE [11:11];
+    
+    field {
+      name = "CC4DE";
+      desc = "Разрешение DMA запроса захвата/сравнения 4";
+      hw = rw;
+      sw = rw;
+    } CC4DE [12:12];
+    
+    field {
+      name = "reserved_13";
+      desc = "Зарезервирован, всегда читается как 0";
+      hw = r;
+      sw = r;
+      reset = 0;
+    } reserved_13 [13:13];
+    
+    field {
+      name = "TDE";
+      desc = "Разрешение DMA запроса по триггеру";
+      hw = rw;
+      sw = rw;
+    } TDE [14:14];
+    
+    field {
+      name = "reserved_15";
+      desc = "Зарезервирован, должен сохранять значение сброса";
+      hw = r;
+      sw = r;
+      reset = 0;
+    } reserved_15 [15:15];  
+  };
+`endif // TIM_DIER_REG

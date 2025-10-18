@@ -1,0 +1,14 @@
+`ifndef TIM_CCR_REG
+`define TIM_CCR_REG
+
+reg TIM_CCR {
+  name = "Регистр захвата/сравнения";
+  desc = "Количество этих регистров может увеличиваться в зависимости от числа каналов(минимум 2).";
+  field {
+    name = "CCR";
+    hw = rw;
+    sw = rw;
+  } CCR[31:0];
+};
+
+`endif // TIM_CCR_REG

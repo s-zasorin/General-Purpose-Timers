@@ -1,0 +1,125 @@
+`ifndef TIM_CCER_REG
+`define TIM_CCER_REG
+
+reg TIM_CCER {
+    name = "Регистр разрешения захвата/сравнения";
+    regwidth = 32;
+    
+    field {
+        name = "CC4NP";
+        desc = "Полярность выхода Capture/Compare 4 - см. описание CC1NP";
+        hw = rw;
+        sw = rw;
+    } CC4NP [15:15];
+    
+    field {
+        name = "reserved_14";
+        desc = "Зарезервирован, должен сохранять значение сброса";
+        hw = r;
+        sw = r;
+        reset = 0;
+    } reserved_14 [14:14];
+    
+    field {
+        name = "CC4P";
+        desc = "Полярность выхода Capture/Compare 4 - см. описание CC1P";
+        hw = rw;
+        sw = rw;
+    } CC4P [13:13];
+    
+    field {
+        name = "CC4E";
+        desc = "Разрешение выхода Capture/Compare 4 - см. описание CC1E";
+        hw = rw;
+        sw = rw;
+    } CC4E [12:12];
+    
+    field {
+        name = "CC3NP";
+        desc = "Полярность выхода Capture/Compare 3 - см. описание CC1NP";
+        hw = rw;
+        sw = rw;
+    } CC3NP [11:11];
+    
+    field {
+        name = "reserved_10";
+        desc = "Зарезервирован, должен сохранять значение сброса";
+        hw = r;
+        sw = r;
+        reset = 0;
+    } reserved_10 [10:10];
+    
+    field {
+        name = "CC3P";
+        desc = "Полярность выхода Capture/Compare 3 - см. описание CC1P";
+        hw = rw;
+        sw = rw;
+    } CC3P [9:9];
+    
+    field {
+        name = "CC3E";
+        desc = "Разрешение выхода Capture/Compare 3 - см. описание CC1E";
+        hw = rw;
+        sw = rw;
+    } CC3E [8:8];
+    
+    field {
+        name = "CC2NP";
+        desc = "Полярность выхода Capture/Compare 2 - см. описание CC1NP";
+        hw = rw;
+        sw = rw;
+    } CC2NP [7:7];
+    
+    field {
+        name = "reserved_6";
+        desc = "Зарезервирован, должен сохранять значение сброса";
+        hw = r;
+        sw = r;
+        reset = 0;
+    } reserved_6 [6:6];
+    
+    field {
+        name = "CC2P";
+        desc = "Полярность выхода Capture/Compare 2 - см. описание CC1P";
+        hw = rw;
+        sw = rw;
+    } CC2P [5:5];
+    
+    field {
+        name = "CC2E";
+        desc = "Разрешение выхода Capture/Compare 2 - см. описание CC1E";
+        hw = rw;
+        sw = rw;
+    } CC2E [4:4];
+    
+    field {
+        name = "CC1NP";
+        desc = "Полярность выхода Capture/Compare 1. Выход: должен оставаться сброшенным. Вход: используется вместе с CC1P для определения полярности TI1FP1/TI2FP1. 00: неинвертированный/фронт rising; 01: инвертированный/фронт falling; 10: зарезервировано; 11: неинвертированный/оба фронта";
+        hw = rw;
+        sw = rw;
+    } CC1NP [3:3];
+    
+    field {
+        name = "reserved_2";
+        desc = "Зарезервирован, должен сохранять значение сброса";
+        hw = r;
+        sw = r;
+        reset = 0;
+    } reserved_2 [2:2];
+    
+    field {
+        name = "CC1P";
+        desc = "Полярность выхода Capture/Compare 1. Выход: 0: OC1 активный высокий уровень; 1: OC1 активный низкий уровень. Вход: выбирает полярность TI1FP1 и TI2FP1 для операций триггера или захвата. 00: неинвертированный/rising edge; 01: инвертированный/falling edge; 10: зарезервировано; 11: неинвертированный/оба фронта";
+        hw = rw;
+        sw = rw;
+    } CC1P [1:1];
+    
+    field {
+        name = "CC1E";
+        desc = "Разрешение выхода Capture/Compare 1. Выход: 0: Выключен - OC1 не активен; 1: Включен - сигнал OC1 выводится на соответствующий вывод. Вход: определяет возможен ли захват значения счетчика в регистр захвата/сравнения 1 (TIMx_CCR1). 0: Захват запрещен; 1: Захват разрешен";
+        hw = rw;
+        sw = rw;
+    } CC1E [0:0];
+  };
+
+`endif // TIM_CCER_REG
