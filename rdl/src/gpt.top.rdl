@@ -18,7 +18,7 @@ addrmap CSR_GPT {
     my $REG_SIZE       = 0x04; 
     my $CH_PAIRS_NUM   = 2;
     my $current_offset = $BASE_ADDR;
-    my @registers      = ("TIM_CR1", "TIM_CR2", "TIM_SMCR", "TIM_DIER", "TIM_SR", "TIM_EGR", "TIM_CCMR", "TIM_CCER", "TIM_CNT", "TIM_PSC", "TIM_ARR", "TIM_CCR");
+    my @registers      = ("TIM_CR1", "TIM_CR2", "TIM_SMCR", "TIM_DIER", "TIM_SR", "TIM_EGR", "TIM_CCER", "TIM_CNT", "TIM_PSC", "TIM_ARR", "TIM_CCR", "TIM_CCMR");
 
     for (my $i = 0; $i <= $#registers; $i++) {
       my $reg_name = $registers[$i];

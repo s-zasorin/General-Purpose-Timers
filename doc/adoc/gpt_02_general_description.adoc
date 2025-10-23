@@ -6,7 +6,7 @@ image::../img/top_scheme.png[Top module scheme, 1000, 800]
 [ol]
 1. Time-base unit.  
 2. Master/Slave Mode Controller.  
-3. Канал TIM.
+3. TIM_CHANNEL.
 
 === Time-base unit
 
@@ -42,7 +42,8 @@ image::../img/top_scheme.png[Top module scheme, 1000, 800]
 
 Флаг UIF формируется в одноименном поле в статусном регистре таймера TIM_SR1.
 
-=== Slave Mode Controller
+=== Master/Slave Mode Controller 
+==== Slave Mode Controller
 Этот блок формирует управляющие сигналы для блока Time-base unit. Также этот блок может обрабатывать внешние события (ETR) и генерировать события для других таймеров (TRGO).  
 В этом блоке есть схема для выбора источника тактирования основного счетчика. Тактирование может осуществляться следующими источниками:  
 [ul]
@@ -53,14 +54,7 @@ image::../img/top_scheme.png[Top module scheme, 1000, 800]
 
 image::../img/clock_select.png[Choice clock source, 1000, 800]
 
-=== Синхронизация таймера с внешними сигналами
-Таймеры могут быть синхронизированы с внешними событиями в трех режимах:  
-[ul]
-* Режим сброса  
-* Режим стробирования
-* Триггерный режим  
-
-=== Master Mode Controller
+==== Master Mode Controller
 Таймер может не только принимать и реагировать на внешние события, также он может генерировать события TRGO для других таймеров. Таким образом, можно делать каскады из таймеров.  
 *Master Mode Controller* может работать в следующих режимах:  
 [ul]
@@ -68,7 +62,7 @@ image::../img/clock_select.png[Choice clock source, 1000, 800]
  * Один таймер генерирует сигнал *enable* для другого таймера (one timer enable for another)  
  * Один таймер запускает другой таймер (one timer to tart for another timer)  
 
-=== Канал TIM
+=== TIM_CHANNEL
 Канал таймера можно сконфигурировать на вход (режим захвата) и на выход (режим сравнения).
 
 ==== Режим захвата  
