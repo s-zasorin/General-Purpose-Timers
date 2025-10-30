@@ -98,40 +98,186 @@ generate
 endgenerate
 
 // TIM_CCMRx
-
 generate
   if (CH_PAIRS_NUM == 1) begin: one_ccmr_reg
-    logic [1:0] cc1s         ;
-    logic       oc1fe_ic1psc0;
-    logic       oc1ce_ic1f3  ;
-    logic       oc1pe_ic1psc1;
-    logic       oc1m_ic1f    ;
-    logic [1:0] cc2s         ;
-    logic       oc2fe_ic2psc0;
-    logic       oc2pe_ic2psc1;
-    logic       oc2m_ic2f    ;
-    logic       oc2ce_ic2f3  ;
+    logic [1:0] ccxs          [1:0];
+    logic       ocxfe_icxpsc0 [1:0];
+    logic       ocxce_icxf3   [1:0];
+    logic       ocxpe_icxpsc1 [1:0];
+    logic [2:0] ocxm_icxf     [1:0];
 
-    assign cc1s          = gpt_hwif_out.TIM_CCMR1.CC1S.value         ;
-    assign oc1fe_ic1psc0 = gpt_hwif_out.TIM_CCMR1.OC1FE_IC1PSC0.value;
-    assign oc1ce_ic1f3   = gpt_hwif_out.TIM_CCMR1.OC1CE_IC1F3.value  ;
-    assign oc1pe_ic1psc1 = gpt_hwif_out.TIM_CCMR1.OC1PE_IC1PSC1.value;
-    assign oc1m_ic1f     = gpt_hwif_out.TIM_CCMR1.OC1M_IC1F.value    ;
-    assign cc2s          = gpt_hwif_out.TIM_CCMR1.CC2S.value         ;
-    assign oc2fe_ic2psc0 = gpt_hwif_out.TIM_CCMR1.OC2FE_IC2PSC0.value;
-    assign oc2pe_ic2psc1 = gpt_hwif_out.TIM_CCMR1.OC2PE_IC2PSC1.value;
 
+    assign ccxs         [0] = gpt_hwif_out.TIM_CCMR1.CC1S.value         ;
+    assign ocxfe_icxpsc0[0] = gpt_hwif_out.TIM_CCMR1.OC1FE_IC1PSC0.value;
+    assign ocxpe_icxpsc1[0] = gpt_hwif_out.TIM_CCMR1.OC1PE_IC1PSC1.value;
+    assign ocxm_icxf    [0] = gpt_hwif_out.TIM_CCMR1.OC1M_IC1F.value    ;
+    assign ocxce_icxf3  [0] = gpt_hwif_out.TIM_CCMR1.OC1CE_IC1F3.value  ;
+    assign ccxs         [1] = gpt_hwif_out.TIM_CCMR1.CC2S.value         ;
+    assign ocxfe_icxpsc0[1] = gpt_hwif_out.TIM_CCMR1.OC2FE_IC2PSC0.value;
+    assign ocxpe_icxpsc1[1] = gpt_hwif_out.TIM_CCMR1.OC2PE_IC2PSC1.value;
+    assign ocxm_icxf    [1] = gpt_hwif_out.TIM_CCMR1.OC2M_IC2F.value    ;
+    assign ocxce_icxf3  [1] = gpt_hwif_out.TIM_CCMR1.OC2CE_IC2F3.value  ;
+
+    // Input Channel
+    logic [1:0] icxpsc [1:0];
+    logic [3:0] icxf   [1:0];
+
+    //Output Channel
+    logic       ocxfe [1:0];
+    logic       ocxpe [1:0];
+    logic [2:0] ocxm  [1:0];
+    logic       ocxce [1:0];
+
+    always_comb begin
+      for (int i = 0; i < CH_PAIRS_NUM * 2; i = i + 1) begin
+        if (ccxs[i] == 2'b00) begin
+          ocxfe[i] = ocxfe_icxpsc0[i];
+          ocxpe[i] = ocxpe_icxpsc1[i];
+          ocxm [i] = ocxm_icxf    [i];
+          ocxce[i] = ocxce_icxf3  [i];
+        end
+        else begin
+          icxpsc[i] = {ocxpe_icxpsc1, ocxfe_icxpsc0};
+          icxf  [i] = {ocxce_icxf3  , ocxm_icxf    };
+        end
+      end
+    end
   end
   else if (CH_PAIRS_NUM == 2) begin: two_ccmr_regs
+    logic [1:0] ccxs          [3:0];
+    logic       ocxfe_icxpsc0 [3:0];
+    logic       ocxce_icxf3   [3:0];
+    logic       ocxpe_icxpsc1 [3:0];
+    logic [2:0] ocxm_icxf     [3:0];
 
+
+    assign ccxs         [0] = gpt_hwif_out.TIM_CCMR1.CC1S.value         ;
+    assign ocxfe_icxpsc0[0] = gpt_hwif_out.TIM_CCMR1.OC1FE_IC1PSC0.value;
+    assign ocxpe_icxpsc1[0] = gpt_hwif_out.TIM_CCMR1.OC1PE_IC1PSC1.value;
+    assign ocxm_icxf    [0] = gpt_hwif_out.TIM_CCMR1.OC1M_IC1F.value    ;
+    assign ocxce_icxf3  [0] = gpt_hwif_out.TIM_CCMR1.OC1CE_IC1F3.value  ;
+    assign ccxs         [1] = gpt_hwif_out.TIM_CCMR1.CC2S.value         ;
+    assign ocxfe_icxpsc0[1] = gpt_hwif_out.TIM_CCMR1.OC2FE_IC2PSC0.value;
+    assign ocxpe_icxpsc1[1] = gpt_hwif_out.TIM_CCMR1.OC2PE_IC2PSC1.value;
+    assign ocxm_icxf    [1] = gpt_hwif_out.TIM_CCMR1.OC2M_IC2F.value    ;
+    assign ocxce_icxf3  [1] = gpt_hwif_out.TIM_CCMR1.OC2CE_IC2F3.value  ;
+    assign ccxs         [2] = gpt_hwif_out.TIM_CCMR2.CC1S.value         ;
+    assign ocxfe_icxpsc0[2] = gpt_hwif_out.TIM_CCMR2.OC1FE_IC1PSC0.value;
+    assign ocxpe_icxpsc1[2] = gpt_hwif_out.TIM_CCMR2.OC1PE_IC1PSC1.value;
+    assign ocxm_icxf    [2] = gpt_hwif_out.TIM_CCMR2.OC1M_IC1F.value    ;
+    assign ocxce_icxf3  [2] = gpt_hwif_out.TIM_CCMR2.OC1CE_IC1F3.value  ;
+    assign ccxs         [3] = gpt_hwif_out.TIM_CCMR2.CC2S.value         ;
+    assign ocxfe_icxpsc0[3] = gpt_hwif_out.TIM_CCMR2.OC2FE_IC2PSC0.value;
+    assign ocxpe_icxpsc1[3] = gpt_hwif_out.TIM_CCMR2.OC2PE_IC2PSC1.value;
+    assign ocxm_icxf    [3] = gpt_hwif_out.TIM_CCMR2.OC2M_IC2F.value    ;
+    assign ocxce_icxf3  [3] = gpt_hwif_out.TIM_CCMR2.OC2CE_IC2F3.value  ;
+
+    // Input Channel
+    logic [1:0] icxpsc [3:0];
+    logic [3:0] icxf   [3:0];
+
+    //Output Channel
+    logic       ocxfe [3:0];
+    logic       ocxpe [3:0];
+    logic [2:0] ocxm  [3:0];
+    logic       ocxce [3:0];
+
+    always_comb begin
+      for (int i = 0; i < CH_PAIRS_NUM * 2; i = i + 1) begin
+        if (ccxs[i] == 2'b00) begin
+          ocxfe[i] = ocxfe_icxpsc0[i];
+          ocxpe[i] = ocxpe_icxpsc1[i];
+          ocxm [i] = ocxm_icxf    [i];
+          ocxce[i] = ocxce_icxf3  [i];
+        end
+        else begin
+          icxpsc[i] = {ocxpe_icxpsc1, ocxfe_icxpsc0};
+          icxf  [i] = {ocxce_icxf3  , ocxm_icxf    };
+        end
+      end
+    end
   end
 endgenerate
+
+// TIM_CCER 
+logic [3:0] ccxe ;
+logic [3:0] ccxp ;
+logic [3:0] ccxnp;
+
+assign ccxe [0] = gpt_hwif_out.TIM_CCER.CC1E.value ;
+assign ccxp [0] = gpt_hwif_out.TIM_CCER.CC1P.value ;
+assign ccxnp[0] = gpt_hwif_out.TIM_CCER.CC1NP.value;
+assign ccxe [1] = gpt_hwif_out.TIM_CCER.CC2E.value ;
+assign ccxp [1] = gpt_hwif_out.TIM_CCER.CC2P.value ;
+assign ccxnp[1] = gpt_hwif_out.TIM_CCER.CC2NP.value;
+assign ccxe [2] = gpt_hwif_out.TIM_CCER.CC3E.value ;
+assign ccxp [2] = gpt_hwif_out.TIM_CCER.CC3P.value ;
+assign ccxnp[2] = gpt_hwif_out.TIM_CCER.CC3NP.value;
+assign ccxe [3] = gpt_hwif_out.TIM_CCER.CC4E.value ;
+assign ccxp [3] = gpt_hwif_out.TIM_CCER.CC4P.value ;
+assign ccxnp[3] = gpt_hwif_out.TIM_CCER.CC4NP.value;
+
+// TIM_DIER
+logic       uie  ;
+logic [3:0] ccxie;
+logic       tie  ;
+logic       ude  ;
+logic [3:0] ccxde;
+logic       tde  ;
+
+assign uie      = gpt_hwif_out.TIM_DIER.UIE.value  ;
+assign ccxie[0] = gpt_hwif_out.TIM_DIER.CC1E.value ;
+assign ccxie[1] = gpt_hwif_out.TIM_DIER.CC2E.value ;
+assign ccxie[2] = gpt_hwif_out.TIM_DIER.CC3E.value ;
+assign ccxie[3] = gpt_hwif_out.TIM_DIER.CC4E.value ;
+assign tie      = gpt_hwif_out.TIM_DIER.TIE.value  ;
+assign ude      = gpt_hwif_out.TIM_DIER.UDE.value  ;
+assign ccxde[0] = gpt_hwif_out.TIM_DIER.CC1DE.value;
+assign ccxde[1] = gpt_hwif_out.TIM_DIER.CC2DE.value;
+assign ccxde[2] = gpt_hwif_out.TIM_DIER.CC3DE.value;
+assign ccxde[3] = gpt_hwif_out.TIM_DIER.CC4DE.value;
+assign tde      = gpt_hwif_out.TIM_DIER.TDE.value  ;
+
+// TIM_SR
+logic       uif  ;
+logic [3:0] ccxif;
+logic       tif  ;
+logic [3:0] ccxof;
+
+
+// TIM_ARR
+logic [CNT_WIDTH - 1:0] arr;
+assign arr = gpt_hwif_out.TIM_ARR.value;
+
+// TIM_PSC
+logic [PSC_WIDTH - 1:0] psc;
+assign psc = gpt_hwif_out.TIM_PSC.value;
+
+// TIM_SMCR
+logic [2:0] sms ;
+logic [2:0] ts  ; 
+logic       msm ;
+logic [2:0] etf ;
+logic [1:0] etps;
+logic       ece ;
+logic       etp ;
+
+assign sms  = gpt_hwif_out.TIM_SMCR.SMS.value ;
+assign ts   = gpt_hwif_out.TIM_SMCR.TS.value  ;
+assign msm  = gpt_hwif_out.TIM_SMCR.MSM.value ;
+assign etf  = gpt_hwif_out.TIM_SMCR.ETF.value ;
+assign etps = gpt_hwif_out.TIM_SMCR.ETPS.value;
+assign ece  = gpt_hwif_out.TIM_SMCR.ECE.value ;
+assign etp  = gpt_hwif_out.TIM_SMCR.ETP.value ;
 
 trigger_controller trig_inst 
 (
   .clk_i    (aclk_i           ),
   .itr_i    (internal_triggers),
   .ti1_ed_i (ti1f_ed          ),
+  .etr_i    (etr_i            ),
+  .etp_i    (etp              ),
+  .etps_i   (etps             ),
   .trg_o    (),
   .clk_psc_o(clk_psc          )
 );
@@ -145,8 +291,12 @@ time_base_unit time_base_inst
   .aresetn_i(aresetn_i),
   .cen_i    (cen      ),
   .apre_i   (apre     ),
+  .dir_i    (dir      ),
+  .arr_i    (arr      ),
+  .psc_i    (psc      ),
   .udis_i   (udis     ),
   .ug_i     (ug       ),
+  .uif_o    (uif      ),
   .uev_o    (uev      ),
   .cnt_o    (cnt_value)
 );
@@ -167,9 +317,9 @@ generate
       .icps_i   (),
       .cc1p_i   (),
       .cc1np_i  (),
-      .ti1_fd_o (),
+      .ti1_fd_o (ti1f_ed),
       .ti1fp1_o (),
-      .ti_o     ()
+      .ti_o     (ch_o[i])
     );
   end
 endgenerate

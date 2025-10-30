@@ -36,7 +36,7 @@ module tim_channel (
   (
     .clk_i    (clk_dts  ),
     .aresetn_i(aresetn_i),
-    .icf_i    (icf_i    ),
+    .f_coef_i (icf_i    ),
     .clkf_o   (tif      )
   );
 

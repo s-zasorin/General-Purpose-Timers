@@ -1,8 +1,7 @@
-module divider (
+module divider_trigger (
   input  logic       clk_i    ,
   input  logic       aresetn_i,
-  input  logic       cce_i    ,
-  input  logic [1:0] icps_i   ,
+  input  logic [1:0] etps_i   ,
 
   output logic       clk_o
 );
@@ -11,7 +10,7 @@ module divider (
   logic [3:0] div_value;
 
   always_comb begin
-    case (icps_i)
+    case (etps_i)
       2'b00:   div_value = 4'b0;
       2'b01:   div_value = 4'd2;
       2'b10:   div_value = 4'd4;
@@ -27,6 +26,6 @@ module divider (
       div_cnt <= 4'b0;
     else
       div_cnt <= div_cnt + 'b1;
-  
-  assign clk_o = cce_i ? ((div_cnt == div_value) ? 1'b1 : 1'b0) : 1'b0;
+
+  assign clk_o = (div_cnt == div_value);
 endmodule
