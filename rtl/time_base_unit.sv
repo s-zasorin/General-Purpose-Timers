@@ -2,7 +2,11 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
                          parameter ARR_WIDTH = 32) (
   input  logic                   clk_i    ,
   input  logic                   aresetn_i,
-  input  CSR_GPT__out_t          hw_i     ,
+  input  logic                   cen_i    ,
+  input  logic                   apre_i   ,
+  input  logic [1:0]             cms_i    ,
+  input  logic                   udis_i   ,
+  input  logic                   ug_i     ,
   output logic                   uev_o    ,
   output logic [CNT_WIDTH - 1:0] cnt_o
 );
@@ -16,13 +20,13 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   logic                   disable_uev       ;
 
   always_ff @(posedge clk_i)
-    cnt_en_ff <= hw_i.TIM_CR1.CEN;
+    cnt_en_ff <= cen_i;
 
   always_ff @(posedge clk_i)
-    enable_preload_arr <= hw_i.TIM_CR1.APRE;
+    enable_preload_arr <= apre_i;
 
   always_ff @(posedge clk_i)
-    disable_uev <= hw_i.TIM_CR1.UDIS;
+    disable_uev <= udis_i;
 
 // UEV logic
   always_ff @(posedge clk_i)
@@ -43,7 +47,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   always_ff @(posedge clk_i or negedge aresetn_i) begin
     if (~aresetn_i)
       gen_cnt <= {CNT_WIDTH{1'b0}};
-    else if (hw_i.TIMx_EGR.UG)
+    else if (ug_i)
       gen_cnt <= 
     else if (cnt_en_ff)
       gen_cnt <= cnt_next;
@@ -55,7 +59,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
     if (DIR)
       cnt_next = gen_cnt - 'd1;
     else begin
-      case (hw_i.TIM_CR1.CMS)
+      case (cms_i)
         2'b00: cnt_next = gen_cnt + 'd1;
         2'b01, 2'b10, 2'b11: begin
           if (uev_o & (gen_cnt = {CNT_WIDTH{1'b0}}))

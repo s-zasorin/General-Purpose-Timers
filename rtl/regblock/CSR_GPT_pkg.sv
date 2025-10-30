@@ -391,7 +391,7 @@ package CSR_GPT_pkg;
 
     typedef struct {
         logic value;
-    } TIM_CR2__T11S__out_t;
+    } TIM_CR2__TI1S__out_t;
 
     typedef struct {
         logic [7:0] value;
@@ -401,7 +401,7 @@ package CSR_GPT_pkg;
         TIM_CR2__RESERVED_2_0__out_t RESERVED_2_0;
         TIM_CR2__CCDS__out_t CCDS;
         TIM_CR2__MMS__out_t MMS;
-        TIM_CR2__T11S__out_t T11S;
+        TIM_CR2__TI1S__out_t TI1S;
         TIM_CR2__RESERVED_15_8__out_t RESERVED_15_8;
     } TIM_CR2__out_t;
 
