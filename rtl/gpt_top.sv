@@ -1,7 +1,7 @@
 module gpt_top 
 #(parameter CH_PAIRS_NUM = 2,
   parameter CNT_WIDTH    = 32,
-  parameter PSC_WIDTH    = 32,
+  parameter PSC_WIDTH    = 16,
   parameter CSR_WIDTH    = 32,
   parameter WSTRB_WIDTH  = CSR_WIDTH / 8) 
 (
@@ -273,13 +273,30 @@ assign etp  = gpt_hwif_out.TIM_SMCR.ETP.value ;
 trigger_controller trig_inst 
 (
   .clk_i    (aclk_i           ),
+  .aresetn_i(aresetn_i        ),
   .itr_i    (internal_triggers),
+  .ckd_i    (ckd              ),
+  .etp_i    (etp              ),
+  .sms_i    (sms              ),
+  .etps_i   (etps             ),
+  .ts_i     (ts               ),
+  .etf_i    (etf              ),
+  .ece_i    (ece              ),
+  .ti2fp2_i (),
+  .ti1fp1_i (),
   .ti1_ed_i (ti1f_ed          ),
   .etr_i    (etr_i            ),
-  .etp_i    (etp              ),
-  .etps_i   (etps             ),
-  .trg_o    (),
+  .trg_o    (trg_o            ),
   .clk_psc_o(clk_psc          )
+);
+
+prescaler #(.PSC_WIDTH(PSC_WIDTH))
+(
+  .clk_i    (clk_psc  ),
+  .aresetn_i(aresetn_i),
+  .uev_i    (uev      ),
+  .psc_i    (psc      ),
+  .clk_o    (clk_cnt  )
 );
 
 logic [CNT_WIDTH - 1:0] cnt_value;
