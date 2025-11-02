@@ -1,20 +1,25 @@
 module time_base_unit # (parameter CNT_WIDTH = 32,
                          parameter ARR_WIDTH = 32,
                          parameter PSC_WIDTH = 16) (
-  input  logic                   clk_i    ,
-  input  logic                   aresetn_i,
-  input  logic [CNT_WIDTH - 1:0] cnt_i    ,
-  input  logic                   cen_i    ,
-  input  logic [ARR_WIDTH - 1:0] arr_i    ,
-  input  logic [PSC_WIDTH - 1:0] psc_i    ,
-  input  logic                   dir_i    ,
-  input  logic                   apre_i   ,
-  input  logic [1:0]             cms_i    ,
-  input  logic                   udis_i   ,
-  input  logic                   ug_i     ,
+  input  logic                   clk_i     ,
+  input  logic                   aresetn_i ,
+  input  logic [CNT_WIDTH - 1:0] cnt_i     ,
+  input  logic                   cen_i     ,
+  input  logic [ARR_WIDTH - 1:0] arr_i     ,
+  input  logic [PSC_WIDTH - 1:0] psc_i     ,
+  input  logic                   dir_i     ,
+  input  logic                   apre_i    ,
+  input  logic [1:0]             cms_i     ,
+  input  logic                   udis_i    ,
+  input  logic                   ug_i      ,
 
-  output logic                   uif_o    ,
-  output logic                   uev_o    ,
+  // Slave inputs
+  input  logic                   rst_cnt_i ,
+  input  logic                   gate_cnt_i,
+  input  logic                   trig_cnt_i,
+
+  output logic                   uif_o     ,
+  output logic                   uev_o     ,
   output logic [CNT_WIDTH - 1:0] cnt_o
 );
 

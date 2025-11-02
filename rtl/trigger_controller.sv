@@ -1,22 +1,26 @@
 module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
-  input  logic                          clk_i    ,
-  input  logic                          aresetn_i,
-  input  logic [3:0]                    itr_i    ,
-  input  logic [1:0]                    ckd_i    ,
-  input  logic                          etp_i    ,
-  input  logic [2:0]                    sms_i    ,
-  input  logic                          etps_i   ,
-  input  logic [2:0]                    ts_i     ,
-  input  logic [3:0]                    etf_i    ,
-  input  logic                          ece_i    ,
-  input  logic                          ti2fp2_i ,
-  input  logic                          ti1fp1_i ,
-  input  logic                          ti1_ed_i ,
-  input  logic                          etr_i    ,
+  input  logic                          clk_i     ,
+  input  logic                          aresetn_i ,
+  input  logic [3:0]                    itr_i     ,
+  input  logic [1:0]                    ckd_i     ,
+  input  logic                          etp_i     ,
+  input  logic [2:0]                    sms_i     ,
+  input  logic                          etps_i    ,
+  input  logic [2:0]                    ts_i      ,
+  input  logic [3:0]                    etf_i     ,
+  input  logic                          ece_i     ,
+  input  logic                          ti2fp2_i  ,
+  input  logic                          ti1fp1_i  ,
+  input  logic                          ti1_ed_i  ,
+  input  logic                          etr_i     ,
 
-  output logic trg_o                             ,
-  output logic clk_psc_o
+  output logic                          trg_o     ,
+  output logic                          en_rst_cnt_o ,
+  output logic                          en_gate_cnt_o,
+  output logic                          en_trig_cnt_o,
+  output logic                          clk_psc_o
 );
+
   logic clk_dts;
   fdts_generator fd_gen
   (
@@ -77,14 +81,27 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   );
 
   always_comb begin
+    rst_cnt_o  = 1'b0;
+    gate_cnt_o = 1'b0;
+    trig_cnt_o = 1'b0;
+    clk_psc_o  = 1'b0;
     case (sms_i)
       3'b000: clk_psc_o = clk_i      ;
       3'b001: clk_psc_o = enc_clk_1d2;
       3'b010: clk_psc_o = enc_clk_2d1;
-      3'b100,
-      3'b101,
-      3'b110,
-      3'b111: clk_psc_o = trgi       ;
+      3'b100: begin
+        clk_psc_o = trgi;
+        rst_cnt_o = 1'b1;
+      end
+      3'b101: begin
+        clk_psc_o  = trgi;
+        gate_cnt_o = 1'b1;
+      end
+      3'b110: begin
+        clk_psc_o  = trgi;
+        trig_cnt_o = 1'b1;
+      end
+      3'b111: clk_psc_o = trgi;
     endcase
   end
 
