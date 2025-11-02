@@ -1,28 +1,78 @@
-module tim_channel (
+module tim_channel #(parameter CCR_WIDTH = 32) (
   input logic                    clk_i    ,
   input logic                    aresetn_i,
   input logic  [1:0]             ckd_i    ,
   input logic  [3:0]             icf_i    ,
-  input logic  [CNT_WIDTH - 1:0] cnt_i    ,
-  input logic                    ti_i     ,
+  input logic  [CNT_WIDTH - 1:0] cnt_i    ,       // Counter value from Time-Base Unit
+  input logic  [CCR_WIDTH - 1:0] ccr_i    ,       // CCR value from RegBlock
+  input logic                    uev_i    ,       // Update Event  from Time-Base Unit
+  input logic                    ti_i     ,       // TIM Channel value
   input logic                    trc_i    ,
+  input logic                    ccxif_i  ,       // CCIF value from RegBlock
+  input logic                    ccxof_i  ,       // CCOF value from RegBlock
   input logic  [1:0]             cc1s_i   ,
   input logic  [1:0]             icps_i   ,
-  input logic                    cce_i    ,
-  input logic                    ti2fp1_i ,
+  input logic                    cce_i    ,       // enable for capture value into CCRx register
+  input logic                    dir_i    ,       // Count direction
+  input logic  [2:0]             ocxm_i   ,       // 
+  input logic                    ccg_i    ,
+  input logic                    ocxpe_i   ,
+  input logic                    ti_neigx_fpx_i ,
   input logic                    cc1p_i   ,
   input logic                    cc1np_i  ,
 
   output logic                   ti1_fd_o ,
-  output logic                   ti1fp1_o ,
+  output logic                   oc_ref_o ,      // Reference signal to Master Mode Controller
+  output logic                   ccxif_o  ,
+  output logic [CCR_WIDTH - 1:0] ccr_o    ,      // output CCRx value for load into RegBlock
+  output logic                   ccxof_o  ,
+  output logic                   tixfpx_o ,
   output logic                   ti_o
 );
 
-  logic       clk_dts     ;
-  logic       tif         ;
-  logic [1:0] polarity_sel;
+  logic       clk_dts         ;
+  logic       tif             ;
+  logic [1:0] polarity_sel    ;
+  logic       input_mode      ;
+  logic       output_mode     ;
+  logic       shadow_reg_ccr  ; // shadow register for CCRx
+  logic       capture_enable  ; // enable capture mode
+  logic       compare_enable  ; // enable compare mode
 
-  assign ti1fp1 = cc1p_i ? tif_r : tif_f;
+  assign input_mode  =   cc1s_i[0] | cc1s_i[1];
+  assign output_mode = ~(cc1s_i[0] | cc1s_i[1]);
+
+  assign capture_enable = input_mode & (cce_i | ic1ps & ccg_i);
+  assign compare_enable = output_mode & (~ocxpe_i | uev_i);
+
+  assign tixfpx = cc1p_i ? tif_r : tif_f;
+
+ // Shadow Register logic 
+  always_ff @(posedge clk_i or negedge aresetn_i)
+    if (~aresetn_i)
+      shadow_reg_ccr <= {CCR_WIDTH{1'b0}};
+    else if (capture_enable)  // Capture Mode
+      shadow_reg_ccr <= cnt_i;
+    else if (compare_mode)    // Compare Mode
+      shadow_reg_ccr <= ccr_i;
+  
+  always_ff @(posedge clk_i or negedge aresetn_i)
+    if (~aresetn_i)
+      ccxif_o <= 1'b0;
+    else if (capture_enable) // Capture first value into CCR Register
+      ccxif_o <= 1'b1;
+    else                     // write value from RegBlock
+      ccxif_o <= ccxif_i;
+  
+  always_ff @(posedge clk_i or negedge aresetn_i)
+    if (~aresetn_i)
+      ccxof_o <= 1'b0;
+    else if (capture_enable & ccxif_o) // Capture second value into CCR Register
+      ccxof_o <= 1'b1;
+    else                               // write value from RegBlock
+      ccxof_o <= ccxof_i;
+
+  assign ccr_o = shadow_reg_ccr;
 
   fdts_generator fdts_gen 
   (
@@ -72,5 +122,30 @@ divider div_inst
   .icps_i   (icps_i   ),
   .clk_o    (ic1ps    )
 );
+
+logic cnt_equal_ccr    ;
+logic cnt_less_than_ccr;
+logic cnt_more_than_ccr;
+
+assign cnt_equal_ccr     = (cnt_i == shadow_reg_ccr);
+assign cnt_less_than_ccr = (cnt_i < shadow_reg_ccr) ;
+assign cnt_more_than_ccr = (cnt_i > shadow_reg_ccr) ;
+
+output_control i_control_out
+(
+  .clk_i              (),
+  .aresetn_i          (aresetn_i        ),
+  .cnt_equal_ccr_i    (cnt_equal_ccr    ),
+  .dir_i              (dir_i            ),
+  .cnt_less_than_ccr_i(cnt_less_than_ccr),
+  .cnt_more_than_ccr_i(cnt_more_than_ccr),
+  .ocm_i              (ocxm_i           ),
+  .oc_ref_o           (oc_ref_o         )
+);
+
+logic oc_ref_p;
+
+assign oc_ref_p = cc1p_i ? ~oc_ref_o : oc_ref_o;
+assign ti_o     = cce_i  ? oc_ref_p  : 1'b0    ;
 
 endmodule
