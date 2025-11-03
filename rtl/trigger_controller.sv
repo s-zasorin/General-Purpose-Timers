@@ -15,9 +15,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   input  logic                          etr_i     ,
 
   output logic                          trg_o     ,
-  output logic                          en_rst_cnt_o ,
-  output logic                          en_gate_cnt_o,
-  output logic                          en_trig_cnt_o,
+  output logic                          time_base_mode,
   output logic                          clk_psc_o
 );
 
@@ -81,17 +79,18 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   );
 
   always_comb begin
-    rst_cnt_o  = 1'b0;
-    gate_cnt_o = 1'b0;
-    trig_cnt_o = 1'b0;
-    clk_psc_o  = 1'b0;
+    time_base_mode = 3'b0;
+    clk_psc_o      = 1'b0;
     case (sms_i)
-      3'b000: clk_psc_o = clk_i      ;
+      3'b000: begin 
+        clk_psc_o = clk_i;
+        time_base_mode = 3'b000;
+      end
       3'b001: clk_psc_o = enc_clk_1d2;
       3'b010: clk_psc_o = enc_clk_2d1;
       3'b100: begin
         clk_psc_o = trgi;
-        rst_cnt_o = 1'b1;
+        time_base_mode = 3'b011
       end
       3'b101: begin
         clk_psc_o  = trgi;

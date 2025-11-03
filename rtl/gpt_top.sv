@@ -83,6 +83,41 @@ module gpt_top
       assign ccxg[7] = gpt_hwif_out.TIM_EGR2.CC4G.value;
     end
     else if (CH_PAIRS_NUM == 5 || CH_PAIRS_NUM == 6) begin
+
+      logic [11:0] ccxg;
+ 
+      assign ccxg[0]  = gpt_hwif_out.TIM_EGR1.CC1G.value;
+      assign ccxg[1]  = gpt_hwif_out.TIM_EGR1.CC2G.value;
+      assign ccxg[2]  = gpt_hwif_out.TIM_EGR1.CC3G.value;
+      assign ccxg[3]  = gpt_hwif_out.TIM_EGR1.CC4G.value;
+      assign ccxg[4]  = gpt_hwif_out.TIM_EGR2.CC1G.value;
+      assign ccxg[5]  = gpt_hwif_out.TIM_EGR2.CC2G.value;
+      assign ccxg[6]  = gpt_hwif_out.TIM_EGR2.CC3G.value;
+      assign ccxg[7]  = gpt_hwif_out.TIM_EGR2.CC4G.value;
+      assign ccxg[8]  = gpt_hwif_out.TIM_EGR3.CC1G.value;
+      assign ccxg[9]  = gpt_hwif_out.TIM_EGR3.CC2G.value;
+      assign ccxg[10] = gpt_hwif_out.TIM_EGR3.CC3G.value;
+      assign ccxg[11] = gpt_hwif_out.TIM_EGR3.CC4G.value;
+    end
+    else if (CH_PAIRS_NUM == 7 || CH_PAIRS_NUM == 8) begin
+      logic [15:0] ccxg;
+ 
+      assign ccxg[0]  = gpt_hwif_out.TIM_EGR1.CC1G.value;
+      assign ccxg[1]  = gpt_hwif_out.TIM_EGR1.CC2G.value;
+      assign ccxg[2]  = gpt_hwif_out.TIM_EGR1.CC3G.value;
+      assign ccxg[3]  = gpt_hwif_out.TIM_EGR1.CC4G.value;
+      assign ccxg[4]  = gpt_hwif_out.TIM_EGR2.CC1G.value;
+      assign ccxg[5]  = gpt_hwif_out.TIM_EGR2.CC2G.value;
+      assign ccxg[6]  = gpt_hwif_out.TIM_EGR2.CC3G.value;
+      assign ccxg[7]  = gpt_hwif_out.TIM_EGR2.CC4G.value;
+      assign ccxg[8]  = gpt_hwif_out.TIM_EGR3.CC1G.value;
+      assign ccxg[9]  = gpt_hwif_out.TIM_EGR3.CC2G.value;
+      assign ccxg[10] = gpt_hwif_out.TIM_EGR3.CC3G.value;
+      assign ccxg[11] = gpt_hwif_out.TIM_EGR3.CC4G.value;
+      assign ccxg[12] = gpt_hwif_out.TIM_EGR4.CC1G.value;
+      assign ccxg[13] = gpt_hwif_out.TIM_EGR4.CC2G.value;
+      assign ccxg[14] = gpt_hwif_out.TIM_EGR4.CC3G.value;
+      assign ccxg[15] = gpt_hwif_out.TIM_EGR4.CC4G.value;
     end
   endgenerate
 
@@ -805,9 +840,11 @@ logic       uie   ;
   assign ece  = gpt_hwif_out.TIM_SMCR.ECE.value ;
   assign etp  = gpt_hwif_out.TIM_SMCR.ETP.value ;
 
-  logic ti2fp2;
-  logic ti1fp1;
-  logic oc_ref_mms;
+  logic       ti2fp2        ;
+  logic       ti1fp1        ;
+  logic       oc_ref_mms    ;
+  logic [2:0] time_base_mode;
+
   trigger_controller trig_inst 
   (
     .clk_i    (aclk_i           ),
@@ -824,6 +861,7 @@ logic       uie   ;
     .ti1fp1_i (ti1fp1           ),
     .ti1_ed_i (ti1f_ed          ),
     .etr_i    (etr_i            ),
+    .mode_o   (time_base_mode   ),
     .trg_o    (trg_o            ),
     .clk_psc_o(clk_psc          )
   );
@@ -842,18 +880,19 @@ logic       uie   ;
 
   time_base_unit time_base_inst
   (
-    .clk_i    (clk_cnt  ),
-    .aresetn_i(aresetn_i),
-    .cen_i    (cen      ),
-    .apre_i   (apre     ),
-    .dir_i    (dir      ),
-    .arr_i    (arr      ),
-    .psc_i    (psc      ),
-    .udis_i   (udis     ),
-    .ug_i     (ug       ),
-    .uif_o    (uif      ),
-    .uev_o    (uev      ),
-    .cnt_o    (cnt_value)
+    .clk_i    (clk_cnt       ),
+    .aresetn_i(aresetn_i     ),
+    .cen_i    (cen           ),
+    .apre_i   (apre          ),
+    .mode_i   (time_base_mode),
+    .dir_i    (dir           ),
+    .arr_i    (arr           ),
+    .psc_i    (psc           ),
+    .udis_i   (udis          ),
+    .ug_i     (ug            ),
+    .uif_o    (uif           ),
+    .uev_o    (uev           ),
+    .cnt_o    (cnt_value     )
   );
 
   tim_channel channel_inst
@@ -938,10 +977,10 @@ logic       uie   ;
           .ccxof_i        ( ),
           .cc1s_i         (ccxs[i]   ),
           .icps_i         (),
-          .cce_i          (),
+          .cce_i          (ccxe[i]   ),
           .dir_i          (dir       ),
           .ocxm_i         (ocxm[i]   ),
-          .ccg_i          (),
+          .ccg_i          (ccxg[i]   ),
           .ocxpe_i        (),
           .ti_neigx_fpx_i (),
           .cc1p_i         (),
@@ -949,7 +988,7 @@ logic       uie   ;
 
           .ti1_fd_o       (ti1f_ed),
           .oc_ref_o       (),
-          .ccxif_o        (),
+          .ccxif_o        (ccxif[i]),
           .ccr_o          (ccr_to_regblock[i]),
           .ccxof_o        (ccxof[i]          ),
           .ti1fp1_o       (),
