@@ -18,7 +18,7 @@ addrmap CSR_GPT {
     my $REG_SIZE       = 0x04; 
     my $CH_PAIRS_NUM   = 2;
     my $current_offset = $BASE_ADDR;
-    my @registers      = ("TIM_CR1", "TIM_CR2", "TIM_SMCR", "TIM_DIER", "TIM_SR", "TIM_EGR", "TIM_CCER", "TIM_CNT", "TIM_PSC", "TIM_ARR", "TIM_CCR", "TIM_CCMR");
+    my @registers      = ("TIM_CR1", "TIM_CR2", "TIM_SMCR", "TIM_DIER", "TIM_SR", "TIM_CCER", "TIM_EGR", "TIM_CNT", "TIM_PSC", "TIM_ARR", "TIM_CCR", "TIM_CCMR");
 
     for (my $i = 0; $i <= $#registers; $i++) {
       my $reg_name = $registers[$i];
@@ -26,16 +26,65 @@ addrmap CSR_GPT {
         for (my $j = 0; $j < $CH_PAIRS_NUM; $j++) { %>
           <%=$reg_name%> <%=$reg_name%><%=($j + 1)%> @<%=$current_offset%>;
 <%
+          if ($j != $CH_PAIRS_NUM - 1) {
           $current_offset += $REG_SIZE;
+        }
        }
       }
       elsif ($reg_name eq "TIM_CCR") {
         for (my $j = 0; $j < 2 * $CH_PAIRS_NUM; $j++) { %>
           <%=$reg_name%> <%=$reg_name%><%=($j + 1)%> @<%=$current_offset%>;
 <%
+          if ($j != 2 * $CH_PAIRS_NUM - 1) {
+          $current_offset += $REG_SIZE;
+        }
+        }
+      }
+      elsif ($reg_name eq "TIM_SR") {
+        for (my $j = 0; $j < $CH_PAIRS_NUM / 2; $j++) { %>
+          <%=$reg_name%> <%=$reg_name%><%=($j + 1)%> @<%=$current_offset%>;
+<%
+          if ($j != $CH_PAIRS_NUM / 2 - 1) {
+            $current_offset += $REG_SIZE;
+          }
+        }
+      }
+      elsif ($reg_name eq "TIM_EGR") {
+        for (my $j = 0; $j < $CH_PAIRS_NUM / 2; $j++) { %>
+          <%=$reg_name%> <%=$reg_name%><%=($j + 1)%> @<%=$current_offset%>;
+<%
+        if ($j != $CH_PAIRS_NUM / 2 - 1) {
           $current_offset += $REG_SIZE;
         }
       }
+    }
+    elsif ($reg_name eq "TIM_CCMR") {
+      for (my $j = 0; $j < $CH_PAIRS_NUM; $j++) { %>
+        <%=$reg_name%> <%=$reg_name%><%=($j + 1)%> @<%=$current_offset%>;
+<%
+        if ($j != $CH_PAIRS_NUM - 1) {
+          $current_offset += $REG_SIZE;
+        }
+      }
+    }
+    elsif ($reg_name eq "TIM_CCER") {
+      for (my $j = 0; $j < $CH_PAIRS_NUM / 2; $j++) { %>
+        <%=$reg_name%> <%=$reg_name%><%=($j + 1)%> @<%=$current_offset%>;
+<%
+        if ($j != $CH_PAIRS_NUM / 2 - 1) {
+          $current_offset += $REG_SIZE;
+        }
+      }
+    }
+    elsif ($reg_name eq "TIM_DIER") {
+      for (my $j = 0; $j < $CH_PAIRS_NUM / 2; $j++) { %>
+        <%=$reg_name%> <%=$reg_name%><%=($j + 1)%> @<%=$current_offset%>;
+<%
+        if ($j != $CH_PAIRS_NUM / 2 - 1) {
+          $current_offset += $REG_SIZE;
+        }
+      }
+    }
       else {
 %>
         <%=$reg_name%> <%=$reg_name%> @<%=$current_offset%>;
