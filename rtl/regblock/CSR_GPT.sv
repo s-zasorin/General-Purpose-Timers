@@ -5,7 +5,7 @@ module CSR_GPT (
         input wire clk,
         input wire rst,
 
-        axi4lite_intf s_axil,
+        axi4lite_intf.slave s_axil,
 
         input CSR_GPT_pkg::CSR_GPT__in_t hwif_in,
         output CSR_GPT_pkg::CSR_GPT__out_t hwif_out
@@ -16,7 +16,7 @@ module CSR_GPT (
     //--------------------------------------------------------------------------
     logic cpuif_req;
     logic cpuif_req_is_wr;
-    logic [6:0] cpuif_addr;
+    logic [5:0] cpuif_addr;
     logic [31:0] cpuif_wr_data;
     logic [31:0] cpuif_wr_biten;
     logic cpuif_req_stall_wr;
@@ -42,10 +42,10 @@ module CSR_GPT (
     logic [1:0] axil_n_in_flight;
     logic axil_prev_was_rd;
     logic axil_arvalid;
-    logic [6:0] axil_araddr;
+    logic [5:0] axil_araddr;
     logic axil_ar_accept;
     logic axil_awvalid;
-    logic [6:0] axil_awaddr;
+    logic [5:0] axil_awaddr;
     logic axil_wvalid;
     logic [31:0] axil_wdata;
     logic [3:0] axil_wstrb;
@@ -123,17 +123,17 @@ module CSR_GPT (
             if(axil_arvalid && !axil_prev_was_rd) begin
                 cpuif_req = '1;
                 cpuif_req_is_wr = '0;
-                cpuif_addr = {axil_araddr[6:2], 2'b0};
+                cpuif_addr = {axil_araddr[5:2], 2'b0};
                 if(!cpuif_req_stall_rd) axil_ar_accept = '1;
             end else if(axil_awvalid && axil_wvalid) begin
                 cpuif_req = '1;
                 cpuif_req_is_wr = '1;
-                cpuif_addr = {axil_awaddr[6:2], 2'b0};
+                cpuif_addr = {axil_awaddr[5:2], 2'b0};
                 if(!cpuif_req_stall_wr) axil_aw_accept = '1;
             end else if(axil_arvalid) begin
                 cpuif_req = '1;
                 cpuif_req_is_wr = '0;
-                cpuif_addr = {axil_araddr[6:2], 2'b0};
+                cpuif_addr = {axil_araddr[5:2], 2'b0};
                 if(!cpuif_req_stall_rd) axil_ar_accept = '1;
             end
         end
@@ -221,10 +221,10 @@ module CSR_GPT (
         logic TIM_CR1;
         logic TIM_CR2;
         logic TIM_SMCR;
-        logic TIM_DIER;
-        logic TIM_SR;
-        logic TIM_EGR;
-        logic TIM_CCER;
+        logic TIM_DIER1;
+        logic TIM_SR1;
+        logic TIM_CCER1;
+        logic TIM_EGR1;
         logic TIM_CNT;
         logic TIM_PSC;
         logic TIM_ARR;
@@ -242,22 +242,22 @@ module CSR_GPT (
     logic [31:0] decoded_wr_biten;
 
     always_comb begin
-        decoded_reg_strb.TIM_CR1 = cpuif_req_masked & (cpuif_addr == 7'h0);
-        decoded_reg_strb.TIM_CR2 = cpuif_req_masked & (cpuif_addr == 7'h4);
-        decoded_reg_strb.TIM_SMCR = cpuif_req_masked & (cpuif_addr == 7'h8);
-        decoded_reg_strb.TIM_DIER = cpuif_req_masked & (cpuif_addr == 7'hc);
-        decoded_reg_strb.TIM_SR = cpuif_req_masked & (cpuif_addr == 7'h10);
-        decoded_reg_strb.TIM_EGR = cpuif_req_masked & (cpuif_addr == 7'h14);
-        decoded_reg_strb.TIM_CCER = cpuif_req_masked & (cpuif_addr == 7'h18);
-        decoded_reg_strb.TIM_CNT = cpuif_req_masked & (cpuif_addr == 7'h1c);
-        decoded_reg_strb.TIM_PSC = cpuif_req_masked & (cpuif_addr == 7'h20);
-        decoded_reg_strb.TIM_ARR = cpuif_req_masked & (cpuif_addr == 7'h24);
-        decoded_reg_strb.TIM_CCR1 = cpuif_req_masked & (cpuif_addr == 7'h28);
-        decoded_reg_strb.TIM_CCR2 = cpuif_req_masked & (cpuif_addr == 7'h2c);
-        decoded_reg_strb.TIM_CCR3 = cpuif_req_masked & (cpuif_addr == 7'h30);
-        decoded_reg_strb.TIM_CCR4 = cpuif_req_masked & (cpuif_addr == 7'h34);
-        decoded_reg_strb.TIM_CCMR1 = cpuif_req_masked & (cpuif_addr == 7'h3c);
-        decoded_reg_strb.TIM_CCMR2 = cpuif_req_masked & (cpuif_addr == 7'h40);
+        decoded_reg_strb.TIM_CR1 = cpuif_req_masked & (cpuif_addr == 6'h0);
+        decoded_reg_strb.TIM_CR2 = cpuif_req_masked & (cpuif_addr == 6'h4);
+        decoded_reg_strb.TIM_SMCR = cpuif_req_masked & (cpuif_addr == 6'h8);
+        decoded_reg_strb.TIM_DIER1 = cpuif_req_masked & (cpuif_addr == 6'hc);
+        decoded_reg_strb.TIM_SR1 = cpuif_req_masked & (cpuif_addr == 6'h10);
+        decoded_reg_strb.TIM_CCER1 = cpuif_req_masked & (cpuif_addr == 6'h14);
+        decoded_reg_strb.TIM_EGR1 = cpuif_req_masked & (cpuif_addr == 6'h18);
+        decoded_reg_strb.TIM_CNT = cpuif_req_masked & (cpuif_addr == 6'h1c);
+        decoded_reg_strb.TIM_PSC = cpuif_req_masked & (cpuif_addr == 6'h20);
+        decoded_reg_strb.TIM_ARR = cpuif_req_masked & (cpuif_addr == 6'h24);
+        decoded_reg_strb.TIM_CCR1 = cpuif_req_masked & (cpuif_addr == 6'h28);
+        decoded_reg_strb.TIM_CCR2 = cpuif_req_masked & (cpuif_addr == 6'h2c);
+        decoded_reg_strb.TIM_CCR3 = cpuif_req_masked & (cpuif_addr == 6'h30);
+        decoded_reg_strb.TIM_CCR4 = cpuif_req_masked & (cpuif_addr == 6'h34);
+        decoded_reg_strb.TIM_CCMR1 = cpuif_req_masked & (cpuif_addr == 6'h38);
+        decoded_reg_strb.TIM_CCMR2 = cpuif_req_masked & (cpuif_addr == 6'h3c);
     end
 
     // Pass down signals to next stage
@@ -275,6 +275,10 @@ module CSR_GPT (
                 logic next;
                 logic load_next;
             } CEN;
+            struct {
+                logic next;
+                logic load_next;
+            } UDIS;
             struct {
                 logic next;
                 logic load_next;
@@ -393,7 +397,7 @@ module CSR_GPT (
                 logic next;
                 logic load_next;
             } TDE;
-        } TIM_DIER;
+        } TIM_DIER1;
         struct {
             struct {
                 logic next;
@@ -435,33 +439,7 @@ module CSR_GPT (
                 logic next;
                 logic load_next;
             } CC4OF;
-        } TIM_SR;
-        struct {
-            struct {
-                logic next;
-                logic load_next;
-            } UG;
-            struct {
-                logic next;
-                logic load_next;
-            } CC1G;
-            struct {
-                logic next;
-                logic load_next;
-            } CC2G;
-            struct {
-                logic next;
-                logic load_next;
-            } CC3G;
-            struct {
-                logic next;
-                logic load_next;
-            } CC4G;
-            struct {
-                logic next;
-                logic load_next;
-            } TG;
-        } TIM_EGR;
+        } TIM_SR1;
         struct {
             struct {
                 logic next;
@@ -511,7 +489,33 @@ module CSR_GPT (
                 logic next;
                 logic load_next;
             } CC4NP;
-        } TIM_CCER;
+        } TIM_CCER1;
+        struct {
+            struct {
+                logic next;
+                logic load_next;
+            } UG;
+            struct {
+                logic next;
+                logic load_next;
+            } CC1G;
+            struct {
+                logic next;
+                logic load_next;
+            } CC2G;
+            struct {
+                logic next;
+                logic load_next;
+            } CC3G;
+            struct {
+                logic next;
+                logic load_next;
+            } CC4G;
+            struct {
+                logic next;
+                logic load_next;
+            } TG;
+        } TIM_EGR1;
         struct {
             struct {
                 logic [31:0] next;
@@ -648,6 +652,9 @@ module CSR_GPT (
             } CEN;
             struct {
                 logic value;
+            } UDIS;
+            struct {
+                logic value;
             } URS;
             struct {
                 logic value;
@@ -736,7 +743,7 @@ module CSR_GPT (
             struct {
                 logic value;
             } TDE;
-        } TIM_DIER;
+        } TIM_DIER1;
         struct {
             struct {
                 logic value;
@@ -768,27 +775,7 @@ module CSR_GPT (
             struct {
                 logic value;
             } CC4OF;
-        } TIM_SR;
-        struct {
-            struct {
-                logic value;
-            } UG;
-            struct {
-                logic value;
-            } CC1G;
-            struct {
-                logic value;
-            } CC2G;
-            struct {
-                logic value;
-            } CC3G;
-            struct {
-                logic value;
-            } CC4G;
-            struct {
-                logic value;
-            } TG;
-        } TIM_EGR;
+        } TIM_SR1;
         struct {
             struct {
                 logic value;
@@ -826,7 +813,27 @@ module CSR_GPT (
             struct {
                 logic value;
             } CC4NP;
-        } TIM_CCER;
+        } TIM_CCER1;
+        struct {
+            struct {
+                logic value;
+            } UG;
+            struct {
+                logic value;
+            } CC1G;
+            struct {
+                logic value;
+            } CC2G;
+            struct {
+                logic value;
+            } CC3G;
+            struct {
+                logic value;
+            } CC4G;
+            struct {
+                logic value;
+            } TG;
+        } TIM_EGR1;
         struct {
             struct {
                 logic [31:0] value;
@@ -936,7 +943,7 @@ module CSR_GPT (
         next_c = field_storage.TIM_CR1.CEN.value;
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CR1 && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CR1.CEN.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
+            next_c = (field_storage.TIM_CR1.CEN.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
             load_next_c = '1;
         end else begin // HW Write
             next_c = hwif_in.TIM_CR1.CEN.next;
@@ -951,6 +958,28 @@ module CSR_GPT (
         end
     end
     assign hwif_out.TIM_CR1.CEN.value = field_storage.TIM_CR1.CEN.value;
+    // Field: CSR_GPT.TIM_CR1.UDIS
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.TIM_CR1.UDIS.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.TIM_CR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CR1.UDIS.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
+            load_next_c = '1;
+        end else begin // HW Write
+            next_c = hwif_in.TIM_CR1.UDIS.next;
+            load_next_c = '1;
+        end
+        field_combo.TIM_CR1.UDIS.next = next_c;
+        field_combo.TIM_CR1.UDIS.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(field_combo.TIM_CR1.UDIS.load_next) begin
+            field_storage.TIM_CR1.UDIS.value <= field_combo.TIM_CR1.UDIS.next;
+        end
+    end
+    assign hwif_out.TIM_CR1.UDIS.value = field_storage.TIM_CR1.UDIS.value;
     // Field: CSR_GPT.TIM_CR1.URS
     always_comb begin
         automatic logic [0:0] next_c;
@@ -1262,899 +1291,899 @@ module CSR_GPT (
         end
     end
     assign hwif_out.TIM_SMCR.ETP.value = field_storage.TIM_SMCR.ETP.value;
-    // Field: CSR_GPT.TIM_DIER.UIE
+    // Field: CSR_GPT.TIM_DIER1.UIE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.UIE.value;
+        next_c = field_storage.TIM_DIER1.UIE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.UIE.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.UIE.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.UIE.next;
+            next_c = hwif_in.TIM_DIER1.UIE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.UIE.next = next_c;
-        field_combo.TIM_DIER.UIE.load_next = load_next_c;
+        field_combo.TIM_DIER1.UIE.next = next_c;
+        field_combo.TIM_DIER1.UIE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.UIE.load_next) begin
-            field_storage.TIM_DIER.UIE.value <= field_combo.TIM_DIER.UIE.next;
+        if(field_combo.TIM_DIER1.UIE.load_next) begin
+            field_storage.TIM_DIER1.UIE.value <= field_combo.TIM_DIER1.UIE.next;
         end
     end
-    assign hwif_out.TIM_DIER.UIE.value = field_storage.TIM_DIER.UIE.value;
-    // Field: CSR_GPT.TIM_DIER.CC1IE
+    assign hwif_out.TIM_DIER1.UIE.value = field_storage.TIM_DIER1.UIE.value;
+    // Field: CSR_GPT.TIM_DIER1.CC1IE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.CC1IE.value;
+        next_c = field_storage.TIM_DIER1.CC1IE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.CC1IE.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.CC1IE.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.CC1IE.next;
+            next_c = hwif_in.TIM_DIER1.CC1IE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.CC1IE.next = next_c;
-        field_combo.TIM_DIER.CC1IE.load_next = load_next_c;
+        field_combo.TIM_DIER1.CC1IE.next = next_c;
+        field_combo.TIM_DIER1.CC1IE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.CC1IE.load_next) begin
-            field_storage.TIM_DIER.CC1IE.value <= field_combo.TIM_DIER.CC1IE.next;
+        if(field_combo.TIM_DIER1.CC1IE.load_next) begin
+            field_storage.TIM_DIER1.CC1IE.value <= field_combo.TIM_DIER1.CC1IE.next;
         end
     end
-    assign hwif_out.TIM_DIER.CC1IE.value = field_storage.TIM_DIER.CC1IE.value;
-    // Field: CSR_GPT.TIM_DIER.CC2IE
+    assign hwif_out.TIM_DIER1.CC1IE.value = field_storage.TIM_DIER1.CC1IE.value;
+    // Field: CSR_GPT.TIM_DIER1.CC2IE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.CC2IE.value;
+        next_c = field_storage.TIM_DIER1.CC2IE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.CC2IE.value & ~decoded_wr_biten[2:2]) | (decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.CC2IE.value & ~decoded_wr_biten[2:2]) | (decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.CC2IE.next;
+            next_c = hwif_in.TIM_DIER1.CC2IE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.CC2IE.next = next_c;
-        field_combo.TIM_DIER.CC2IE.load_next = load_next_c;
+        field_combo.TIM_DIER1.CC2IE.next = next_c;
+        field_combo.TIM_DIER1.CC2IE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.CC2IE.load_next) begin
-            field_storage.TIM_DIER.CC2IE.value <= field_combo.TIM_DIER.CC2IE.next;
+        if(field_combo.TIM_DIER1.CC2IE.load_next) begin
+            field_storage.TIM_DIER1.CC2IE.value <= field_combo.TIM_DIER1.CC2IE.next;
         end
     end
-    assign hwif_out.TIM_DIER.CC2IE.value = field_storage.TIM_DIER.CC2IE.value;
-    // Field: CSR_GPT.TIM_DIER.CC3IE
+    assign hwif_out.TIM_DIER1.CC2IE.value = field_storage.TIM_DIER1.CC2IE.value;
+    // Field: CSR_GPT.TIM_DIER1.CC3IE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.CC3IE.value;
+        next_c = field_storage.TIM_DIER1.CC3IE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.CC3IE.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.CC3IE.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.CC3IE.next;
+            next_c = hwif_in.TIM_DIER1.CC3IE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.CC3IE.next = next_c;
-        field_combo.TIM_DIER.CC3IE.load_next = load_next_c;
+        field_combo.TIM_DIER1.CC3IE.next = next_c;
+        field_combo.TIM_DIER1.CC3IE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.CC3IE.load_next) begin
-            field_storage.TIM_DIER.CC3IE.value <= field_combo.TIM_DIER.CC3IE.next;
+        if(field_combo.TIM_DIER1.CC3IE.load_next) begin
+            field_storage.TIM_DIER1.CC3IE.value <= field_combo.TIM_DIER1.CC3IE.next;
         end
     end
-    assign hwif_out.TIM_DIER.CC3IE.value = field_storage.TIM_DIER.CC3IE.value;
-    // Field: CSR_GPT.TIM_DIER.CC4IE
+    assign hwif_out.TIM_DIER1.CC3IE.value = field_storage.TIM_DIER1.CC3IE.value;
+    // Field: CSR_GPT.TIM_DIER1.CC4IE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.CC4IE.value;
+        next_c = field_storage.TIM_DIER1.CC4IE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.CC4IE.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.CC4IE.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.CC4IE.next;
+            next_c = hwif_in.TIM_DIER1.CC4IE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.CC4IE.next = next_c;
-        field_combo.TIM_DIER.CC4IE.load_next = load_next_c;
+        field_combo.TIM_DIER1.CC4IE.next = next_c;
+        field_combo.TIM_DIER1.CC4IE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.CC4IE.load_next) begin
-            field_storage.TIM_DIER.CC4IE.value <= field_combo.TIM_DIER.CC4IE.next;
+        if(field_combo.TIM_DIER1.CC4IE.load_next) begin
+            field_storage.TIM_DIER1.CC4IE.value <= field_combo.TIM_DIER1.CC4IE.next;
         end
     end
-    assign hwif_out.TIM_DIER.CC4IE.value = field_storage.TIM_DIER.CC4IE.value;
-    assign hwif_out.TIM_DIER.reserved_5.value = 1'h0;
-    // Field: CSR_GPT.TIM_DIER.TIE
+    assign hwif_out.TIM_DIER1.CC4IE.value = field_storage.TIM_DIER1.CC4IE.value;
+    assign hwif_out.TIM_DIER1.reserved_5.value = 1'h0;
+    // Field: CSR_GPT.TIM_DIER1.TIE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.TIE.value;
+        next_c = field_storage.TIM_DIER1.TIE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.TIE.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.TIE.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.TIE.next;
+            next_c = hwif_in.TIM_DIER1.TIE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.TIE.next = next_c;
-        field_combo.TIM_DIER.TIE.load_next = load_next_c;
+        field_combo.TIM_DIER1.TIE.next = next_c;
+        field_combo.TIM_DIER1.TIE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.TIE.load_next) begin
-            field_storage.TIM_DIER.TIE.value <= field_combo.TIM_DIER.TIE.next;
+        if(field_combo.TIM_DIER1.TIE.load_next) begin
+            field_storage.TIM_DIER1.TIE.value <= field_combo.TIM_DIER1.TIE.next;
         end
     end
-    assign hwif_out.TIM_DIER.TIE.value = field_storage.TIM_DIER.TIE.value;
-    assign hwif_out.TIM_DIER.reserved_7.value = 1'h0;
-    // Field: CSR_GPT.TIM_DIER.UDE
+    assign hwif_out.TIM_DIER1.TIE.value = field_storage.TIM_DIER1.TIE.value;
+    assign hwif_out.TIM_DIER1.reserved_7.value = 1'h0;
+    // Field: CSR_GPT.TIM_DIER1.UDE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.UDE.value;
+        next_c = field_storage.TIM_DIER1.UDE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.UDE.value & ~decoded_wr_biten[8:8]) | (decoded_wr_data[8:8] & decoded_wr_biten[8:8]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.UDE.value & ~decoded_wr_biten[8:8]) | (decoded_wr_data[8:8] & decoded_wr_biten[8:8]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.UDE.next;
+            next_c = hwif_in.TIM_DIER1.UDE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.UDE.next = next_c;
-        field_combo.TIM_DIER.UDE.load_next = load_next_c;
+        field_combo.TIM_DIER1.UDE.next = next_c;
+        field_combo.TIM_DIER1.UDE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.UDE.load_next) begin
-            field_storage.TIM_DIER.UDE.value <= field_combo.TIM_DIER.UDE.next;
+        if(field_combo.TIM_DIER1.UDE.load_next) begin
+            field_storage.TIM_DIER1.UDE.value <= field_combo.TIM_DIER1.UDE.next;
         end
     end
-    assign hwif_out.TIM_DIER.UDE.value = field_storage.TIM_DIER.UDE.value;
-    // Field: CSR_GPT.TIM_DIER.CC1DE
+    assign hwif_out.TIM_DIER1.UDE.value = field_storage.TIM_DIER1.UDE.value;
+    // Field: CSR_GPT.TIM_DIER1.CC1DE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.CC1DE.value;
+        next_c = field_storage.TIM_DIER1.CC1DE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.CC1DE.value & ~decoded_wr_biten[9:9]) | (decoded_wr_data[9:9] & decoded_wr_biten[9:9]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.CC1DE.value & ~decoded_wr_biten[9:9]) | (decoded_wr_data[9:9] & decoded_wr_biten[9:9]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.CC1DE.next;
+            next_c = hwif_in.TIM_DIER1.CC1DE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.CC1DE.next = next_c;
-        field_combo.TIM_DIER.CC1DE.load_next = load_next_c;
+        field_combo.TIM_DIER1.CC1DE.next = next_c;
+        field_combo.TIM_DIER1.CC1DE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.CC1DE.load_next) begin
-            field_storage.TIM_DIER.CC1DE.value <= field_combo.TIM_DIER.CC1DE.next;
+        if(field_combo.TIM_DIER1.CC1DE.load_next) begin
+            field_storage.TIM_DIER1.CC1DE.value <= field_combo.TIM_DIER1.CC1DE.next;
         end
     end
-    assign hwif_out.TIM_DIER.CC1DE.value = field_storage.TIM_DIER.CC1DE.value;
-    // Field: CSR_GPT.TIM_DIER.CC2DE
+    assign hwif_out.TIM_DIER1.CC1DE.value = field_storage.TIM_DIER1.CC1DE.value;
+    // Field: CSR_GPT.TIM_DIER1.CC2DE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.CC2DE.value;
+        next_c = field_storage.TIM_DIER1.CC2DE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.CC2DE.value & ~decoded_wr_biten[10:10]) | (decoded_wr_data[10:10] & decoded_wr_biten[10:10]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.CC2DE.value & ~decoded_wr_biten[10:10]) | (decoded_wr_data[10:10] & decoded_wr_biten[10:10]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.CC2DE.next;
+            next_c = hwif_in.TIM_DIER1.CC2DE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.CC2DE.next = next_c;
-        field_combo.TIM_DIER.CC2DE.load_next = load_next_c;
+        field_combo.TIM_DIER1.CC2DE.next = next_c;
+        field_combo.TIM_DIER1.CC2DE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.CC2DE.load_next) begin
-            field_storage.TIM_DIER.CC2DE.value <= field_combo.TIM_DIER.CC2DE.next;
+        if(field_combo.TIM_DIER1.CC2DE.load_next) begin
+            field_storage.TIM_DIER1.CC2DE.value <= field_combo.TIM_DIER1.CC2DE.next;
         end
     end
-    assign hwif_out.TIM_DIER.CC2DE.value = field_storage.TIM_DIER.CC2DE.value;
-    // Field: CSR_GPT.TIM_DIER.CC3DE
+    assign hwif_out.TIM_DIER1.CC2DE.value = field_storage.TIM_DIER1.CC2DE.value;
+    // Field: CSR_GPT.TIM_DIER1.CC3DE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.CC3DE.value;
+        next_c = field_storage.TIM_DIER1.CC3DE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.CC3DE.value & ~decoded_wr_biten[11:11]) | (decoded_wr_data[11:11] & decoded_wr_biten[11:11]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.CC3DE.value & ~decoded_wr_biten[11:11]) | (decoded_wr_data[11:11] & decoded_wr_biten[11:11]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.CC3DE.next;
+            next_c = hwif_in.TIM_DIER1.CC3DE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.CC3DE.next = next_c;
-        field_combo.TIM_DIER.CC3DE.load_next = load_next_c;
+        field_combo.TIM_DIER1.CC3DE.next = next_c;
+        field_combo.TIM_DIER1.CC3DE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.CC3DE.load_next) begin
-            field_storage.TIM_DIER.CC3DE.value <= field_combo.TIM_DIER.CC3DE.next;
+        if(field_combo.TIM_DIER1.CC3DE.load_next) begin
+            field_storage.TIM_DIER1.CC3DE.value <= field_combo.TIM_DIER1.CC3DE.next;
         end
     end
-    assign hwif_out.TIM_DIER.CC3DE.value = field_storage.TIM_DIER.CC3DE.value;
-    // Field: CSR_GPT.TIM_DIER.CC4DE
+    assign hwif_out.TIM_DIER1.CC3DE.value = field_storage.TIM_DIER1.CC3DE.value;
+    // Field: CSR_GPT.TIM_DIER1.CC4DE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.CC4DE.value;
+        next_c = field_storage.TIM_DIER1.CC4DE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.CC4DE.value & ~decoded_wr_biten[12:12]) | (decoded_wr_data[12:12] & decoded_wr_biten[12:12]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.CC4DE.value & ~decoded_wr_biten[12:12]) | (decoded_wr_data[12:12] & decoded_wr_biten[12:12]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.CC4DE.next;
+            next_c = hwif_in.TIM_DIER1.CC4DE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.CC4DE.next = next_c;
-        field_combo.TIM_DIER.CC4DE.load_next = load_next_c;
+        field_combo.TIM_DIER1.CC4DE.next = next_c;
+        field_combo.TIM_DIER1.CC4DE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.CC4DE.load_next) begin
-            field_storage.TIM_DIER.CC4DE.value <= field_combo.TIM_DIER.CC4DE.next;
+        if(field_combo.TIM_DIER1.CC4DE.load_next) begin
+            field_storage.TIM_DIER1.CC4DE.value <= field_combo.TIM_DIER1.CC4DE.next;
         end
     end
-    assign hwif_out.TIM_DIER.CC4DE.value = field_storage.TIM_DIER.CC4DE.value;
-    assign hwif_out.TIM_DIER.reserved_13.value = 1'h0;
-    // Field: CSR_GPT.TIM_DIER.TDE
+    assign hwif_out.TIM_DIER1.CC4DE.value = field_storage.TIM_DIER1.CC4DE.value;
+    assign hwif_out.TIM_DIER1.reserved_13.value = 1'h0;
+    // Field: CSR_GPT.TIM_DIER1.TDE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_DIER.TDE.value;
+        next_c = field_storage.TIM_DIER1.TDE.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_DIER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_DIER.TDE.value & ~decoded_wr_biten[14:14]) | (decoded_wr_data[14:14] & decoded_wr_biten[14:14]);
+        if(decoded_reg_strb.TIM_DIER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_DIER1.TDE.value & ~decoded_wr_biten[14:14]) | (decoded_wr_data[14:14] & decoded_wr_biten[14:14]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_DIER.TDE.next;
+            next_c = hwif_in.TIM_DIER1.TDE.next;
             load_next_c = '1;
         end
-        field_combo.TIM_DIER.TDE.next = next_c;
-        field_combo.TIM_DIER.TDE.load_next = load_next_c;
+        field_combo.TIM_DIER1.TDE.next = next_c;
+        field_combo.TIM_DIER1.TDE.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_DIER.TDE.load_next) begin
-            field_storage.TIM_DIER.TDE.value <= field_combo.TIM_DIER.TDE.next;
+        if(field_combo.TIM_DIER1.TDE.load_next) begin
+            field_storage.TIM_DIER1.TDE.value <= field_combo.TIM_DIER1.TDE.next;
         end
     end
-    assign hwif_out.TIM_DIER.TDE.value = field_storage.TIM_DIER.TDE.value;
-    assign hwif_out.TIM_DIER.reserved_15.value = 1'h0;
-    // Field: CSR_GPT.TIM_SR.UIF
+    assign hwif_out.TIM_DIER1.TDE.value = field_storage.TIM_DIER1.TDE.value;
+    assign hwif_out.TIM_DIER1.reserved_15.value = 1'h0;
+    // Field: CSR_GPT.TIM_SR1.UIF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.UIF.value;
+        next_c = field_storage.TIM_SR1.UIF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.UIF.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.UIF.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.UIF.next;
+            next_c = hwif_in.TIM_SR1.UIF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.UIF.next = next_c;
-        field_combo.TIM_SR.UIF.load_next = load_next_c;
+        field_combo.TIM_SR1.UIF.next = next_c;
+        field_combo.TIM_SR1.UIF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.UIF.load_next) begin
-            field_storage.TIM_SR.UIF.value <= field_combo.TIM_SR.UIF.next;
+        if(field_combo.TIM_SR1.UIF.load_next) begin
+            field_storage.TIM_SR1.UIF.value <= field_combo.TIM_SR1.UIF.next;
         end
     end
-    assign hwif_out.TIM_SR.UIF.value = field_storage.TIM_SR.UIF.value;
-    // Field: CSR_GPT.TIM_SR.CC1IF
+    assign hwif_out.TIM_SR1.UIF.value = field_storage.TIM_SR1.UIF.value;
+    // Field: CSR_GPT.TIM_SR1.CC1IF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.CC1IF.value;
+        next_c = field_storage.TIM_SR1.CC1IF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.CC1IF.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.CC1IF.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.CC1IF.next;
+            next_c = hwif_in.TIM_SR1.CC1IF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.CC1IF.next = next_c;
-        field_combo.TIM_SR.CC1IF.load_next = load_next_c;
+        field_combo.TIM_SR1.CC1IF.next = next_c;
+        field_combo.TIM_SR1.CC1IF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.CC1IF.load_next) begin
-            field_storage.TIM_SR.CC1IF.value <= field_combo.TIM_SR.CC1IF.next;
+        if(field_combo.TIM_SR1.CC1IF.load_next) begin
+            field_storage.TIM_SR1.CC1IF.value <= field_combo.TIM_SR1.CC1IF.next;
         end
     end
-    assign hwif_out.TIM_SR.CC1IF.value = field_storage.TIM_SR.CC1IF.value;
-    // Field: CSR_GPT.TIM_SR.CC2IF
+    assign hwif_out.TIM_SR1.CC1IF.value = field_storage.TIM_SR1.CC1IF.value;
+    // Field: CSR_GPT.TIM_SR1.CC2IF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.CC2IF.value;
+        next_c = field_storage.TIM_SR1.CC2IF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.CC2IF.value & ~decoded_wr_biten[2:2]) | (decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.CC2IF.value & ~decoded_wr_biten[2:2]) | (decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.CC2IF.next;
+            next_c = hwif_in.TIM_SR1.CC2IF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.CC2IF.next = next_c;
-        field_combo.TIM_SR.CC2IF.load_next = load_next_c;
+        field_combo.TIM_SR1.CC2IF.next = next_c;
+        field_combo.TIM_SR1.CC2IF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.CC2IF.load_next) begin
-            field_storage.TIM_SR.CC2IF.value <= field_combo.TIM_SR.CC2IF.next;
+        if(field_combo.TIM_SR1.CC2IF.load_next) begin
+            field_storage.TIM_SR1.CC2IF.value <= field_combo.TIM_SR1.CC2IF.next;
         end
     end
-    assign hwif_out.TIM_SR.CC2IF.value = field_storage.TIM_SR.CC2IF.value;
-    // Field: CSR_GPT.TIM_SR.CC3IF
+    assign hwif_out.TIM_SR1.CC2IF.value = field_storage.TIM_SR1.CC2IF.value;
+    // Field: CSR_GPT.TIM_SR1.CC3IF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.CC3IF.value;
+        next_c = field_storage.TIM_SR1.CC3IF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.CC3IF.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.CC3IF.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.CC3IF.next;
+            next_c = hwif_in.TIM_SR1.CC3IF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.CC3IF.next = next_c;
-        field_combo.TIM_SR.CC3IF.load_next = load_next_c;
+        field_combo.TIM_SR1.CC3IF.next = next_c;
+        field_combo.TIM_SR1.CC3IF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.CC3IF.load_next) begin
-            field_storage.TIM_SR.CC3IF.value <= field_combo.TIM_SR.CC3IF.next;
+        if(field_combo.TIM_SR1.CC3IF.load_next) begin
+            field_storage.TIM_SR1.CC3IF.value <= field_combo.TIM_SR1.CC3IF.next;
         end
     end
-    assign hwif_out.TIM_SR.CC3IF.value = field_storage.TIM_SR.CC3IF.value;
-    // Field: CSR_GPT.TIM_SR.CC4IF
+    assign hwif_out.TIM_SR1.CC3IF.value = field_storage.TIM_SR1.CC3IF.value;
+    // Field: CSR_GPT.TIM_SR1.CC4IF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.CC4IF.value;
+        next_c = field_storage.TIM_SR1.CC4IF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.CC4IF.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.CC4IF.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.CC4IF.next;
+            next_c = hwif_in.TIM_SR1.CC4IF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.CC4IF.next = next_c;
-        field_combo.TIM_SR.CC4IF.load_next = load_next_c;
+        field_combo.TIM_SR1.CC4IF.next = next_c;
+        field_combo.TIM_SR1.CC4IF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.CC4IF.load_next) begin
-            field_storage.TIM_SR.CC4IF.value <= field_combo.TIM_SR.CC4IF.next;
+        if(field_combo.TIM_SR1.CC4IF.load_next) begin
+            field_storage.TIM_SR1.CC4IF.value <= field_combo.TIM_SR1.CC4IF.next;
         end
     end
-    assign hwif_out.TIM_SR.CC4IF.value = field_storage.TIM_SR.CC4IF.value;
-    assign hwif_out.TIM_SR.reserved_5.value = 1'h0;
-    // Field: CSR_GPT.TIM_SR.TIF
+    assign hwif_out.TIM_SR1.CC4IF.value = field_storage.TIM_SR1.CC4IF.value;
+    assign hwif_out.TIM_SR1.reserved_5.value = 1'h0;
+    // Field: CSR_GPT.TIM_SR1.TIF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.TIF.value;
+        next_c = field_storage.TIM_SR1.TIF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.TIF.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.TIF.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.TIF.next;
+            next_c = hwif_in.TIM_SR1.TIF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.TIF.next = next_c;
-        field_combo.TIM_SR.TIF.load_next = load_next_c;
+        field_combo.TIM_SR1.TIF.next = next_c;
+        field_combo.TIM_SR1.TIF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.TIF.load_next) begin
-            field_storage.TIM_SR.TIF.value <= field_combo.TIM_SR.TIF.next;
+        if(field_combo.TIM_SR1.TIF.load_next) begin
+            field_storage.TIM_SR1.TIF.value <= field_combo.TIM_SR1.TIF.next;
         end
     end
-    assign hwif_out.TIM_SR.TIF.value = field_storage.TIM_SR.TIF.value;
-    assign hwif_out.TIM_SR.reserved_8_7.value = 2'h0;
-    // Field: CSR_GPT.TIM_SR.CC1OF
+    assign hwif_out.TIM_SR1.TIF.value = field_storage.TIM_SR1.TIF.value;
+    assign hwif_out.TIM_SR1.reserved_8_7.value = 2'h0;
+    // Field: CSR_GPT.TIM_SR1.CC1OF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.CC1OF.value;
+        next_c = field_storage.TIM_SR1.CC1OF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.CC1OF.value & ~decoded_wr_biten[9:9]) | (decoded_wr_data[9:9] & decoded_wr_biten[9:9]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.CC1OF.value & ~decoded_wr_biten[9:9]) | (decoded_wr_data[9:9] & decoded_wr_biten[9:9]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.CC1OF.next;
+            next_c = hwif_in.TIM_SR1.CC1OF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.CC1OF.next = next_c;
-        field_combo.TIM_SR.CC1OF.load_next = load_next_c;
+        field_combo.TIM_SR1.CC1OF.next = next_c;
+        field_combo.TIM_SR1.CC1OF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.CC1OF.load_next) begin
-            field_storage.TIM_SR.CC1OF.value <= field_combo.TIM_SR.CC1OF.next;
+        if(field_combo.TIM_SR1.CC1OF.load_next) begin
+            field_storage.TIM_SR1.CC1OF.value <= field_combo.TIM_SR1.CC1OF.next;
         end
     end
-    assign hwif_out.TIM_SR.CC1OF.value = field_storage.TIM_SR.CC1OF.value;
-    // Field: CSR_GPT.TIM_SR.CC2OF
+    assign hwif_out.TIM_SR1.CC1OF.value = field_storage.TIM_SR1.CC1OF.value;
+    // Field: CSR_GPT.TIM_SR1.CC2OF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.CC2OF.value;
+        next_c = field_storage.TIM_SR1.CC2OF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.CC2OF.value & ~decoded_wr_biten[10:10]) | (decoded_wr_data[10:10] & decoded_wr_biten[10:10]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.CC2OF.value & ~decoded_wr_biten[10:10]) | (decoded_wr_data[10:10] & decoded_wr_biten[10:10]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.CC2OF.next;
+            next_c = hwif_in.TIM_SR1.CC2OF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.CC2OF.next = next_c;
-        field_combo.TIM_SR.CC2OF.load_next = load_next_c;
+        field_combo.TIM_SR1.CC2OF.next = next_c;
+        field_combo.TIM_SR1.CC2OF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.CC2OF.load_next) begin
-            field_storage.TIM_SR.CC2OF.value <= field_combo.TIM_SR.CC2OF.next;
+        if(field_combo.TIM_SR1.CC2OF.load_next) begin
+            field_storage.TIM_SR1.CC2OF.value <= field_combo.TIM_SR1.CC2OF.next;
         end
     end
-    assign hwif_out.TIM_SR.CC2OF.value = field_storage.TIM_SR.CC2OF.value;
-    // Field: CSR_GPT.TIM_SR.CC3OF
+    assign hwif_out.TIM_SR1.CC2OF.value = field_storage.TIM_SR1.CC2OF.value;
+    // Field: CSR_GPT.TIM_SR1.CC3OF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.CC3OF.value;
+        next_c = field_storage.TIM_SR1.CC3OF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.CC3OF.value & ~decoded_wr_biten[11:11]) | (decoded_wr_data[11:11] & decoded_wr_biten[11:11]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.CC3OF.value & ~decoded_wr_biten[11:11]) | (decoded_wr_data[11:11] & decoded_wr_biten[11:11]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.CC3OF.next;
+            next_c = hwif_in.TIM_SR1.CC3OF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.CC3OF.next = next_c;
-        field_combo.TIM_SR.CC3OF.load_next = load_next_c;
+        field_combo.TIM_SR1.CC3OF.next = next_c;
+        field_combo.TIM_SR1.CC3OF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.CC3OF.load_next) begin
-            field_storage.TIM_SR.CC3OF.value <= field_combo.TIM_SR.CC3OF.next;
+        if(field_combo.TIM_SR1.CC3OF.load_next) begin
+            field_storage.TIM_SR1.CC3OF.value <= field_combo.TIM_SR1.CC3OF.next;
         end
     end
-    assign hwif_out.TIM_SR.CC3OF.value = field_storage.TIM_SR.CC3OF.value;
-    // Field: CSR_GPT.TIM_SR.CC4OF
+    assign hwif_out.TIM_SR1.CC3OF.value = field_storage.TIM_SR1.CC3OF.value;
+    // Field: CSR_GPT.TIM_SR1.CC4OF
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_SR.CC4OF.value;
+        next_c = field_storage.TIM_SR1.CC4OF.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_SR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_SR.CC4OF.value & ~decoded_wr_biten[12:12]) | (decoded_wr_data[12:12] & decoded_wr_biten[12:12]);
+        if(decoded_reg_strb.TIM_SR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_SR1.CC4OF.value & ~decoded_wr_biten[12:12]) | (decoded_wr_data[12:12] & decoded_wr_biten[12:12]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_SR.CC4OF.next;
+            next_c = hwif_in.TIM_SR1.CC4OF.next;
             load_next_c = '1;
         end
-        field_combo.TIM_SR.CC4OF.next = next_c;
-        field_combo.TIM_SR.CC4OF.load_next = load_next_c;
+        field_combo.TIM_SR1.CC4OF.next = next_c;
+        field_combo.TIM_SR1.CC4OF.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_SR.CC4OF.load_next) begin
-            field_storage.TIM_SR.CC4OF.value <= field_combo.TIM_SR.CC4OF.next;
+        if(field_combo.TIM_SR1.CC4OF.load_next) begin
+            field_storage.TIM_SR1.CC4OF.value <= field_combo.TIM_SR1.CC4OF.next;
         end
     end
-    assign hwif_out.TIM_SR.CC4OF.value = field_storage.TIM_SR.CC4OF.value;
-    assign hwif_out.TIM_SR.reserved_15_13.value = 3'h0;
-    // Field: CSR_GPT.TIM_EGR.UG
+    assign hwif_out.TIM_SR1.CC4OF.value = field_storage.TIM_SR1.CC4OF.value;
+    assign hwif_out.TIM_SR1.reserved_15_13.value = 3'h0;
+    // Field: CSR_GPT.TIM_CCER1.CC1E
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_EGR.UG.value;
+        next_c = field_storage.TIM_CCER1.CC1E.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_EGR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_EGR.UG.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC1E.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_EGR.UG.next;
+            next_c = hwif_in.TIM_CCER1.CC1E.next;
             load_next_c = '1;
         end
-        field_combo.TIM_EGR.UG.next = next_c;
-        field_combo.TIM_EGR.UG.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC1E.next = next_c;
+        field_combo.TIM_CCER1.CC1E.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_EGR.UG.load_next) begin
-            field_storage.TIM_EGR.UG.value <= field_combo.TIM_EGR.UG.next;
+        if(field_combo.TIM_CCER1.CC1E.load_next) begin
+            field_storage.TIM_CCER1.CC1E.value <= field_combo.TIM_CCER1.CC1E.next;
         end
     end
-    assign hwif_out.TIM_EGR.UG.value = field_storage.TIM_EGR.UG.value;
-    // Field: CSR_GPT.TIM_EGR.CC1G
+    assign hwif_out.TIM_CCER1.CC1E.value = field_storage.TIM_CCER1.CC1E.value;
+    // Field: CSR_GPT.TIM_CCER1.CC1P
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_EGR.CC1G.value;
+        next_c = field_storage.TIM_CCER1.CC1P.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_EGR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_EGR.CC1G.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC1P.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_EGR.CC1G.next;
+            next_c = hwif_in.TIM_CCER1.CC1P.next;
             load_next_c = '1;
         end
-        field_combo.TIM_EGR.CC1G.next = next_c;
-        field_combo.TIM_EGR.CC1G.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC1P.next = next_c;
+        field_combo.TIM_CCER1.CC1P.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_EGR.CC1G.load_next) begin
-            field_storage.TIM_EGR.CC1G.value <= field_combo.TIM_EGR.CC1G.next;
+        if(field_combo.TIM_CCER1.CC1P.load_next) begin
+            field_storage.TIM_CCER1.CC1P.value <= field_combo.TIM_CCER1.CC1P.next;
         end
     end
-    assign hwif_out.TIM_EGR.CC1G.value = field_storage.TIM_EGR.CC1G.value;
-    // Field: CSR_GPT.TIM_EGR.CC2G
+    assign hwif_out.TIM_CCER1.CC1P.value = field_storage.TIM_CCER1.CC1P.value;
+    assign hwif_out.TIM_CCER1.reserved_2.value = 1'h0;
+    // Field: CSR_GPT.TIM_CCER1.CC1NP
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_EGR.CC2G.value;
+        next_c = field_storage.TIM_CCER1.CC1NP.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_EGR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_EGR.CC2G.value & ~decoded_wr_biten[2:2]) | (decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC1NP.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_EGR.CC2G.next;
+            next_c = hwif_in.TIM_CCER1.CC1NP.next;
             load_next_c = '1;
         end
-        field_combo.TIM_EGR.CC2G.next = next_c;
-        field_combo.TIM_EGR.CC2G.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC1NP.next = next_c;
+        field_combo.TIM_CCER1.CC1NP.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_EGR.CC2G.load_next) begin
-            field_storage.TIM_EGR.CC2G.value <= field_combo.TIM_EGR.CC2G.next;
+        if(field_combo.TIM_CCER1.CC1NP.load_next) begin
+            field_storage.TIM_CCER1.CC1NP.value <= field_combo.TIM_CCER1.CC1NP.next;
         end
     end
-    assign hwif_out.TIM_EGR.CC2G.value = field_storage.TIM_EGR.CC2G.value;
-    // Field: CSR_GPT.TIM_EGR.CC3G
+    assign hwif_out.TIM_CCER1.CC1NP.value = field_storage.TIM_CCER1.CC1NP.value;
+    // Field: CSR_GPT.TIM_CCER1.CC2E
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_EGR.CC3G.value;
+        next_c = field_storage.TIM_CCER1.CC2E.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_EGR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_EGR.CC3G.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC2E.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_EGR.CC3G.next;
+            next_c = hwif_in.TIM_CCER1.CC2E.next;
             load_next_c = '1;
         end
-        field_combo.TIM_EGR.CC3G.next = next_c;
-        field_combo.TIM_EGR.CC3G.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC2E.next = next_c;
+        field_combo.TIM_CCER1.CC2E.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_EGR.CC3G.load_next) begin
-            field_storage.TIM_EGR.CC3G.value <= field_combo.TIM_EGR.CC3G.next;
+        if(field_combo.TIM_CCER1.CC2E.load_next) begin
+            field_storage.TIM_CCER1.CC2E.value <= field_combo.TIM_CCER1.CC2E.next;
         end
     end
-    assign hwif_out.TIM_EGR.CC3G.value = field_storage.TIM_EGR.CC3G.value;
-    // Field: CSR_GPT.TIM_EGR.CC4G
+    assign hwif_out.TIM_CCER1.CC2E.value = field_storage.TIM_CCER1.CC2E.value;
+    // Field: CSR_GPT.TIM_CCER1.CC2P
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_EGR.CC4G.value;
+        next_c = field_storage.TIM_CCER1.CC2P.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_EGR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_EGR.CC4G.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC2P.value & ~decoded_wr_biten[5:5]) | (decoded_wr_data[5:5] & decoded_wr_biten[5:5]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_EGR.CC4G.next;
+            next_c = hwif_in.TIM_CCER1.CC2P.next;
             load_next_c = '1;
         end
-        field_combo.TIM_EGR.CC4G.next = next_c;
-        field_combo.TIM_EGR.CC4G.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC2P.next = next_c;
+        field_combo.TIM_CCER1.CC2P.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_EGR.CC4G.load_next) begin
-            field_storage.TIM_EGR.CC4G.value <= field_combo.TIM_EGR.CC4G.next;
+        if(field_combo.TIM_CCER1.CC2P.load_next) begin
+            field_storage.TIM_CCER1.CC2P.value <= field_combo.TIM_CCER1.CC2P.next;
         end
     end
-    assign hwif_out.TIM_EGR.CC4G.value = field_storage.TIM_EGR.CC4G.value;
-    assign hwif_out.TIM_EGR.reserved_5.value = 1'h0;
-    // Field: CSR_GPT.TIM_EGR.TG
+    assign hwif_out.TIM_CCER1.CC2P.value = field_storage.TIM_CCER1.CC2P.value;
+    assign hwif_out.TIM_CCER1.reserved_6.value = 1'h0;
+    // Field: CSR_GPT.TIM_CCER1.CC2NP
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_EGR.TG.value;
+        next_c = field_storage.TIM_CCER1.CC2NP.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_EGR && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_EGR.TG.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC2NP.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_EGR.TG.next;
+            next_c = hwif_in.TIM_CCER1.CC2NP.next;
             load_next_c = '1;
         end
-        field_combo.TIM_EGR.TG.next = next_c;
-        field_combo.TIM_EGR.TG.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC2NP.next = next_c;
+        field_combo.TIM_CCER1.CC2NP.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_EGR.TG.load_next) begin
-            field_storage.TIM_EGR.TG.value <= field_combo.TIM_EGR.TG.next;
+        if(field_combo.TIM_CCER1.CC2NP.load_next) begin
+            field_storage.TIM_CCER1.CC2NP.value <= field_combo.TIM_CCER1.CC2NP.next;
         end
     end
-    assign hwif_out.TIM_EGR.TG.value = field_storage.TIM_EGR.TG.value;
-    assign hwif_out.TIM_EGR.reserved_15_7.value = 9'h0;
-    // Field: CSR_GPT.TIM_CCER.CC1E
+    assign hwif_out.TIM_CCER1.CC2NP.value = field_storage.TIM_CCER1.CC2NP.value;
+    // Field: CSR_GPT.TIM_CCER1.CC3E
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC1E.value;
+        next_c = field_storage.TIM_CCER1.CC3E.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC1E.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC3E.value & ~decoded_wr_biten[8:8]) | (decoded_wr_data[8:8] & decoded_wr_biten[8:8]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC1E.next;
+            next_c = hwif_in.TIM_CCER1.CC3E.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC1E.next = next_c;
-        field_combo.TIM_CCER.CC1E.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC3E.next = next_c;
+        field_combo.TIM_CCER1.CC3E.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC1E.load_next) begin
-            field_storage.TIM_CCER.CC1E.value <= field_combo.TIM_CCER.CC1E.next;
+        if(field_combo.TIM_CCER1.CC3E.load_next) begin
+            field_storage.TIM_CCER1.CC3E.value <= field_combo.TIM_CCER1.CC3E.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC1E.value = field_storage.TIM_CCER.CC1E.value;
-    // Field: CSR_GPT.TIM_CCER.CC1P
+    assign hwif_out.TIM_CCER1.CC3E.value = field_storage.TIM_CCER1.CC3E.value;
+    // Field: CSR_GPT.TIM_CCER1.CC3P
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC1P.value;
+        next_c = field_storage.TIM_CCER1.CC3P.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC1P.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC3P.value & ~decoded_wr_biten[9:9]) | (decoded_wr_data[9:9] & decoded_wr_biten[9:9]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC1P.next;
+            next_c = hwif_in.TIM_CCER1.CC3P.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC1P.next = next_c;
-        field_combo.TIM_CCER.CC1P.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC3P.next = next_c;
+        field_combo.TIM_CCER1.CC3P.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC1P.load_next) begin
-            field_storage.TIM_CCER.CC1P.value <= field_combo.TIM_CCER.CC1P.next;
+        if(field_combo.TIM_CCER1.CC3P.load_next) begin
+            field_storage.TIM_CCER1.CC3P.value <= field_combo.TIM_CCER1.CC3P.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC1P.value = field_storage.TIM_CCER.CC1P.value;
-    assign hwif_out.TIM_CCER.reserved_2.value = 1'h0;
-    // Field: CSR_GPT.TIM_CCER.CC1NP
+    assign hwif_out.TIM_CCER1.CC3P.value = field_storage.TIM_CCER1.CC3P.value;
+    assign hwif_out.TIM_CCER1.reserved_10.value = 1'h0;
+    // Field: CSR_GPT.TIM_CCER1.CC3NP
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC1NP.value;
+        next_c = field_storage.TIM_CCER1.CC3NP.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC1NP.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC3NP.value & ~decoded_wr_biten[11:11]) | (decoded_wr_data[11:11] & decoded_wr_biten[11:11]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC1NP.next;
+            next_c = hwif_in.TIM_CCER1.CC3NP.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC1NP.next = next_c;
-        field_combo.TIM_CCER.CC1NP.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC3NP.next = next_c;
+        field_combo.TIM_CCER1.CC3NP.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC1NP.load_next) begin
-            field_storage.TIM_CCER.CC1NP.value <= field_combo.TIM_CCER.CC1NP.next;
+        if(field_combo.TIM_CCER1.CC3NP.load_next) begin
+            field_storage.TIM_CCER1.CC3NP.value <= field_combo.TIM_CCER1.CC3NP.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC1NP.value = field_storage.TIM_CCER.CC1NP.value;
-    // Field: CSR_GPT.TIM_CCER.CC2E
+    assign hwif_out.TIM_CCER1.CC3NP.value = field_storage.TIM_CCER1.CC3NP.value;
+    // Field: CSR_GPT.TIM_CCER1.CC4E
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC2E.value;
+        next_c = field_storage.TIM_CCER1.CC4E.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC2E.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC4E.value & ~decoded_wr_biten[12:12]) | (decoded_wr_data[12:12] & decoded_wr_biten[12:12]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC2E.next;
+            next_c = hwif_in.TIM_CCER1.CC4E.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC2E.next = next_c;
-        field_combo.TIM_CCER.CC2E.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC4E.next = next_c;
+        field_combo.TIM_CCER1.CC4E.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC2E.load_next) begin
-            field_storage.TIM_CCER.CC2E.value <= field_combo.TIM_CCER.CC2E.next;
+        if(field_combo.TIM_CCER1.CC4E.load_next) begin
+            field_storage.TIM_CCER1.CC4E.value <= field_combo.TIM_CCER1.CC4E.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC2E.value = field_storage.TIM_CCER.CC2E.value;
-    // Field: CSR_GPT.TIM_CCER.CC2P
+    assign hwif_out.TIM_CCER1.CC4E.value = field_storage.TIM_CCER1.CC4E.value;
+    // Field: CSR_GPT.TIM_CCER1.CC4P
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC2P.value;
+        next_c = field_storage.TIM_CCER1.CC4P.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC2P.value & ~decoded_wr_biten[5:5]) | (decoded_wr_data[5:5] & decoded_wr_biten[5:5]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC4P.value & ~decoded_wr_biten[13:13]) | (decoded_wr_data[13:13] & decoded_wr_biten[13:13]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC2P.next;
+            next_c = hwif_in.TIM_CCER1.CC4P.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC2P.next = next_c;
-        field_combo.TIM_CCER.CC2P.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC4P.next = next_c;
+        field_combo.TIM_CCER1.CC4P.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC2P.load_next) begin
-            field_storage.TIM_CCER.CC2P.value <= field_combo.TIM_CCER.CC2P.next;
+        if(field_combo.TIM_CCER1.CC4P.load_next) begin
+            field_storage.TIM_CCER1.CC4P.value <= field_combo.TIM_CCER1.CC4P.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC2P.value = field_storage.TIM_CCER.CC2P.value;
-    assign hwif_out.TIM_CCER.reserved_6.value = 1'h0;
-    // Field: CSR_GPT.TIM_CCER.CC2NP
+    assign hwif_out.TIM_CCER1.CC4P.value = field_storage.TIM_CCER1.CC4P.value;
+    assign hwif_out.TIM_CCER1.reserved_14.value = 1'h0;
+    // Field: CSR_GPT.TIM_CCER1.CC4NP
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC2NP.value;
+        next_c = field_storage.TIM_CCER1.CC4NP.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC2NP.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
+        if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CCER1.CC4NP.value & ~decoded_wr_biten[15:15]) | (decoded_wr_data[15:15] & decoded_wr_biten[15:15]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC2NP.next;
+            next_c = hwif_in.TIM_CCER1.CC4NP.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC2NP.next = next_c;
-        field_combo.TIM_CCER.CC2NP.load_next = load_next_c;
+        field_combo.TIM_CCER1.CC4NP.next = next_c;
+        field_combo.TIM_CCER1.CC4NP.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC2NP.load_next) begin
-            field_storage.TIM_CCER.CC2NP.value <= field_combo.TIM_CCER.CC2NP.next;
+        if(field_combo.TIM_CCER1.CC4NP.load_next) begin
+            field_storage.TIM_CCER1.CC4NP.value <= field_combo.TIM_CCER1.CC4NP.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC2NP.value = field_storage.TIM_CCER.CC2NP.value;
-    // Field: CSR_GPT.TIM_CCER.CC3E
+    assign hwif_out.TIM_CCER1.CC4NP.value = field_storage.TIM_CCER1.CC4NP.value;
+    // Field: CSR_GPT.TIM_EGR1.UG
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC3E.value;
+        next_c = field_storage.TIM_EGR1.UG.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC3E.value & ~decoded_wr_biten[8:8]) | (decoded_wr_data[8:8] & decoded_wr_biten[8:8]);
+        if(decoded_reg_strb.TIM_EGR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_EGR1.UG.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC3E.next;
+            next_c = hwif_in.TIM_EGR1.UG.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC3E.next = next_c;
-        field_combo.TIM_CCER.CC3E.load_next = load_next_c;
+        field_combo.TIM_EGR1.UG.next = next_c;
+        field_combo.TIM_EGR1.UG.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC3E.load_next) begin
-            field_storage.TIM_CCER.CC3E.value <= field_combo.TIM_CCER.CC3E.next;
+        if(field_combo.TIM_EGR1.UG.load_next) begin
+            field_storage.TIM_EGR1.UG.value <= field_combo.TIM_EGR1.UG.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC3E.value = field_storage.TIM_CCER.CC3E.value;
-    // Field: CSR_GPT.TIM_CCER.CC3P
+    assign hwif_out.TIM_EGR1.UG.value = field_storage.TIM_EGR1.UG.value;
+    // Field: CSR_GPT.TIM_EGR1.CC1G
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC3P.value;
+        next_c = field_storage.TIM_EGR1.CC1G.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC3P.value & ~decoded_wr_biten[9:9]) | (decoded_wr_data[9:9] & decoded_wr_biten[9:9]);
+        if(decoded_reg_strb.TIM_EGR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_EGR1.CC1G.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC3P.next;
+            next_c = hwif_in.TIM_EGR1.CC1G.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC3P.next = next_c;
-        field_combo.TIM_CCER.CC3P.load_next = load_next_c;
+        field_combo.TIM_EGR1.CC1G.next = next_c;
+        field_combo.TIM_EGR1.CC1G.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC3P.load_next) begin
-            field_storage.TIM_CCER.CC3P.value <= field_combo.TIM_CCER.CC3P.next;
+        if(field_combo.TIM_EGR1.CC1G.load_next) begin
+            field_storage.TIM_EGR1.CC1G.value <= field_combo.TIM_EGR1.CC1G.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC3P.value = field_storage.TIM_CCER.CC3P.value;
-    assign hwif_out.TIM_CCER.reserved_10.value = 1'h0;
-    // Field: CSR_GPT.TIM_CCER.CC3NP
+    assign hwif_out.TIM_EGR1.CC1G.value = field_storage.TIM_EGR1.CC1G.value;
+    // Field: CSR_GPT.TIM_EGR1.CC2G
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC3NP.value;
+        next_c = field_storage.TIM_EGR1.CC2G.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC3NP.value & ~decoded_wr_biten[11:11]) | (decoded_wr_data[11:11] & decoded_wr_biten[11:11]);
+        if(decoded_reg_strb.TIM_EGR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_EGR1.CC2G.value & ~decoded_wr_biten[2:2]) | (decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC3NP.next;
+            next_c = hwif_in.TIM_EGR1.CC2G.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC3NP.next = next_c;
-        field_combo.TIM_CCER.CC3NP.load_next = load_next_c;
+        field_combo.TIM_EGR1.CC2G.next = next_c;
+        field_combo.TIM_EGR1.CC2G.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC3NP.load_next) begin
-            field_storage.TIM_CCER.CC3NP.value <= field_combo.TIM_CCER.CC3NP.next;
+        if(field_combo.TIM_EGR1.CC2G.load_next) begin
+            field_storage.TIM_EGR1.CC2G.value <= field_combo.TIM_EGR1.CC2G.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC3NP.value = field_storage.TIM_CCER.CC3NP.value;
-    // Field: CSR_GPT.TIM_CCER.CC4E
+    assign hwif_out.TIM_EGR1.CC2G.value = field_storage.TIM_EGR1.CC2G.value;
+    // Field: CSR_GPT.TIM_EGR1.CC3G
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC4E.value;
+        next_c = field_storage.TIM_EGR1.CC3G.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC4E.value & ~decoded_wr_biten[12:12]) | (decoded_wr_data[12:12] & decoded_wr_biten[12:12]);
+        if(decoded_reg_strb.TIM_EGR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_EGR1.CC3G.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC4E.next;
+            next_c = hwif_in.TIM_EGR1.CC3G.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC4E.next = next_c;
-        field_combo.TIM_CCER.CC4E.load_next = load_next_c;
+        field_combo.TIM_EGR1.CC3G.next = next_c;
+        field_combo.TIM_EGR1.CC3G.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC4E.load_next) begin
-            field_storage.TIM_CCER.CC4E.value <= field_combo.TIM_CCER.CC4E.next;
+        if(field_combo.TIM_EGR1.CC3G.load_next) begin
+            field_storage.TIM_EGR1.CC3G.value <= field_combo.TIM_EGR1.CC3G.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC4E.value = field_storage.TIM_CCER.CC4E.value;
-    // Field: CSR_GPT.TIM_CCER.CC4P
+    assign hwif_out.TIM_EGR1.CC3G.value = field_storage.TIM_EGR1.CC3G.value;
+    // Field: CSR_GPT.TIM_EGR1.CC4G
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC4P.value;
+        next_c = field_storage.TIM_EGR1.CC4G.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC4P.value & ~decoded_wr_biten[13:13]) | (decoded_wr_data[13:13] & decoded_wr_biten[13:13]);
+        if(decoded_reg_strb.TIM_EGR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_EGR1.CC4G.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC4P.next;
+            next_c = hwif_in.TIM_EGR1.CC4G.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC4P.next = next_c;
-        field_combo.TIM_CCER.CC4P.load_next = load_next_c;
+        field_combo.TIM_EGR1.CC4G.next = next_c;
+        field_combo.TIM_EGR1.CC4G.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC4P.load_next) begin
-            field_storage.TIM_CCER.CC4P.value <= field_combo.TIM_CCER.CC4P.next;
+        if(field_combo.TIM_EGR1.CC4G.load_next) begin
+            field_storage.TIM_EGR1.CC4G.value <= field_combo.TIM_EGR1.CC4G.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC4P.value = field_storage.TIM_CCER.CC4P.value;
-    assign hwif_out.TIM_CCER.reserved_14.value = 1'h0;
-    // Field: CSR_GPT.TIM_CCER.CC4NP
+    assign hwif_out.TIM_EGR1.CC4G.value = field_storage.TIM_EGR1.CC4G.value;
+    assign hwif_out.TIM_EGR1.reserved_5.value = 1'h0;
+    // Field: CSR_GPT.TIM_EGR1.TG
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.TIM_CCER.CC4NP.value;
+        next_c = field_storage.TIM_EGR1.TG.value;
         load_next_c = '0;
-        if(decoded_reg_strb.TIM_CCER && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.TIM_CCER.CC4NP.value & ~decoded_wr_biten[15:15]) | (decoded_wr_data[15:15] & decoded_wr_biten[15:15]);
+        if(decoded_reg_strb.TIM_EGR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_EGR1.TG.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
             load_next_c = '1;
         end else begin // HW Write
-            next_c = hwif_in.TIM_CCER.CC4NP.next;
+            next_c = hwif_in.TIM_EGR1.TG.next;
             load_next_c = '1;
         end
-        field_combo.TIM_CCER.CC4NP.next = next_c;
-        field_combo.TIM_CCER.CC4NP.load_next = load_next_c;
+        field_combo.TIM_EGR1.TG.next = next_c;
+        field_combo.TIM_EGR1.TG.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
-        if(field_combo.TIM_CCER.CC4NP.load_next) begin
-            field_storage.TIM_CCER.CC4NP.value <= field_combo.TIM_CCER.CC4NP.next;
+        if(field_combo.TIM_EGR1.TG.load_next) begin
+            field_storage.TIM_EGR1.TG.value <= field_combo.TIM_EGR1.TG.next;
         end
     end
-    assign hwif_out.TIM_CCER.CC4NP.value = field_storage.TIM_CCER.CC4NP.value;
+    assign hwif_out.TIM_EGR1.TG.value = field_storage.TIM_EGR1.TG.value;
+    assign hwif_out.TIM_EGR1.reserved_15_7.value = 9'h0;
     // Field: CSR_GPT.TIM_CNT.CNT
     always_comb begin
         automatic logic [31:0] next_c;
@@ -2767,8 +2796,8 @@ module CSR_GPT (
 
     // Assign readback values to a flattened array
     logic [31:0] readback_array[16];
-    assign readback_array[0][0:0] = '0;
-    assign readback_array[0][1:1] = (decoded_reg_strb.TIM_CR1 && !decoded_req_is_wr) ? field_storage.TIM_CR1.CEN.value : '0;
+    assign readback_array[0][0:0] = (decoded_reg_strb.TIM_CR1 && !decoded_req_is_wr) ? field_storage.TIM_CR1.CEN.value : '0;
+    assign readback_array[0][1:1] = (decoded_reg_strb.TIM_CR1 && !decoded_req_is_wr) ? field_storage.TIM_CR1.UDIS.value : '0;
     assign readback_array[0][2:2] = (decoded_reg_strb.TIM_CR1 && !decoded_req_is_wr) ? field_storage.TIM_CR1.URS.value : '0;
     assign readback_array[0][3:3] = (decoded_reg_strb.TIM_CR1 && !decoded_req_is_wr) ? field_storage.TIM_CR1.OPM.value : '0;
     assign readback_array[0][4:4] = (decoded_reg_strb.TIM_CR1 && !decoded_req_is_wr) ? field_storage.TIM_CR1.DIR.value : '0;
@@ -2792,62 +2821,62 @@ module CSR_GPT (
     assign readback_array[2][14:14] = (decoded_reg_strb.TIM_SMCR && !decoded_req_is_wr) ? field_storage.TIM_SMCR.ECE.value : '0;
     assign readback_array[2][15:15] = (decoded_reg_strb.TIM_SMCR && !decoded_req_is_wr) ? field_storage.TIM_SMCR.ETP.value : '0;
     assign readback_array[2][31:16] = '0;
-    assign readback_array[3][0:0] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.UIE.value : '0;
-    assign readback_array[3][1:1] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.CC1IE.value : '0;
-    assign readback_array[3][2:2] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.CC2IE.value : '0;
-    assign readback_array[3][3:3] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.CC3IE.value : '0;
-    assign readback_array[3][4:4] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.CC4IE.value : '0;
-    assign readback_array[3][5:5] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? 1'h0 : '0;
-    assign readback_array[3][6:6] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.TIE.value : '0;
-    assign readback_array[3][7:7] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? 1'h0 : '0;
-    assign readback_array[3][8:8] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.UDE.value : '0;
-    assign readback_array[3][9:9] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.CC1DE.value : '0;
-    assign readback_array[3][10:10] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.CC2DE.value : '0;
-    assign readback_array[3][11:11] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.CC3DE.value : '0;
-    assign readback_array[3][12:12] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.CC4DE.value : '0;
-    assign readback_array[3][13:13] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? 1'h0 : '0;
-    assign readback_array[3][14:14] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? field_storage.TIM_DIER.TDE.value : '0;
-    assign readback_array[3][15:15] = (decoded_reg_strb.TIM_DIER && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[3][0:0] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.UIE.value : '0;
+    assign readback_array[3][1:1] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.CC1IE.value : '0;
+    assign readback_array[3][2:2] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.CC2IE.value : '0;
+    assign readback_array[3][3:3] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.CC3IE.value : '0;
+    assign readback_array[3][4:4] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.CC4IE.value : '0;
+    assign readback_array[3][5:5] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[3][6:6] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.TIE.value : '0;
+    assign readback_array[3][7:7] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[3][8:8] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.UDE.value : '0;
+    assign readback_array[3][9:9] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.CC1DE.value : '0;
+    assign readback_array[3][10:10] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.CC2DE.value : '0;
+    assign readback_array[3][11:11] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.CC3DE.value : '0;
+    assign readback_array[3][12:12] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.CC4DE.value : '0;
+    assign readback_array[3][13:13] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[3][14:14] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? field_storage.TIM_DIER1.TDE.value : '0;
+    assign readback_array[3][15:15] = (decoded_reg_strb.TIM_DIER1 && !decoded_req_is_wr) ? 1'h0 : '0;
     assign readback_array[3][31:16] = '0;
-    assign readback_array[4][0:0] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.UIF.value : '0;
-    assign readback_array[4][1:1] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.CC1IF.value : '0;
-    assign readback_array[4][2:2] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.CC2IF.value : '0;
-    assign readback_array[4][3:3] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.CC3IF.value : '0;
-    assign readback_array[4][4:4] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.CC4IF.value : '0;
-    assign readback_array[4][5:5] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? 1'h0 : '0;
-    assign readback_array[4][6:6] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.TIF.value : '0;
-    assign readback_array[4][8:7] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? 2'h0 : '0;
-    assign readback_array[4][9:9] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.CC1OF.value : '0;
-    assign readback_array[4][10:10] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.CC2OF.value : '0;
-    assign readback_array[4][11:11] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.CC3OF.value : '0;
-    assign readback_array[4][12:12] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? field_storage.TIM_SR.CC4OF.value : '0;
-    assign readback_array[4][15:13] = (decoded_reg_strb.TIM_SR && !decoded_req_is_wr) ? 3'h0 : '0;
+    assign readback_array[4][0:0] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.UIF.value : '0;
+    assign readback_array[4][1:1] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.CC1IF.value : '0;
+    assign readback_array[4][2:2] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.CC2IF.value : '0;
+    assign readback_array[4][3:3] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.CC3IF.value : '0;
+    assign readback_array[4][4:4] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.CC4IF.value : '0;
+    assign readback_array[4][5:5] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[4][6:6] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.TIF.value : '0;
+    assign readback_array[4][8:7] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? 2'h0 : '0;
+    assign readback_array[4][9:9] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.CC1OF.value : '0;
+    assign readback_array[4][10:10] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.CC2OF.value : '0;
+    assign readback_array[4][11:11] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.CC3OF.value : '0;
+    assign readback_array[4][12:12] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? field_storage.TIM_SR1.CC4OF.value : '0;
+    assign readback_array[4][15:13] = (decoded_reg_strb.TIM_SR1 && !decoded_req_is_wr) ? 3'h0 : '0;
     assign readback_array[4][31:16] = '0;
-    assign readback_array[5][0:0] = (decoded_reg_strb.TIM_EGR && !decoded_req_is_wr) ? field_storage.TIM_EGR.UG.value : '0;
-    assign readback_array[5][1:1] = (decoded_reg_strb.TIM_EGR && !decoded_req_is_wr) ? field_storage.TIM_EGR.CC1G.value : '0;
-    assign readback_array[5][2:2] = (decoded_reg_strb.TIM_EGR && !decoded_req_is_wr) ? field_storage.TIM_EGR.CC2G.value : '0;
-    assign readback_array[5][3:3] = (decoded_reg_strb.TIM_EGR && !decoded_req_is_wr) ? field_storage.TIM_EGR.CC3G.value : '0;
-    assign readback_array[5][4:4] = (decoded_reg_strb.TIM_EGR && !decoded_req_is_wr) ? field_storage.TIM_EGR.CC4G.value : '0;
-    assign readback_array[5][5:5] = (decoded_reg_strb.TIM_EGR && !decoded_req_is_wr) ? 1'h0 : '0;
-    assign readback_array[5][6:6] = (decoded_reg_strb.TIM_EGR && !decoded_req_is_wr) ? field_storage.TIM_EGR.TG.value : '0;
-    assign readback_array[5][15:7] = (decoded_reg_strb.TIM_EGR && !decoded_req_is_wr) ? 9'h0 : '0;
+    assign readback_array[5][0:0] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC1E.value : '0;
+    assign readback_array[5][1:1] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC1P.value : '0;
+    assign readback_array[5][2:2] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[5][3:3] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC1NP.value : '0;
+    assign readback_array[5][4:4] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC2E.value : '0;
+    assign readback_array[5][5:5] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC2P.value : '0;
+    assign readback_array[5][6:6] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[5][7:7] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC2NP.value : '0;
+    assign readback_array[5][8:8] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC3E.value : '0;
+    assign readback_array[5][9:9] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC3P.value : '0;
+    assign readback_array[5][10:10] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[5][11:11] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC3NP.value : '0;
+    assign readback_array[5][12:12] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC4E.value : '0;
+    assign readback_array[5][13:13] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC4P.value : '0;
+    assign readback_array[5][14:14] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[5][15:15] = (decoded_reg_strb.TIM_CCER1 && !decoded_req_is_wr) ? field_storage.TIM_CCER1.CC4NP.value : '0;
     assign readback_array[5][31:16] = '0;
-    assign readback_array[6][0:0] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC1E.value : '0;
-    assign readback_array[6][1:1] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC1P.value : '0;
-    assign readback_array[6][2:2] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? 1'h0 : '0;
-    assign readback_array[6][3:3] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC1NP.value : '0;
-    assign readback_array[6][4:4] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC2E.value : '0;
-    assign readback_array[6][5:5] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC2P.value : '0;
-    assign readback_array[6][6:6] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? 1'h0 : '0;
-    assign readback_array[6][7:7] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC2NP.value : '0;
-    assign readback_array[6][8:8] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC3E.value : '0;
-    assign readback_array[6][9:9] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC3P.value : '0;
-    assign readback_array[6][10:10] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? 1'h0 : '0;
-    assign readback_array[6][11:11] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC3NP.value : '0;
-    assign readback_array[6][12:12] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC4E.value : '0;
-    assign readback_array[6][13:13] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC4P.value : '0;
-    assign readback_array[6][14:14] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? 1'h0 : '0;
-    assign readback_array[6][15:15] = (decoded_reg_strb.TIM_CCER && !decoded_req_is_wr) ? field_storage.TIM_CCER.CC4NP.value : '0;
+    assign readback_array[6][0:0] = (decoded_reg_strb.TIM_EGR1 && !decoded_req_is_wr) ? field_storage.TIM_EGR1.UG.value : '0;
+    assign readback_array[6][1:1] = (decoded_reg_strb.TIM_EGR1 && !decoded_req_is_wr) ? field_storage.TIM_EGR1.CC1G.value : '0;
+    assign readback_array[6][2:2] = (decoded_reg_strb.TIM_EGR1 && !decoded_req_is_wr) ? field_storage.TIM_EGR1.CC2G.value : '0;
+    assign readback_array[6][3:3] = (decoded_reg_strb.TIM_EGR1 && !decoded_req_is_wr) ? field_storage.TIM_EGR1.CC3G.value : '0;
+    assign readback_array[6][4:4] = (decoded_reg_strb.TIM_EGR1 && !decoded_req_is_wr) ? field_storage.TIM_EGR1.CC4G.value : '0;
+    assign readback_array[6][5:5] = (decoded_reg_strb.TIM_EGR1 && !decoded_req_is_wr) ? 1'h0 : '0;
+    assign readback_array[6][6:6] = (decoded_reg_strb.TIM_EGR1 && !decoded_req_is_wr) ? field_storage.TIM_EGR1.TG.value : '0;
+    assign readback_array[6][15:7] = (decoded_reg_strb.TIM_EGR1 && !decoded_req_is_wr) ? 9'h0 : '0;
     assign readback_array[6][31:16] = '0;
     assign readback_array[7][31:0] = (decoded_reg_strb.TIM_CNT && !decoded_req_is_wr) ? field_storage.TIM_CNT.CNT.value : '0;
     assign readback_array[8][31:0] = (decoded_reg_strb.TIM_PSC && !decoded_req_is_wr) ? field_storage.TIM_PSC.PSC.value : '0;

@@ -4,12 +4,16 @@
 package CSR_GPT_pkg;
 
     localparam CSR_GPT_DATA_WIDTH = 32;
-    localparam CSR_GPT_MIN_ADDR_WIDTH = 7;
-    localparam CSR_GPT_SIZE = 'h44;
+    localparam CSR_GPT_MIN_ADDR_WIDTH = 6;
+    localparam CSR_GPT_SIZE = 'h40;
 
     typedef struct {
         logic next;
     } TIM_CR1__CEN__in_t;
+
+    typedef struct {
+        logic next;
+    } TIM_CR1__UDIS__in_t;
 
     typedef struct {
         logic [1:0] next;
@@ -17,6 +21,7 @@ package CSR_GPT_pkg;
 
     typedef struct {
         TIM_CR1__CEN__in_t CEN;
+        TIM_CR1__UDIS__in_t UDIS;
         TIM_CR1__CMS__in_t CMS;
     } TIM_CR1__in_t;
 
@@ -138,39 +143,6 @@ package CSR_GPT_pkg;
 
     typedef struct {
         logic next;
-    } TIM_EGR__UG__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_EGR__CC1G__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_EGR__CC2G__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_EGR__CC3G__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_EGR__CC4G__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_EGR__TG__in_t;
-
-    typedef struct {
-        TIM_EGR__UG__in_t UG;
-        TIM_EGR__CC1G__in_t CC1G;
-        TIM_EGR__CC2G__in_t CC2G;
-        TIM_EGR__CC3G__in_t CC3G;
-        TIM_EGR__CC4G__in_t CC4G;
-        TIM_EGR__TG__in_t TG;
-    } TIM_EGR__in_t;
-
-    typedef struct {
-        logic next;
     } TIM_CCER__CC1E__in_t;
 
     typedef struct {
@@ -231,6 +203,39 @@ package CSR_GPT_pkg;
         TIM_CCER__CC4P__in_t CC4P;
         TIM_CCER__CC4NP__in_t CC4NP;
     } TIM_CCER__in_t;
+
+    typedef struct {
+        logic next;
+    } TIM_EGR__UG__in_t;
+
+    typedef struct {
+        logic next;
+    } TIM_EGR__CC1G__in_t;
+
+    typedef struct {
+        logic next;
+    } TIM_EGR__CC2G__in_t;
+
+    typedef struct {
+        logic next;
+    } TIM_EGR__CC3G__in_t;
+
+    typedef struct {
+        logic next;
+    } TIM_EGR__CC4G__in_t;
+
+    typedef struct {
+        logic next;
+    } TIM_EGR__TG__in_t;
+
+    typedef struct {
+        TIM_EGR__UG__in_t UG;
+        TIM_EGR__CC1G__in_t CC1G;
+        TIM_EGR__CC2G__in_t CC2G;
+        TIM_EGR__CC3G__in_t CC3G;
+        TIM_EGR__CC4G__in_t CC4G;
+        TIM_EGR__TG__in_t TG;
+    } TIM_EGR__in_t;
 
     typedef struct {
         logic [31:0] next;
@@ -319,10 +324,10 @@ package CSR_GPT_pkg;
 
     typedef struct {
         TIM_CR1__in_t TIM_CR1;
-        TIM_DIER__in_t TIM_DIER;
-        TIM_SR__in_t TIM_SR;
-        TIM_EGR__in_t TIM_EGR;
-        TIM_CCER__in_t TIM_CCER;
+        TIM_DIER__in_t TIM_DIER1;
+        TIM_SR__in_t TIM_SR1;
+        TIM_CCER__in_t TIM_CCER1;
+        TIM_EGR__in_t TIM_EGR1;
         TIM_CNT__in_t TIM_CNT;
         TIM_PSC__in_t TIM_PSC;
         TIM_ARR__in_t TIM_ARR;
@@ -337,6 +342,10 @@ package CSR_GPT_pkg;
     typedef struct {
         logic value;
     } TIM_CR1__CEN__out_t;
+
+    typedef struct {
+        logic value;
+    } TIM_CR1__UDIS__out_t;
 
     typedef struct {
         logic value;
@@ -368,6 +377,7 @@ package CSR_GPT_pkg;
 
     typedef struct {
         TIM_CR1__CEN__out_t CEN;
+        TIM_CR1__UDIS__out_t UDIS;
         TIM_CR1__URS__out_t URS;
         TIM_CR1__OPM__out_t OPM;
         TIM_CR1__DIR__out_t DIR;
@@ -601,49 +611,6 @@ package CSR_GPT_pkg;
 
     typedef struct {
         logic value;
-    } TIM_EGR__UG__out_t;
-
-    typedef struct {
-        logic value;
-    } TIM_EGR__CC1G__out_t;
-
-    typedef struct {
-        logic value;
-    } TIM_EGR__CC2G__out_t;
-
-    typedef struct {
-        logic value;
-    } TIM_EGR__CC3G__out_t;
-
-    typedef struct {
-        logic value;
-    } TIM_EGR__CC4G__out_t;
-
-    typedef struct {
-        logic value;
-    } TIM_EGR__reserved_5__out_t;
-
-    typedef struct {
-        logic value;
-    } TIM_EGR__TG__out_t;
-
-    typedef struct {
-        logic [8:0] value;
-    } TIM_EGR__reserved_15_7__out_t;
-
-    typedef struct {
-        TIM_EGR__UG__out_t UG;
-        TIM_EGR__CC1G__out_t CC1G;
-        TIM_EGR__CC2G__out_t CC2G;
-        TIM_EGR__CC3G__out_t CC3G;
-        TIM_EGR__CC4G__out_t CC4G;
-        TIM_EGR__reserved_5__out_t reserved_5;
-        TIM_EGR__TG__out_t TG;
-        TIM_EGR__reserved_15_7__out_t reserved_15_7;
-    } TIM_EGR__out_t;
-
-    typedef struct {
-        logic value;
     } TIM_CCER__CC1E__out_t;
 
     typedef struct {
@@ -724,6 +691,49 @@ package CSR_GPT_pkg;
         TIM_CCER__reserved_14__out_t reserved_14;
         TIM_CCER__CC4NP__out_t CC4NP;
     } TIM_CCER__out_t;
+
+    typedef struct {
+        logic value;
+    } TIM_EGR__UG__out_t;
+
+    typedef struct {
+        logic value;
+    } TIM_EGR__CC1G__out_t;
+
+    typedef struct {
+        logic value;
+    } TIM_EGR__CC2G__out_t;
+
+    typedef struct {
+        logic value;
+    } TIM_EGR__CC3G__out_t;
+
+    typedef struct {
+        logic value;
+    } TIM_EGR__CC4G__out_t;
+
+    typedef struct {
+        logic value;
+    } TIM_EGR__reserved_5__out_t;
+
+    typedef struct {
+        logic value;
+    } TIM_EGR__TG__out_t;
+
+    typedef struct {
+        logic [8:0] value;
+    } TIM_EGR__reserved_15_7__out_t;
+
+    typedef struct {
+        TIM_EGR__UG__out_t UG;
+        TIM_EGR__CC1G__out_t CC1G;
+        TIM_EGR__CC2G__out_t CC2G;
+        TIM_EGR__CC3G__out_t CC3G;
+        TIM_EGR__CC4G__out_t CC4G;
+        TIM_EGR__reserved_5__out_t reserved_5;
+        TIM_EGR__TG__out_t TG;
+        TIM_EGR__reserved_15_7__out_t reserved_15_7;
+    } TIM_EGR__out_t;
 
     typedef struct {
         logic [31:0] value;
@@ -814,10 +824,10 @@ package CSR_GPT_pkg;
         TIM_CR1__out_t TIM_CR1;
         TIM_CR2__out_t TIM_CR2;
         TIM_SMCR__out_t TIM_SMCR;
-        TIM_DIER__out_t TIM_DIER;
-        TIM_SR__out_t TIM_SR;
-        TIM_EGR__out_t TIM_EGR;
-        TIM_CCER__out_t TIM_CCER;
+        TIM_DIER__out_t TIM_DIER1;
+        TIM_SR__out_t TIM_SR1;
+        TIM_CCER__out_t TIM_CCER1;
+        TIM_EGR__out_t TIM_EGR1;
         TIM_CNT__out_t TIM_CNT;
         TIM_PSC__out_t TIM_PSC;
         TIM_ARR__out_t TIM_ARR;
