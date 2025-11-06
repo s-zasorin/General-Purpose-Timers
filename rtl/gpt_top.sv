@@ -8,18 +8,17 @@ module gpt_top
 (
   input  logic                      aclk_i   ,
   input  logic                      aresetn_i,
-
-  input  logic                      etr_i,
-  input  logic [CH_PAIRS_NUM - 1:0] ch_i ,
-  output logic                      trg_o,    
-  output logic [CH_PAIRS_NUM - 1:0] ch_o ,
+  input  logic [3:0]                itr_i    ,
+  input  logic                      etr_i    ,
+  input  logic [CH_PAIRS_NUM - 1:0] ch_i     ,
+  output logic                      trg_o    ,    
+  output logic [CH_PAIRS_NUM - 1:0] ch_o     ,
 );
 
   logic [2 * CH_PAIRS_NUM - 1:0] internal_triggers;
   logic                          trigger          ;
   logic                          ti1f_ed          ;
   logic                          trc              ;
-  logic                          itr              ;
   logic                          etrf             ;
   logic                          etrp             ;
   logic                          clk_psc          ;  // clock prescaler
@@ -1359,27 +1358,33 @@ logic [1:0] ccxs          [5:0];
   logic       ti2fp2        ;
   logic       ti1fp1        ;
   logic       oc_ref_mms    ;
-  logic [2:0] time_base_mode;
+
+
+  logic sm_reset ;
+  logic sm_enable;
+  logic sm_trig  ;
 
   trigger_controller trig_inst 
   (
-    .clk_i    (aclk_i           ),
-    .aresetn_i(aresetn_i        ),
-    .itr_i    (internal_triggers),
-    .ckd_i    (ckd              ),
-    .etp_i    (etp              ),
-    .sms_i    (sms              ),
-    .etps_i   (etps             ),
-    .ts_i     (ts               ),
-    .etf_i    (etf              ),
-    .ece_i    (ece              ),
-    .ti2fp2_i (ti2fp2           ),
-    .ti1fp1_i (ti1fp1           ),
-    .ti1_ed_i (ti1f_ed          ),
-    .etr_i    (etr_i            ),
-    .mode_o   (time_base_mode   ),
-    .trg_o    (trg_o            ),
-    .clk_psc_o(clk_psc          )
+    .clk_i      (aclk_i           ),
+    .aresetn_i  (aresetn_i        ),
+    .itr_i      (itr_i            ),
+    .ckd_i      (ckd              ),
+    .etp_i      (etp              ),
+    .sms_i      (sms              ),
+    .etps_i     (etps             ),
+    .ts_i       (ts               ),
+    .etf_i      (etf              ),
+    .ece_i      (ece              ),
+    .ti2fp2_i   (ti2fp2           ),
+    .ti1fp1_i   (ti1fp1           ),
+    .ti1_ed_i   (ti1f_ed          ),
+    .etr_i      (etr_i            ),
+    .sm_reset_o (sm_reset         ),
+    .sm_enable_o(sm_enable        ),
+    .sm_trig_o  (sm_trig          ),
+    .trg_o      (trg_o            ),
+    .clk_psc_o  (clk_psc          )
   );
 
   prescaler #(.PSC_WIDTH(PSC_WIDTH))
@@ -1400,7 +1405,6 @@ logic [1:0] ccxs          [5:0];
     .aresetn_i(aresetn_i     ),
     .cen_i    (cen           ),
     .apre_i   (apre          ),
-    .mode_i   (time_base_mode),
     .dir_i    (dir           ),
     .arr_i    (arr           ),
     .psc_i    (psc           ),

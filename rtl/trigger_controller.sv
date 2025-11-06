@@ -1,20 +1,25 @@
 module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
-  input  logic                          clk_i     ,
-  input  logic                          aresetn_i ,
-  input  logic [3:0]                    itr_i     ,
-  input  logic [1:0]                    ckd_i     ,
-  input  logic                          etp_i     ,
-  input  logic [2:0]                    sms_i     ,
-  input  logic                          etps_i    ,
-  input  logic [2:0]                    ts_i      ,
-  input  logic [3:0]                    etf_i     ,
-  input  logic                          ece_i     ,
-  input  logic                          ti2fp2_i  ,
-  input  logic                          ti1fp1_i  ,
-  input  logic                          ti1_ed_i  ,
-  input  logic                          etr_i     ,
+  input  logic                          clk_i         ,
+  input  logic                          aresetn_i     ,
+  input  logic [3:0]                    itr_i         ,
+  input  logic [1:0]                    ckd_i         ,
+  input  logic                          etp_i         ,
+  input  logic [2:0]                    sms_i         ,
+  input  logic [2:0]                    mms_i         ,
+  input  logic                          etps_i        ,
+  input  logic [2:0]                    ts_i          ,
+  input  logic [3:0]                    etf_i         ,
+  input  logic                          ug_i          ,
+  input  logic                          ece_i         ,
+  input  logic                          ti2fp2_i      ,
+  input  logic                          ti1fp1_i      ,
+  input  logic                          ti1_ed_i      ,
+  input  logic                          etr_i         ,
 
-  output logic                          trg_o     ,
+  output logic                          sm_reset_o    ,
+  output logic                          sm_gate_o     ,
+  output logic                          sm_trig_o     ,
+  output logic                          trg_o         ,
   output logic                          time_base_mode,
   output logic                          clk_psc_o
 );
@@ -79,28 +84,34 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   );
 
   always_comb begin
-    time_base_mode = 3'b0;
+    sm_gate_o    = 1'b0;
+    sm_reset_o     = 1'b0;
+    sm_trig_o      = 1'b0;
     clk_psc_o      = 1'b0;
     case (sms_i)
-      3'b000: begin 
-        clk_psc_o = clk_i;
-        time_base_mode = 3'b000;
+      3'b000: begin                   // Режим внутреннего тактирования
+        clk_psc_o = clk_i      ;
       end
-      3'b001: clk_psc_o = enc_clk_1d2;
-      3'b010: clk_psc_o = enc_clk_2d1;
-      3'b100: begin
-        clk_psc_o = trgi;
-        time_base_mode = 3'b011
+      3'b001: clk_psc_o = enc_clk_1d2; // Режим энкодера №1
+      3'b010: clk_psc_o = enc_clk_2d1; // Режим энкодера №2
+      3'b100: begin                    // Режим сброса
+        clk_psc_o  = clk_i;
+        sm_reset_o = trgi ;
       end
-      3'b101: begin
-        clk_psc_o  = trgi;
-        gate_cnt_o = 1'b1;
+      3'b101: begin                   // Режим стробирования
+        clk_psc_o   = clk_i;
+        sm_gate_o = trgi ;
       end
-      3'b110: begin
-        clk_psc_o  = trgi;
-        trig_cnt_o = 1'b1;
+      3'b110: begin                   // Режим триггера
+        clk_psc_o  = clk_i;
+        sm_trig_o  = 1'b1 ;
       end
       3'b111: clk_psc_o = trgi;
+    endcase
+  end
+
+  always_comb begin
+    case (mms_i)
     endcase
   end
 
