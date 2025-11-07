@@ -10,6 +10,8 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   input  logic [2:0]                    ts_i          ,
   input  logic [3:0]                    etf_i         ,
   input  logic                          ug_i          ,
+  input  logic                          uev_i         ,
+  input  logic                          cnt_en_i      ,
   input  logic                          ece_i         ,
   input  logic                          ti2fp2_i      ,
   input  logic                          ti1fp1_i      ,
@@ -19,6 +21,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   output logic                          sm_reset_o    ,
   output logic                          sm_gate_o     ,
   output logic                          sm_trig_o     ,
+  output logic                          trc_o         ,
   output logic                          trg_o         ,
   output logic                          time_base_mode,
   output logic                          clk_psc_o
@@ -56,13 +59,21 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
     .af_o     (etrpdf   )
   );
 
-  logic trgi;
+  logic trgi   ;
+  
+  always_comb begin
+    case (ts)
+      3'b000 : trc_o = itr_i[0];
+      3'b001 : trc_o = itr_i[1];
+      3'b010 : trc_o = itr_i[2];
+      3'b011 : trc_o = itr_i[3];
+      default: trc_o = 1'b0    ;
+    endcase
+  end
+
   always_comb begin
     case (ts_i)
-      3'b000:  trgi = itr_i[0];
-      3'b001:  trgi = itr_i[1];
-      3'b010:  trgi = itr_i[2];
-      3'b011:  trgi = itr_i[3];
+      3'b0xx:  trgi = trc_o   ;
       3'b100:  trgi = ti1_ed_i;
       3'b101:  trgi = ti1fp1_i;
       3'b110:  trgi = ti2fp2_i;
@@ -112,6 +123,11 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
 
   always_comb begin
     case (mms_i)
+      2'b00:   trg_o = ug_i    ;
+      2'b01:   trg_o = cnt_en_i;
+      2'b10:   trg_o = uev_i   ;
+      2'b11:   trg_o = ccxif_i ;
+      default: trg_o = 1'b0    ;
     endcase
   end
 

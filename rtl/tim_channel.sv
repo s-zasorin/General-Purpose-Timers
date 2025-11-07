@@ -133,7 +133,7 @@ assign cnt_more_than_ccr = (cnt_i > shadow_reg_ccr) ;
 
 output_control i_control_out
 (
-  .clk_i              (),
+  .clk_i              (clk_i            ),
   .aresetn_i          (aresetn_i        ),
   .cnt_equal_ccr_i    (cnt_equal_ccr    ),
   .dir_i              (dir_i            ),

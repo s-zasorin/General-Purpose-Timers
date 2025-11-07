@@ -15,9 +15,11 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   input  logic [1:0]             cms_i      ,   // Выбор режима счета вверх/вниз
   input  logic                   udis_i     ,   // Запрет на генерацию Update Event (UEV)
   input  logic                   ug_i       ,   // Программное выставление сигнала UEV
+  input  logic                   opm_i      ,   // Остановка после генерации UEV (Генерация строба)
 
   output logic                   uif_o     ,
   output logic                   tif_o     ,
+  output logic                   cnt_en_o  ,
   output logic                   uev_o     ,
   output logic [CNT_WIDTH - 1:0] cnt_o
 );
@@ -47,7 +49,8 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
     enable_preload_arr <= apre_i;
 
   always_ff @(posedge clk_i)
-    cnt_en_ff <= cen_i;
+    if (state_ff == CNT_UP || CNT_DOWN)
+      cnt_en_ff <= cen_i;
 
 // Preload ARR
 
