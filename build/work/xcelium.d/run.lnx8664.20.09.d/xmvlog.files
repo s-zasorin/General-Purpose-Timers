@@ -1,0 +1,22 @@
+//
+// File created by:  xrun
+// Do not modify this file
+//
+/home/Stepan/General-Purpose-Timers/rtl/digital_filter.sv
+/home/Stepan/General-Purpose-Timers/rtl/divider_output.sv
+/home/Stepan/General-Purpose-Timers/rtl/divider_trigger.sv
+/home/Stepan/General-Purpose-Timers/rtl/edge_detector.sv
+/home/Stepan/General-Purpose-Timers/rtl/encoder_mode.sv
+/home/Stepan/General-Purpose-Timers/rtl/encoder_mode.sv
+/home/Stepan/General-Purpose-Timers/rtl/fdts_generator.sv
+/home/Stepan/General-Purpose-Timers/rtl/gpt_top.sv
+/home/Stepan/General-Purpose-Timers/rtl/output_control.sv
+/home/Stepan/General-Purpose-Timers/rtl/prescaler.sv
+/home/Stepan/General-Purpose-Timers/rtl/sync_cell.sv
+/home/Stepan/General-Purpose-Timers/rtl/tim_channel.sv
+/home/Stepan/General-Purpose-Timers/rtl/time_base_unit.sv
+/home/Stepan/General-Purpose-Timers/rtl/trigger_controller.sv
+/home/Stepan/General-Purpose-Timers/rtl/regblock/axi_lite_if.sv
+/home/Stepan/General-Purpose-Timers/rtl/regblock/CSR_GPT_pkg.sv
+/home/Stepan/General-Purpose-Timers/rtl/regblock/CSR_GPT.sv
+/home/Stepan/General-Purpose-Timers/tb/tb_gpt.sv

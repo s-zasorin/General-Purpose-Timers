@@ -1,0 +1,106 @@
+xrun(64): 20.09-s011: (c) Copyright 1995-2021 Cadence Design Systems, Inc.
+TOOL:	xrun(64)	20.09-s011: Started on Nov 09, 2025 at 13:10:51 MSK
+xrun
+	-elaborate
+	-elabonly
+	-64bit
+	-top tb_gpt
+	-snapshot tb_gpt_opt
+	-xmlibdirpath /home/Stepan/General-Purpose-Timers/build/work
+	-access +rwc
+	-l /home/Stepan/General-Purpose-Timers/build/opt.log
+	Elaborating the design hierarchy:
+		Caching library 'worklib' ....... Done
+	Top level design units:
+		CSR_GPT_pkg
+		tb_gpt
+xmelab: *W,DSEMEL: This SystemVerilog design will be simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
+    gpt_hwif_in.TIM_CR1.DIR.next = 1'b0;
+                               |
+xmelab: *E,CUVUNF (../tb/tb_gpt.sv,54|31): Hierarchical name component lookup failed for 'DIR' at 'tb_gpt'.
+  assign ti1s = gpt_hwif_out.TIM_CR2.value     ;
+                                         |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,54|41): Hierarchical name component lookup failed for 'value' at 'tb_gpt.DUT'.
+  assign ug = gpt_hwif_out.TIM_EGR.UG.value;
+                                          |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,63|42): Hierarchical name component lookup failed for 'TIM_EGR' at 'tb_gpt.DUT'.
+  assign tg = gpt_hwif_out.TIM_EGR.TG.value;
+                                          |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,64|42): Hierarchical name component lookup failed for 'TIM_EGR' at 'tb_gpt.DUT'.
+  assign uie      = gpt_hwif_out.TIM_DIER.UIE.value;
+                                                  |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1081|50): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+  assign tie      = gpt_hwif_out.TIM_DIER.TIE.value;
+                                                  |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1082|50): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+  assign ude      = gpt_hwif_out.TIM_DIER.UDE.value;
+                                                  |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1083|50): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+  assign tde      = gpt_hwif_out.TIM_DIER.TDE.value;
+                                                  |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1084|50): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+  assign gpt_hwif_in.TIM_SR.UIF.next = uif;
+                                   |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1263|35): Hierarchical name component lookup failed for 'TIM_SR' at 'tb_gpt.DUT'.
+  assign gpt_hwif_in.TIM_SR.TIF.next = tif;
+                                   |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1264|35): Hierarchical name component lookup failed for 'TIM_SR' at 'tb_gpt.DUT'.
+  assign arr = gpt_hwif_out.TIM_ARR.value;
+                                        |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1441|40): Hierarchical name component lookup failed for 'value' at 'tb_gpt.DUT'.
+  assign psc = gpt_hwif_out.TIM_PSC.value;
+                                        |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1445|40): Hierarchical name component lookup failed for 'value' at 'tb_gpt.DUT'.
+  assign cnt = gpt_hwif_out.TIM_CNT.value;
+                                        |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1449|40): Hierarchical name component lookup failed for 'value' at 'tb_gpt.DUT'.
+      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.value;
+                                                    |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,164|52): Hierarchical name component lookup failed for 'value' at 'tb_gpt.DUT'.
+      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.value; 
+                                                    |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,165|52): Hierarchical name component lookup failed for 'value' at 'tb_gpt.DUT'.
+      assign ccr_reg[2] = gpt_hwif_out.TIM_CCR3.value;
+                                                    |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,166|52): Hierarchical name component lookup failed for 'value' at 'tb_gpt.DUT'.
+      assign ccr_reg[3] = gpt_hwif_out.TIM_CCR4.value;
+                                                    |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,167|52): Hierarchical name component lookup failed for 'value' at 'tb_gpt.DUT'.
+      assign gpt_hwif_in.TIM_CCR1.next = ccr_to_regblock[0];
+                                     |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,257|37): Hierarchical name component lookup failed for 'next' at 'tb_gpt.DUT'.
+      assign gpt_hwif_in.TIM_CCR2.next = ccr_to_regblock[1];
+                                     |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,258|37): Hierarchical name component lookup failed for 'next' at 'tb_gpt.DUT'.
+      assign gpt_hwif_in.TIM_CCR3.next = ccr_to_regblock[2];
+                                     |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,259|37): Hierarchical name component lookup failed for 'next' at 'tb_gpt.DUT'.
+      assign gpt_hwif_in.TIM_CCR4.next = ccr_to_regblock[3];
+                                     |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,260|37): Hierarchical name component lookup failed for 'next' at 'tb_gpt.DUT'.
+      assign ccxie[0] = gpt_hwif_out.TIM_DIER.CC1E.value ;
+                                                       |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1095|55): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+      assign ccxie[1] = gpt_hwif_out.TIM_DIER.CC2E.value ;
+                                                       |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1096|55): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+      assign ccxie[2] = gpt_hwif_out.TIM_DIER.CC3E.value ;
+                                                       |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1097|55): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+      assign ccxie[3] = gpt_hwif_out.TIM_DIER.CC4E.value ;
+                                                       |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1098|55): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+      assign ccxde[0] = gpt_hwif_out.TIM_DIER.CC1DE.value;
+                                                        |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1100|56): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+      assign ccxde[1] = gpt_hwif_out.TIM_DIER.CC2DE.value;
+                                                        |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1101|56): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+      assign ccxde[2] = gpt_hwif_out.TIM_DIER.CC3DE.value;
+                                                        |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1102|56): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+      assign ccxde[3] = gpt_hwif_out.TIM_DIER.CC4DE.value;
+                                                        |
+xmelab: *E,CUVUNF (../rtl/gpt_top.sv,1103|56): Hierarchical name component lookup failed for 'TIM_DIER' at 'tb_gpt.DUT'.
+xrun: *E,ELBERR: Error during elaboration (status 1), exiting.
+TOOL:	xrun(64)	20.09-s011: Exiting on Nov 09, 2025 at 13:10:52 MSK  (total: 00:00:01)
