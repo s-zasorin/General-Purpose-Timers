@@ -1,8 +1,8 @@
 module digital_filter (
-  input       logic clk_i    ,
-  input       logic a_i      ,
-  input       logic aresetn_i,
-  input [3:0] logic f_coef_i ,
+  input logic       clk_i    ,
+  input logic       a_i      ,
+  input logic       aresetn_i,
+  input logic [3:0] f_coef_i ,
 
   output      logic af_o
 );
@@ -14,7 +14,7 @@ module digital_filter (
     if (~aresetn_i)
       cnt_in <= 'b0;
     else if (cnt_in == f_coef_i)
-      cnt_in <= 'b0
+      cnt_in <= 'b0;
     else if (a_i)
       cnt_in <= cnt_in + 'b1;
 

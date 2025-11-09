@@ -20,7 +20,7 @@ module divider_output (
     endcase
   end
 
-  always_ff @(posedge clk or negedge aresetn_i)
+  always_ff @(posedge clk_i or negedge aresetn_i)
     if (~aresetn_i)
       div_cnt <= 4'b0;
     else if (div_cnt == div_value)
