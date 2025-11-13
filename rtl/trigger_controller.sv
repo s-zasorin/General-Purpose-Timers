@@ -6,7 +6,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   input  logic                          etp_i         ,
   input  logic [2:0]                    sms_i         ,
   input  logic [2:0]                    mms_i         ,
-  input  logic                          etps_i        ,
+  input  logic [1:0]                    etps_i        ,
   input  logic [2:0]                    ts_i          ,
   input  logic [3:0]                    etf_i         ,
   input  logic                          ug_i          ,

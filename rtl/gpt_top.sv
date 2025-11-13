@@ -6,13 +6,13 @@ module gpt_top
   parameter CCR_WIDTH    = 32,
   parameter WSTRB_WIDTH  = CSR_WIDTH / 8) 
 (
-  input  logic                      aclk_i   ,
-  input  logic                      aresetn_i,
-  input  logic [3:0]                itr_i    ,
-  input  logic                      etr_i    ,
-  input  logic [CH_PAIRS_NUM - 1:0] ch_i     ,
-  output logic                      trg_o    ,    
-  output logic [CH_PAIRS_NUM - 1:0] ch_o     
+  input  logic                          aclk_i   ,
+  input  logic                          aresetn_i,
+  input  logic [3:0]                    itr_i    ,
+  input  logic                          etr_i    ,
+  input  logic [2 * CH_PAIRS_NUM - 1:0] ch_i     ,
+  output logic                          trg_o    ,    
+  output logic [2 * CH_PAIRS_NUM - 1:0] ch_o     
 );
 
   logic [2 * CH_PAIRS_NUM - 1:0] internal_triggers;
@@ -51,7 +51,7 @@ module gpt_top
   logic [2:0] mms ;
   logic       ccds;
 
-  assign ti1s = gpt_hwif_out.TIM_CR2.value     ;
+  assign ti1s = gpt_hwif_out.TIM_CR2.TI1S.value;
   assign mms  = gpt_hwif_out.TIM_CR2.MMS.value ;
   assign ccds = gpt_hwif_out.TIM_CR2.CCDS.value;
 
@@ -60,8 +60,8 @@ module gpt_top
   logic                          tg  ;
   logic [2 * CH_PAIRS_NUM - 1:0] ccxg;
 
-  assign ug = gpt_hwif_out.TIM_EGR.UG.value;
-  assign tg = gpt_hwif_out.TIM_EGR.TG.value;
+  assign ug = gpt_hwif_out.TIM_EGR1.UG.value;
+  assign tg = gpt_hwif_out.TIM_EGR1.TG.value;
   generate
     if (CH_PAIRS_NUM == 1) begin: one_tim_pair_egr
       assign ccxg[0] = gpt_hwif_out.TIM_EGR1.CC1G.value;
@@ -157,185 +157,185 @@ module gpt_top
   logic [CNT_WIDTH - 1:0] ccr_reg [2 * CH_PAIRS_NUM - 1:0];
   generate
     if (CH_PAIRS_NUM == 1) begin: two_ccr_regs
-      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.value;
-      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.value; 
+      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.CCR.value;
+      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.CCR.value; 
     end     
     else if (CH_PAIRS_NUM == 2) begin: four_ccr_regs
-      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.value;
-      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.value; 
-      assign ccr_reg[2] = gpt_hwif_out.TIM_CCR3.value;
-      assign ccr_reg[3] = gpt_hwif_out.TIM_CCR4.value;
+      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.CCR.value;
+      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.CCR.value; 
+      assign ccr_reg[2] = gpt_hwif_out.TIM_CCR3.CCR.value;
+      assign ccr_reg[3] = gpt_hwif_out.TIM_CCR4.CCR.value;
     end
     else if (CH_PAIRS_NUM == 3) begin: six_ccr_regs
-      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.value;
-      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.value; 
-      assign ccr_reg[2] = gpt_hwif_out.TIM_CCR3.value;
-      assign ccr_reg[3] = gpt_hwif_out.TIM_CCR4.value;   
-      assign ccr_reg[4] = gpt_hwif_out.TIM_CCR5.value;
-      assign ccr_reg[5] = gpt_hwif_out.TIM_CCR6.value;   
+      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.CCR.value;
+      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.CCR.value; 
+      assign ccr_reg[2] = gpt_hwif_out.TIM_CCR3.CCR.value;
+      assign ccr_reg[3] = gpt_hwif_out.TIM_CCR4.CCR.value;   
+      assign ccr_reg[4] = gpt_hwif_out.TIM_CCR5.CCR.value;
+      assign ccr_reg[5] = gpt_hwif_out.TIM_CCR6.CCR.value;   
     end
     else if (CH_PAIRS_NUM == 4) begin: eight_ccr_regs
-      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.value;
-      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.value; 
-      assign ccr_reg[2] = gpt_hwif_out.TIM_CCR3.value;
-      assign ccr_reg[3] = gpt_hwif_out.TIM_CCR4.value;
-      assign ccr_reg[4] = gpt_hwif_out.TIM_CCR5.value;
-      assign ccr_reg[5] = gpt_hwif_out.TIM_CCR6.value; 
-      assign ccr_reg[6] = gpt_hwif_out.TIM_CCR7.value;
-      assign ccr_reg[7] = gpt_hwif_out.TIM_CCR8.value;
+      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.CCR.value;
+      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.CCR.value; 
+      assign ccr_reg[2] = gpt_hwif_out.TIM_CCR3.CCR.value;
+      assign ccr_reg[3] = gpt_hwif_out.TIM_CCR4.CCR.value;
+      assign ccr_reg[4] = gpt_hwif_out.TIM_CCR5.CCR.value;
+      assign ccr_reg[5] = gpt_hwif_out.TIM_CCR6.CCR.value; 
+      assign ccr_reg[6] = gpt_hwif_out.TIM_CCR7.CCR.value;
+      assign ccr_reg[7] = gpt_hwif_out.TIM_CCR8.CCR.value;
     end
     else if (CH_PAIRS_NUM == 5) begin: ten_ccr_regs
-      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.value;
-      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.value; 
-      assign ccr_reg[2] = gpt_hwif_out.TIM_CCR3.value;
-      assign ccr_reg[3] = gpt_hwif_out.TIM_CCR4.value;
-      assign ccr_reg[4] = gpt_hwif_out.TIM_CCR5.value;
-      assign ccr_reg[5] = gpt_hwif_out.TIM_CCR6.value; 
-      assign ccr_reg[6] = gpt_hwif_out.TIM_CCR7.value;
-      assign ccr_reg[7] = gpt_hwif_out.TIM_CCR8.value;
-      assign ccr_reg[8] = gpt_hwif_out.TIM_CCR9.value;
-      assign ccr_reg[9] = gpt_hwif_out.TIM_CCR10.value;
+      assign ccr_reg[0] = gpt_hwif_out.TIM_CCR1.CCR.value;
+      assign ccr_reg[1] = gpt_hwif_out.TIM_CCR2.CCR.value; 
+      assign ccr_reg[2] = gpt_hwif_out.TIM_CCR3.CCR.value;
+      assign ccr_reg[3] = gpt_hwif_out.TIM_CCR4.CCR.value;
+      assign ccr_reg[4] = gpt_hwif_out.TIM_CCR5.CCR.value;
+      assign ccr_reg[5] = gpt_hwif_out.TIM_CCR6.CCR.value; 
+      assign ccr_reg[6] = gpt_hwif_out.TIM_CCR7.CCR.value;
+      assign ccr_reg[7] = gpt_hwif_out.TIM_CCR8.CCR.value;
+      assign ccr_reg[8] = gpt_hwif_out.TIM_CCR9.CCR.value;
+      assign ccr_reg[9] = gpt_hwif_out.TIM_CCR10.CCR.value;
     end
     else if (CH_PAIRS_NUM == 6) begin: twelve_ccr_regs
-      assign ccr_reg[0]  = gpt_hwif_out.TIM_CCR1.value;
-      assign ccr_reg[1]  = gpt_hwif_out.TIM_CCR2.value; 
-      assign ccr_reg[2]  = gpt_hwif_out.TIM_CCR3.value;
-      assign ccr_reg[3]  = gpt_hwif_out.TIM_CCR4.value;   
-      assign ccr_reg[4]  = gpt_hwif_out.TIM_CCR5.value;
-      assign ccr_reg[5]  = gpt_hwif_out.TIM_CCR6.value;   
-      assign ccr_reg[6]  = gpt_hwif_out.TIM_CCR7.value;
-      assign ccr_reg[7]  = gpt_hwif_out.TIM_CCR8.value; 
-      assign ccr_reg[8]  = gpt_hwif_out.TIM_CCR9.value;
-      assign ccr_reg[9]  = gpt_hwif_out.TIM_CCR10.value;   
-      assign ccr_reg[10] = gpt_hwif_out.TIM_CCR11.value;
-      assign ccr_reg[11] = gpt_hwif_out.TIM_CCR12.value;  
+      assign ccr_reg[0]  = gpt_hwif_out.TIM_CCR1.CCR.value;
+      assign ccr_reg[1]  = gpt_hwif_out.TIM_CCR2.CCR.value; 
+      assign ccr_reg[2]  = gpt_hwif_out.TIM_CCR3.CCR.value;
+      assign ccr_reg[3]  = gpt_hwif_out.TIM_CCR4.CCR.value;   
+      assign ccr_reg[4]  = gpt_hwif_out.TIM_CCR5.CCR.value;
+      assign ccr_reg[5]  = gpt_hwif_out.TIM_CCR6.CCR.value;   
+      assign ccr_reg[6]  = gpt_hwif_out.TIM_CCR7.CCR.value;
+      assign ccr_reg[7]  = gpt_hwif_out.TIM_CCR8.CCR.value; 
+      assign ccr_reg[8]  = gpt_hwif_out.TIM_CCR9.CCR.value;
+      assign ccr_reg[9]  = gpt_hwif_out.TIM_CCR10.CCR.value;   
+      assign ccr_reg[10] = gpt_hwif_out.TIM_CCR11.CCR.value;
+      assign ccr_reg[11] = gpt_hwif_out.TIM_CCR12.CCR.value;  
     end
     else if (CH_PAIRS_NUM == 7) begin: fourteen_ccr_regs
-      assign ccr_reg[0]  = gpt_hwif_out.TIM_CCR1.value;
-      assign ccr_reg[1]  = gpt_hwif_out.TIM_CCR2.value; 
-      assign ccr_reg[2]  = gpt_hwif_out.TIM_CCR3.value;
-      assign ccr_reg[3]  = gpt_hwif_out.TIM_CCR4.value;   
-      assign ccr_reg[4]  = gpt_hwif_out.TIM_CCR5.value;
-      assign ccr_reg[5]  = gpt_hwif_out.TIM_CCR6.value;   
-      assign ccr_reg[6]  = gpt_hwif_out.TIM_CCR7.value;
-      assign ccr_reg[7]  = gpt_hwif_out.TIM_CCR8.value; 
-      assign ccr_reg[8]  = gpt_hwif_out.TIM_CCR9.value;
-      assign ccr_reg[9]  = gpt_hwif_out.TIM_CCR10.value;   
-      assign ccr_reg[10] = gpt_hwif_out.TIM_CCR11.value;
-      assign ccr_reg[11] = gpt_hwif_out.TIM_CCR12.value;  
-      assign ccr_reg[12] = gpt_hwif_out.TIM_CCR13.value;
-      assign ccr_reg[13] = gpt_hwif_out.TIM_CCR14.value;
+      assign ccr_reg[0]  = gpt_hwif_out.TIM_CCR1.CCR.value;
+      assign ccr_reg[1]  = gpt_hwif_out.TIM_CCR2.CCR.value; 
+      assign ccr_reg[2]  = gpt_hwif_out.TIM_CCR3.CCR.value;
+      assign ccr_reg[3]  = gpt_hwif_out.TIM_CCR4.CCR.value;   
+      assign ccr_reg[4]  = gpt_hwif_out.TIM_CCR5.CCR.value;
+      assign ccr_reg[5]  = gpt_hwif_out.TIM_CCR6.CCR.value;   
+      assign ccr_reg[6]  = gpt_hwif_out.TIM_CCR7.CCR.value;
+      assign ccr_reg[7]  = gpt_hwif_out.TIM_CCR8.CCR.value; 
+      assign ccr_reg[8]  = gpt_hwif_out.TIM_CCR9.CCR.value;
+      assign ccr_reg[9]  = gpt_hwif_out.TIM_CCR10.CCR.value;   
+      assign ccr_reg[10] = gpt_hwif_out.TIM_CCR11.CCR.value;
+      assign ccr_reg[11] = gpt_hwif_out.TIM_CCR12.CCR.value;  
+      assign ccr_reg[12] = gpt_hwif_out.TIM_CCR13.CCR.value;
+      assign ccr_reg[13] = gpt_hwif_out.TIM_CCR14.CCR.value;
     end
     else if (CH_PAIRS_NUM == 8) begin: sixteen_ccr_regs
-      assign ccr_reg[0]  = gpt_hwif_out.TIM_CCR1.value;
-      assign ccr_reg[1]  = gpt_hwif_out.TIM_CCR2.value; 
-      assign ccr_reg[2]  = gpt_hwif_out.TIM_CCR3.value;
-      assign ccr_reg[3]  = gpt_hwif_out.TIM_CCR4.value;   
-      assign ccr_reg[4]  = gpt_hwif_out.TIM_CCR5.value;
-      assign ccr_reg[5]  = gpt_hwif_out.TIM_CCR6.value;   
-      assign ccr_reg[6]  = gpt_hwif_out.TIM_CCR7.value;
-      assign ccr_reg[7]  = gpt_hwif_out.TIM_CCR8.value; 
-      assign ccr_reg[8]  = gpt_hwif_out.TIM_CCR9.value;
-      assign ccr_reg[9]  = gpt_hwif_out.TIM_CCR10.value;   
-      assign ccr_reg[10] = gpt_hwif_out.TIM_CCR11.value;
-      assign ccr_reg[11] = gpt_hwif_out.TIM_CCR12.value;  
-      assign ccr_reg[12] = gpt_hwif_out.TIM_CCR13.value;
-      assign ccr_reg[13] = gpt_hwif_out.TIM_CCR14.value;
-      assign ccr_reg[14] = gpt_hwif_out.TIM_CCR15.value;
-      assign ccr_reg[15] = gpt_hwif_out.TIM_CCR16.value;
+      assign ccr_reg[0]  = gpt_hwif_out.TIM_CCR1.CCR.value;
+      assign ccr_reg[1]  = gpt_hwif_out.TIM_CCR2.CCR.value; 
+      assign ccr_reg[2]  = gpt_hwif_out.TIM_CCR3.CCR.value;
+      assign ccr_reg[3]  = gpt_hwif_out.TIM_CCR4.CCR.value;   
+      assign ccr_reg[4]  = gpt_hwif_out.TIM_CCR5.CCR.value;
+      assign ccr_reg[5]  = gpt_hwif_out.TIM_CCR6.CCR.value;   
+      assign ccr_reg[6]  = gpt_hwif_out.TIM_CCR7.CCR.value;
+      assign ccr_reg[7]  = gpt_hwif_out.TIM_CCR8.CCR.value; 
+      assign ccr_reg[8]  = gpt_hwif_out.TIM_CCR9.CCR.value;
+      assign ccr_reg[9]  = gpt_hwif_out.TIM_CCR10.CCR.value;   
+      assign ccr_reg[10] = gpt_hwif_out.TIM_CCR11.CCR.value;
+      assign ccr_reg[11] = gpt_hwif_out.TIM_CCR12.CCR.value;  
+      assign ccr_reg[12] = gpt_hwif_out.TIM_CCR13.CCR.value;
+      assign ccr_reg[13] = gpt_hwif_out.TIM_CCR14.CCR.value;
+      assign ccr_reg[14] = gpt_hwif_out.TIM_CCR15.CCR.value;
+      assign ccr_reg[15] = gpt_hwif_out.TIM_CCR16.CCR.value;
     end
   endgenerate
 
   // Write into TIM_CCRx
-  logic [2 * CH_PAIRS_NUM - 1:0] ccr_to_regblock;
+  logic [CNT_WIDTH - 1:0] ccr_to_regblock [2 * CH_PAIRS_NUM - 1:0];
   generate
     if (CH_PAIRS_NUM == 1) begin  
-      assign gpt_hwif_in.TIM_CCR1.next = ccr_to_regblock[0];
-      assign gpt_hwif_in.TIM_CCR2.next = ccr_to_regblock[1];
+      assign gpt_hwif_in.TIM_CCR1.CCR.next = ccr_to_regblock[0];
+      assign gpt_hwif_in.TIM_CCR2.CCR.next = ccr_to_regblock[1];
     end
     else if (CH_PAIRS_NUM == 2) begin
-      assign gpt_hwif_in.TIM_CCR1.next = ccr_to_regblock[0];
-      assign gpt_hwif_in.TIM_CCR2.next = ccr_to_regblock[1];
-      assign gpt_hwif_in.TIM_CCR3.next = ccr_to_regblock[2];
-      assign gpt_hwif_in.TIM_CCR4.next = ccr_to_regblock[3];
+      assign gpt_hwif_in.TIM_CCR1.CCR.next = ccr_to_regblock[0];
+      assign gpt_hwif_in.TIM_CCR2.CCR.next = ccr_to_regblock[1];
+      assign gpt_hwif_in.TIM_CCR3.CCR.next = ccr_to_regblock[2];
+      assign gpt_hwif_in.TIM_CCR4.CCR.next = ccr_to_regblock[3];
     end
     else if (CH_PAIRS_NUM == 3) begin
-      assign gpt_hwif_in.TIM_CCR1.next = ccr_to_regblock[0];
-      assign gpt_hwif_in.TIM_CCR2.next = ccr_to_regblock[1];
-      assign gpt_hwif_in.TIM_CCR3.next = ccr_to_regblock[2];
-      assign gpt_hwif_in.TIM_CCR4.next = ccr_to_regblock[3];
-      assign gpt_hwif_in.TIM_CCR5.next = ccr_to_regblock[4];
-      assign gpt_hwif_in.TIM_CCR6.next = ccr_to_regblock[5];
+      assign gpt_hwif_in.TIM_CCR1.CCR.next = ccr_to_regblock[0];
+      assign gpt_hwif_in.TIM_CCR2.CCR.next = ccr_to_regblock[1];
+      assign gpt_hwif_in.TIM_CCR3.CCR.next = ccr_to_regblock[2];
+      assign gpt_hwif_in.TIM_CCR4.CCR.next = ccr_to_regblock[3];
+      assign gpt_hwif_in.TIM_CCR5.CCR.next = ccr_to_regblock[4];
+      assign gpt_hwif_in.TIM_CCR6.CCR.next = ccr_to_regblock[5];
     end
     else if (CH_PAIRS_NUM == 4) begin
-      assign gpt_hwif_in.TIM_CCR1.next = ccr_to_regblock[0];
-      assign gpt_hwif_in.TIM_CCR2.next = ccr_to_regblock[1];
-      assign gpt_hwif_in.TIM_CCR3.next = ccr_to_regblock[2];
-      assign gpt_hwif_in.TIM_CCR4.next = ccr_to_regblock[3];
-      assign gpt_hwif_in.TIM_CCR5.next = ccr_to_regblock[4];
-      assign gpt_hwif_in.TIM_CCR6.next = ccr_to_regblock[5];
-      assign gpt_hwif_in.TIM_CCR7.next = ccr_to_regblock[6];
-      assign gpt_hwif_in.TIM_CCR8.next = ccr_to_regblock[7];
+      assign gpt_hwif_in.TIM_CCR1.CCR.next = ccr_to_regblock[0];
+      assign gpt_hwif_in.TIM_CCR2.CCR.next = ccr_to_regblock[1];
+      assign gpt_hwif_in.TIM_CCR3.CCR.next = ccr_to_regblock[2];
+      assign gpt_hwif_in.TIM_CCR4.CCR.next = ccr_to_regblock[3];
+      assign gpt_hwif_in.TIM_CCR5.CCR.next = ccr_to_regblock[4];
+      assign gpt_hwif_in.TIM_CCR6.CCR.next = ccr_to_regblock[5];
+      assign gpt_hwif_in.TIM_CCR7.CCR.next = ccr_to_regblock[6];
+      assign gpt_hwif_in.TIM_CCR8.CCR.next = ccr_to_regblock[7];
     end
     else if (CH_PAIRS_NUM == 5) begin
-      assign gpt_hwif_in.TIM_CCR1.next  = ccr_to_regblock[0];
-      assign gpt_hwif_in.TIM_CCR2.next  = ccr_to_regblock[1];
-      assign gpt_hwif_in.TIM_CCR3.next  = ccr_to_regblock[2];
-      assign gpt_hwif_in.TIM_CCR4.next  = ccr_to_regblock[3];
-      assign gpt_hwif_in.TIM_CCR5.next  = ccr_to_regblock[4];
-      assign gpt_hwif_in.TIM_CCR6.next  = ccr_to_regblock[5];
-      assign gpt_hwif_in.TIM_CCR7.next  = ccr_to_regblock[6];
-      assign gpt_hwif_in.TIM_CCR8.next  = ccr_to_regblock[7];
-      assign gpt_hwif_in.TIM_CCR9.next  = ccr_to_regblock[8];
-      assign gpt_hwif_in.TIM_CCR10.next = ccr_to_regblock[9];
+      assign gpt_hwif_in.TIM_CCR1.CCR.next  = ccr_to_regblock[0];
+      assign gpt_hwif_in.TIM_CCR2.CCR.next  = ccr_to_regblock[1];
+      assign gpt_hwif_in.TIM_CCR3.CCR.next  = ccr_to_regblock[2];
+      assign gpt_hwif_in.TIM_CCR4.CCR.next  = ccr_to_regblock[3];
+      assign gpt_hwif_in.TIM_CCR5.CCR.next  = ccr_to_regblock[4];
+      assign gpt_hwif_in.TIM_CCR6.CCR.next  = ccr_to_regblock[5];
+      assign gpt_hwif_in.TIM_CCR7.CCR.next  = ccr_to_regblock[6];
+      assign gpt_hwif_in.TIM_CCR8.CCR.next  = ccr_to_regblock[7];
+      assign gpt_hwif_in.TIM_CCR9.CCR.next  = ccr_to_regblock[8];
+      assign gpt_hwif_in.TIM_CCR10.CCR.next = ccr_to_regblock[9];
     end
     else if (CH_PAIRS_NUM == 6) begin
-      assign gpt_hwif_in.TIM_CCR1.next  = ccr_to_regblock[0];
-      assign gpt_hwif_in.TIM_CCR2.next  = ccr_to_regblock[1];
-      assign gpt_hwif_in.TIM_CCR3.next  = ccr_to_regblock[2];
-      assign gpt_hwif_in.TIM_CCR4.next  = ccr_to_regblock[3];
-      assign gpt_hwif_in.TIM_CCR5.next  = ccr_to_regblock[4];
-      assign gpt_hwif_in.TIM_CCR6.next  = ccr_to_regblock[5];
-      assign gpt_hwif_in.TIM_CCR7.next  = ccr_to_regblock[6];
-      assign gpt_hwif_in.TIM_CCR8.next  = ccr_to_regblock[7];
-      assign gpt_hwif_in.TIM_CCR9.next  = ccr_to_regblock[8];
-      assign gpt_hwif_in.TIM_CCR10.next = ccr_to_regblock[9];
-      assign gpt_hwif_in.TIM_CCR11.next = ccr_to_regblock[10];
-      assign gpt_hwif_in.TIM_CCR12.next = ccr_to_regblock[11];
+      assign gpt_hwif_in.TIM_CCR1.CCR.next  = ccr_to_regblock[0];
+      assign gpt_hwif_in.TIM_CCR2.CCR.next  = ccr_to_regblock[1];
+      assign gpt_hwif_in.TIM_CCR3.CCR.next  = ccr_to_regblock[2];
+      assign gpt_hwif_in.TIM_CCR4.CCR.next  = ccr_to_regblock[3];
+      assign gpt_hwif_in.TIM_CCR5.CCR.next  = ccr_to_regblock[4];
+      assign gpt_hwif_in.TIM_CCR6.CCR.next  = ccr_to_regblock[5];
+      assign gpt_hwif_in.TIM_CCR7.CCR.next  = ccr_to_regblock[6];
+      assign gpt_hwif_in.TIM_CCR8.CCR.next  = ccr_to_regblock[7];
+      assign gpt_hwif_in.TIM_CCR9.CCR.next  = ccr_to_regblock[8];
+      assign gpt_hwif_in.TIM_CCR10.CCR.next = ccr_to_regblock[9];
+      assign gpt_hwif_in.TIM_CCR11.CCR.next = ccr_to_regblock[10];
+      assign gpt_hwif_in.TIM_CCR12.CCR.next = ccr_to_regblock[11];
     end
     else if (CH_PAIRS_NUM == 7) begin
-      assign gpt_hwif_in.TIM_CCR1.next  = ccr_to_regblock[0];
-      assign gpt_hwif_in.TIM_CCR2.next  = ccr_to_regblock[1];
-      assign gpt_hwif_in.TIM_CCR3.next  = ccr_to_regblock[2];
-      assign gpt_hwif_in.TIM_CCR4.next  = ccr_to_regblock[3];
-      assign gpt_hwif_in.TIM_CCR5.next  = ccr_to_regblock[4];
-      assign gpt_hwif_in.TIM_CCR6.next  = ccr_to_regblock[5];
-      assign gpt_hwif_in.TIM_CCR7.next  = ccr_to_regblock[6];
-      assign gpt_hwif_in.TIM_CCR8.next  = ccr_to_regblock[7];
-      assign gpt_hwif_in.TIM_CCR9.next  = ccr_to_regblock[8];
-      assign gpt_hwif_in.TIM_CCR10.next = ccr_to_regblock[9];
-      assign gpt_hwif_in.TIM_CCR11.next = ccr_to_regblock[10];
-      assign gpt_hwif_in.TIM_CCR12.next = ccr_to_regblock[11];
-      assign gpt_hwif_in.TIM_CCR13.next = ccr_to_regblock[12];
-      assign gpt_hwif_in.TIM_CCR14.next = ccr_to_regblock[13];
+      assign gpt_hwif_in.TIM_CCR1.CCR.next  = ccr_to_regblock[0];
+      assign gpt_hwif_in.TIM_CCR2.CCR.next  = ccr_to_regblock[1];
+      assign gpt_hwif_in.TIM_CCR3.CCR.next  = ccr_to_regblock[2];
+      assign gpt_hwif_in.TIM_CCR4.CCR.next  = ccr_to_regblock[3];
+      assign gpt_hwif_in.TIM_CCR5.CCR.next  = ccr_to_regblock[4];
+      assign gpt_hwif_in.TIM_CCR6.CCR.next  = ccr_to_regblock[5];
+      assign gpt_hwif_in.TIM_CCR7.CCR.next  = ccr_to_regblock[6];
+      assign gpt_hwif_in.TIM_CCR8.CCR.next  = ccr_to_regblock[7];
+      assign gpt_hwif_in.TIM_CCR9.CCR.next  = ccr_to_regblock[8];
+      assign gpt_hwif_in.TIM_CCR10.CCR.next = ccr_to_regblock[9];
+      assign gpt_hwif_in.TIM_CCR11.CCR.next = ccr_to_regblock[10];
+      assign gpt_hwif_in.TIM_CCR12.CCR.next = ccr_to_regblock[11];
+      assign gpt_hwif_in.TIM_CCR13.CCR.next = ccr_to_regblock[12];
+      assign gpt_hwif_in.TIM_CCR14.CCR.next = ccr_to_regblock[13];
     end
     else if (CH_PAIRS_NUM == 8) begin
-      assign gpt_hwif_in.TIM_CCR1.next  = ccr_to_regblock[0];
-      assign gpt_hwif_in.TIM_CCR2.next  = ccr_to_regblock[1];
-      assign gpt_hwif_in.TIM_CCR3.next  = ccr_to_regblock[2];
-      assign gpt_hwif_in.TIM_CCR4.next  = ccr_to_regblock[3];
-      assign gpt_hwif_in.TIM_CCR5.next  = ccr_to_regblock[4];
-      assign gpt_hwif_in.TIM_CCR6.next  = ccr_to_regblock[5];
-      assign gpt_hwif_in.TIM_CCR7.next  = ccr_to_regblock[6];
-      assign gpt_hwif_in.TIM_CCR8.next  = ccr_to_regblock[7];
-      assign gpt_hwif_in.TIM_CCR9.next  = ccr_to_regblock[8];
-      assign gpt_hwif_in.TIM_CCR10.next = ccr_to_regblock[9];
-      assign gpt_hwif_in.TIM_CCR11.next = ccr_to_regblock[10];
-      assign gpt_hwif_in.TIM_CCR12.next = ccr_to_regblock[11];
-      assign gpt_hwif_in.TIM_CCR13.next = ccr_to_regblock[12];
-      assign gpt_hwif_in.TIM_CCR14.next = ccr_to_regblock[13];
-      assign gpt_hwif_in.TIM_CCR15.next = ccr_to_regblock[14];
-      assign gpt_hwif_in.TIM_CCR16.next = ccr_to_regblock[15];
+      assign gpt_hwif_in.TIM_CCR1.CCR.next  = ccr_to_regblock[0];
+      assign gpt_hwif_in.TIM_CCR2.CCR.next  = ccr_to_regblock[1];
+      assign gpt_hwif_in.TIM_CCR3.CCR.next  = ccr_to_regblock[2];
+      assign gpt_hwif_in.TIM_CCR4.CCR.next  = ccr_to_regblock[3];
+      assign gpt_hwif_in.TIM_CCR5.CCR.next  = ccr_to_regblock[4];
+      assign gpt_hwif_in.TIM_CCR6.CCR.next  = ccr_to_regblock[5];
+      assign gpt_hwif_in.TIM_CCR7.CCR.next  = ccr_to_regblock[6];
+      assign gpt_hwif_in.TIM_CCR8.CCR.next  = ccr_to_regblock[7];
+      assign gpt_hwif_in.TIM_CCR9.CCR.next  = ccr_to_regblock[8];
+      assign gpt_hwif_in.TIM_CCR10.CCR.next = ccr_to_regblock[9];
+      assign gpt_hwif_in.TIM_CCR11.CCR.next = ccr_to_regblock[10];
+      assign gpt_hwif_in.TIM_CCR12.CCR.next = ccr_to_regblock[11];
+      assign gpt_hwif_in.TIM_CCR13.CCR.next = ccr_to_regblock[12];
+      assign gpt_hwif_in.TIM_CCR14.CCR.next = ccr_to_regblock[13];
+      assign gpt_hwif_in.TIM_CCR15.CCR.next = ccr_to_regblock[14];
+      assign gpt_hwif_in.TIM_CCR16.CCR.next = ccr_to_regblock[15];
     end
   endgenerate
 
@@ -1078,37 +1078,37 @@ module gpt_top
   logic [2 * CH_PAIRS_NUM - 1:0] ccxde;
   logic                          tde  ;
 
-  assign uie      = gpt_hwif_out.TIM_DIER.UIE.value;
-  assign tie      = gpt_hwif_out.TIM_DIER.TIE.value;
-  assign ude      = gpt_hwif_out.TIM_DIER.UDE.value;
-  assign tde      = gpt_hwif_out.TIM_DIER.TDE.value;
+  assign uie      = gpt_hwif_out.TIM_DIER1.UIE.value;
+  assign tie      = gpt_hwif_out.TIM_DIER1.TIE.value;
+  assign ude      = gpt_hwif_out.TIM_DIER1.UDE.value;
+  assign tde      = gpt_hwif_out.TIM_DIER1.TDE.value;
 
   generate
     if (CH_PAIRS_NUM == 1) begin
-      assign ccxie[0] = gpt_hwif_out.TIM_DIER.CC1E.value ;
-      assign ccxie[1] = gpt_hwif_out.TIM_DIER.CC2E.value ;
+      assign ccxie[0] = gpt_hwif_out.TIM_DIER1.CC1IE.value ;
+      assign ccxie[1] = gpt_hwif_out.TIM_DIER1.CC2IE.value ;
 
-      assign ccxde[0] = gpt_hwif_out.TIM_DIER.CC1DE.value;
-      assign ccxde[1] = gpt_hwif_out.TIM_DIER.CC2DE.value;
+      assign ccxde[0] = gpt_hwif_out.TIM_DIER1.CC1DE.value;
+      assign ccxde[1] = gpt_hwif_out.TIM_DIER1.CC2DE.value;
     end
     else if (CH_PAIRS_NUM == 2) begin
-      assign ccxie[0] = gpt_hwif_out.TIM_DIER.CC1E.value ;
-      assign ccxie[1] = gpt_hwif_out.TIM_DIER.CC2E.value ;
-      assign ccxie[2] = gpt_hwif_out.TIM_DIER.CC3E.value ;
-      assign ccxie[3] = gpt_hwif_out.TIM_DIER.CC4E.value ;
+      assign ccxie[0] = gpt_hwif_out.TIM_DIER1.CC1IE.value;
+      assign ccxie[1] = gpt_hwif_out.TIM_DIER1.CC2IE.value;
+      assign ccxie[2] = gpt_hwif_out.TIM_DIER1.CC3IE.value;
+      assign ccxie[3] = gpt_hwif_out.TIM_DIER1.CC4IE.value;
 
-      assign ccxde[0] = gpt_hwif_out.TIM_DIER.CC1DE.value;
-      assign ccxde[1] = gpt_hwif_out.TIM_DIER.CC2DE.value;
-      assign ccxde[2] = gpt_hwif_out.TIM_DIER.CC3DE.value;
-      assign ccxde[3] = gpt_hwif_out.TIM_DIER.CC4DE.value;
+      assign ccxde[0] = gpt_hwif_out.TIM_DIER1.CC1DE.value;
+      assign ccxde[1] = gpt_hwif_out.TIM_DIER1.CC2DE.value;
+      assign ccxde[2] = gpt_hwif_out.TIM_DIER1.CC3DE.value;
+      assign ccxde[3] = gpt_hwif_out.TIM_DIER1.CC4DE.value;
     end
     else if (CH_PAIRS_NUM == 3) begin
-      assign ccxie[0] = gpt_hwif_out.TIM_DIER1.CC1E.value ;
-      assign ccxie[1] = gpt_hwif_out.TIM_DIER1.CC2E.value ;
-      assign ccxie[2] = gpt_hwif_out.TIM_DIER1.CC3E.value ;
-      assign ccxie[3] = gpt_hwif_out.TIM_DIER1.CC4E.value ;
-      assign ccxie[4] = gpt_hwif_out.TIM_DIER2.CC1E.value ;
-      assign ccxie[5] = gpt_hwif_out.TIM_DIER2.CC2E.value ;
+      assign ccxie[0] = gpt_hwif_out.TIM_DIER1.CC1IE.value;
+      assign ccxie[1] = gpt_hwif_out.TIM_DIER1.CC2IE.value;
+      assign ccxie[2] = gpt_hwif_out.TIM_DIER1.CC3IE.value;
+      assign ccxie[3] = gpt_hwif_out.TIM_DIER1.CC4IE.value;
+      assign ccxie[4] = gpt_hwif_out.TIM_DIER2.CC1IE.value;
+      assign ccxie[5] = gpt_hwif_out.TIM_DIER2.CC2IE.value;
 
       assign ccxde[0] = gpt_hwif_out.TIM_DIER1.CC1DE.value;
       assign ccxde[1] = gpt_hwif_out.TIM_DIER1.CC2DE.value;
@@ -1118,14 +1118,14 @@ module gpt_top
       assign ccxde[5] = gpt_hwif_out.TIM_DIER2.CC2DE.value;
     end
     else if (CH_PAIRS_NUM == 4) begin
-      assign ccxie[0] = gpt_hwif_out.TIM_DIER1.CC1E.value ;
-      assign ccxie[1] = gpt_hwif_out.TIM_DIER1.CC2E.value ;
-      assign ccxie[2] = gpt_hwif_out.TIM_DIER1.CC3E.value ;
-      assign ccxie[3] = gpt_hwif_out.TIM_DIER1.CC4E.value ;
-      assign ccxie[4] = gpt_hwif_out.TIM_DIER2.CC1E.value ;
-      assign ccxie[5] = gpt_hwif_out.TIM_DIER2.CC2E.value ;
-      assign ccxie[6] = gpt_hwif_out.TIM_DIER2.CC3E.value ;
-      assign ccxie[7] = gpt_hwif_out.TIM_DIER2.CC4E.value ;
+      assign ccxie[0] = gpt_hwif_out.TIM_DIER1.CC1IE.value ;
+      assign ccxie[1] = gpt_hwif_out.TIM_DIER1.CC2IE.value ;
+      assign ccxie[2] = gpt_hwif_out.TIM_DIER1.CC3IE.value ;
+      assign ccxie[3] = gpt_hwif_out.TIM_DIER1.CC4IE.value ;
+      assign ccxie[4] = gpt_hwif_out.TIM_DIER2.CC1IE.value ;
+      assign ccxie[5] = gpt_hwif_out.TIM_DIER2.CC2IE.value ;
+      assign ccxie[6] = gpt_hwif_out.TIM_DIER2.CC3IE.value ;
+      assign ccxie[7] = gpt_hwif_out.TIM_DIER2.CC4IE.value ;
 
       assign ccxde[0] = gpt_hwif_out.TIM_DIER1.CC1DE.value;
       assign ccxde[1] = gpt_hwif_out.TIM_DIER1.CC2DE.value;
@@ -1137,16 +1137,16 @@ module gpt_top
       assign ccxde[7] = gpt_hwif_out.TIM_DIER2.CC4DE.value;
     end
     else if (CH_PAIRS_NUM == 5) begin
-      assign ccxie[0]  = gpt_hwif_out.TIM_DIER1.CC1E.value ;
-      assign ccxie[1]  = gpt_hwif_out.TIM_DIER1.CC2E.value ;
-      assign ccxie[2]  = gpt_hwif_out.TIM_DIER1.CC3E.value ;
-      assign ccxie[3]  = gpt_hwif_out.TIM_DIER1.CC4E.value ;
-      assign ccxie[4]  = gpt_hwif_out.TIM_DIER2.CC1E.value ;
-      assign ccxie[5]  = gpt_hwif_out.TIM_DIER2.CC2E.value ;
-      assign ccxie[6]  = gpt_hwif_out.TIM_DIER2.CC3E.value ;
-      assign ccxie[7]  = gpt_hwif_out.TIM_DIER2.CC4E.value ;
-      assign ccxie[8]  = gpt_hwif_out.TIM_DIER3.CC1E.value ;
-      assign ccxie[9]  = gpt_hwif_out.TIM_DIER3.CC2E.value ;
+      assign ccxie[0]  = gpt_hwif_out.TIM_DIER1.CC1IE.value ;
+      assign ccxie[1]  = gpt_hwif_out.TIM_DIER1.CC2IE.value ;
+      assign ccxie[2]  = gpt_hwif_out.TIM_DIER1.CC3IE.value ;
+      assign ccxie[3]  = gpt_hwif_out.TIM_DIER1.CC4IE.value ;
+      assign ccxie[4]  = gpt_hwif_out.TIM_DIER2.CC1IE.value ;
+      assign ccxie[5]  = gpt_hwif_out.TIM_DIER2.CC2IE.value ;
+      assign ccxie[6]  = gpt_hwif_out.TIM_DIER2.CC3IE.value ;
+      assign ccxie[7]  = gpt_hwif_out.TIM_DIER2.CC4IE.value ;
+      assign ccxie[8]  = gpt_hwif_out.TIM_DIER3.CC1IE.value ;
+      assign ccxie[9]  = gpt_hwif_out.TIM_DIER3.CC2IE.value ;
 
       assign ccxde[0]  = gpt_hwif_out.TIM_DIER1.CC1DE.value;
       assign ccxde[1]  = gpt_hwif_out.TIM_DIER1.CC2DE.value;
@@ -1160,18 +1160,18 @@ module gpt_top
       assign ccxde[9]  = gpt_hwif_out.TIM_DIER3.CC2DE.value;
     end
     else if (CH_PAIRS_NUM == 6) begin
-      assign ccxie[0]  = gpt_hwif_out.TIM_DIER1.CC1E.value ;
-      assign ccxie[1]  = gpt_hwif_out.TIM_DIER1.CC2E.value ;
-      assign ccxie[2]  = gpt_hwif_out.TIM_DIER1.CC3E.value ;
-      assign ccxie[3]  = gpt_hwif_out.TIM_DIER1.CC4E.value ;
-      assign ccxie[4]  = gpt_hwif_out.TIM_DIER2.CC1E.value ;
-      assign ccxie[5]  = gpt_hwif_out.TIM_DIER2.CC2E.value ;
-      assign ccxie[6]  = gpt_hwif_out.TIM_DIER2.CC3E.value ;
-      assign ccxie[7]  = gpt_hwif_out.TIM_DIER2.CC4E.value ;
-      assign ccxie[8]  = gpt_hwif_out.TIM_DIER3.CC1E.value ;
-      assign ccxie[9]  = gpt_hwif_out.TIM_DIER3.CC2E.value ;
-      assign ccxie[10] = gpt_hwif_out.TIM_DIER3.CC3E.value ;
-      assign ccxie[11] = gpt_hwif_out.TIM_DIER3.CC4E.value ;
+      assign ccxie[0]  = gpt_hwif_out.TIM_DIER1.CC1IE.value;
+      assign ccxie[1]  = gpt_hwif_out.TIM_DIER1.CC2IE.value;
+      assign ccxie[2]  = gpt_hwif_out.TIM_DIER1.CC3IE.value;
+      assign ccxie[3]  = gpt_hwif_out.TIM_DIER1.CC4IE.value;
+      assign ccxie[4]  = gpt_hwif_out.TIM_DIER2.CC1IE.value;
+      assign ccxie[5]  = gpt_hwif_out.TIM_DIER2.CC2IE.value;
+      assign ccxie[6]  = gpt_hwif_out.TIM_DIER2.CC3IE.value;
+      assign ccxie[7]  = gpt_hwif_out.TIM_DIER2.CC4IE.value;
+      assign ccxie[8]  = gpt_hwif_out.TIM_DIER3.CC1IE.value;
+      assign ccxie[9]  = gpt_hwif_out.TIM_DIER3.CC2IE.value;
+      assign ccxie[10] = gpt_hwif_out.TIM_DIER3.CC3IE.value;
+      assign ccxie[11] = gpt_hwif_out.TIM_DIER3.CC4IE.value;
 
       assign ccxde[0]  = gpt_hwif_out.TIM_DIER1.CC1DE.value;
       assign ccxde[1]  = gpt_hwif_out.TIM_DIER1.CC2DE.value;
@@ -1187,20 +1187,20 @@ module gpt_top
       assign ccxde[11] = gpt_hwif_out.TIM_DIER3.CC4DE.value;
     end
     else if (CH_PAIRS_NUM == 7) begin
-      assign ccxie[0]  = gpt_hwif_out.TIM_DIER1.CC1E.value ;
-      assign ccxie[1]  = gpt_hwif_out.TIM_DIER1.CC2E.value ;
-      assign ccxie[2]  = gpt_hwif_out.TIM_DIER1.CC3E.value ;
-      assign ccxie[3]  = gpt_hwif_out.TIM_DIER1.CC4E.value ;
-      assign ccxie[4]  = gpt_hwif_out.TIM_DIER2.CC1E.value ;
-      assign ccxie[5]  = gpt_hwif_out.TIM_DIER2.CC2E.value ;
-      assign ccxie[6]  = gpt_hwif_out.TIM_DIER2.CC3E.value ;
-      assign ccxie[7]  = gpt_hwif_out.TIM_DIER2.CC4E.value ;
-      assign ccxie[8]  = gpt_hwif_out.TIM_DIER3.CC1E.value ;
-      assign ccxie[9]  = gpt_hwif_out.TIM_DIER3.CC2E.value ;
-      assign ccxie[10] = gpt_hwif_out.TIM_DIER3.CC3E.value ;
-      assign ccxie[11] = gpt_hwif_out.TIM_DIER3.CC4E.value ;
-      assign ccxie[12] = gpt_hwif_out.TIM_DIER4.CC1E.value ;
-      assign ccxie[13] = gpt_hwif_out.TIM_DIER4.CC2E.value ;
+      assign ccxie[0]  = gpt_hwif_out.TIM_DIER1.CC1IE.value;
+      assign ccxie[1]  = gpt_hwif_out.TIM_DIER1.CC2IE.value;
+      assign ccxie[2]  = gpt_hwif_out.TIM_DIER1.CC3IE.value;
+      assign ccxie[3]  = gpt_hwif_out.TIM_DIER1.CC4IE.value;
+      assign ccxie[4]  = gpt_hwif_out.TIM_DIER2.CC1IE.value;
+      assign ccxie[5]  = gpt_hwif_out.TIM_DIER2.CC2IE.value;
+      assign ccxie[6]  = gpt_hwif_out.TIM_DIER2.CC3IE.value;
+      assign ccxie[7]  = gpt_hwif_out.TIM_DIER2.CC4IE.value;
+      assign ccxie[8]  = gpt_hwif_out.TIM_DIER3.CC1IE.value;
+      assign ccxie[9]  = gpt_hwif_out.TIM_DIER3.CC2IE.value;
+      assign ccxie[10] = gpt_hwif_out.TIM_DIER3.CC3IE.value;
+      assign ccxie[11] = gpt_hwif_out.TIM_DIER3.CC4IE.value;
+      assign ccxie[12] = gpt_hwif_out.TIM_DIER4.CC1IE.value;
+      assign ccxie[13] = gpt_hwif_out.TIM_DIER4.CC2IE.value;
 
       assign ccxde[0]  = gpt_hwif_out.TIM_DIER1.CC1DE.value;
       assign ccxde[1]  = gpt_hwif_out.TIM_DIER1.CC2DE.value;
@@ -1218,22 +1218,22 @@ module gpt_top
       assign ccxde[13] = gpt_hwif_out.TIM_DIER4.CC2DE.value;
     end
     else if (CH_PAIRS_NUM == 8) begin
-      assign ccxie[0]  = gpt_hwif_out.TIM_DIER1.CC1E.value ;
-      assign ccxie[1]  = gpt_hwif_out.TIM_DIER1.CC2E.value ;
-      assign ccxie[2]  = gpt_hwif_out.TIM_DIER1.CC3E.value ;
-      assign ccxie[3]  = gpt_hwif_out.TIM_DIER1.CC4E.value ;
-      assign ccxie[4]  = gpt_hwif_out.TIM_DIER2.CC1E.value ;
-      assign ccxie[5]  = gpt_hwif_out.TIM_DIER2.CC2E.value ;
-      assign ccxie[6]  = gpt_hwif_out.TIM_DIER2.CC3E.value ;
-      assign ccxie[7]  = gpt_hwif_out.TIM_DIER2.CC4E.value ;
-      assign ccxie[8]  = gpt_hwif_out.TIM_DIER3.CC1E.value ;
-      assign ccxie[9]  = gpt_hwif_out.TIM_DIER3.CC2E.value ;
-      assign ccxie[10] = gpt_hwif_out.TIM_DIER3.CC3E.value ;
-      assign ccxie[11] = gpt_hwif_out.TIM_DIER3.CC4E.value ;
-      assign ccxie[12] = gpt_hwif_out.TIM_DIER4.CC1E.value ;
-      assign ccxie[13] = gpt_hwif_out.TIM_DIER4.CC2E.value ;
-      assign ccxie[14] = gpt_hwif_out.TIM_DIER4.CC3E.value ;
-      assign ccxie[15] = gpt_hwif_out.TIM_DIER4.CC4E.value ;
+      assign ccxie[0]  = gpt_hwif_out.TIM_DIER1.CC1IE.value;
+      assign ccxie[1]  = gpt_hwif_out.TIM_DIER1.CC2IE.value;
+      assign ccxie[2]  = gpt_hwif_out.TIM_DIER1.CC3IE.value;
+      assign ccxie[3]  = gpt_hwif_out.TIM_DIER1.CC4IE.value;
+      assign ccxie[4]  = gpt_hwif_out.TIM_DIER2.CC1IE.value;
+      assign ccxie[5]  = gpt_hwif_out.TIM_DIER2.CC2IE.value;
+      assign ccxie[6]  = gpt_hwif_out.TIM_DIER2.CC3IE.value;
+      assign ccxie[7]  = gpt_hwif_out.TIM_DIER2.CC4IE.value;
+      assign ccxie[8]  = gpt_hwif_out.TIM_DIER3.CC1IE.value;
+      assign ccxie[9]  = gpt_hwif_out.TIM_DIER3.CC2IE.value;
+      assign ccxie[10] = gpt_hwif_out.TIM_DIER3.CC3IE.value;
+      assign ccxie[11] = gpt_hwif_out.TIM_DIER3.CC4IE.value;
+      assign ccxie[12] = gpt_hwif_out.TIM_DIER4.CC1IE.value;
+      assign ccxie[13] = gpt_hwif_out.TIM_DIER4.CC2IE.value;
+      assign ccxie[14] = gpt_hwif_out.TIM_DIER4.CC3IE.value;
+      assign ccxie[15] = gpt_hwif_out.TIM_DIER4.CC4IE.value;
 
       assign ccxde[0]  = gpt_hwif_out.TIM_DIER1.CC1DE.value;
       assign ccxde[1]  = gpt_hwif_out.TIM_DIER1.CC2DE.value;
@@ -1260,8 +1260,8 @@ module gpt_top
   logic [2 * CH_PAIRS_NUM - 1:0] ccxif;
   logic [2 * CH_PAIRS_NUM - 1:0] ccxof;
 
-  assign gpt_hwif_in.TIM_SR.UIF.next = uif;
-  assign gpt_hwif_in.TIM_SR.TIF.next = tif;
+  assign gpt_hwif_in.TIM_SR1.UIF.next = uif;
+  assign gpt_hwif_in.TIM_SR1.TIF.next = tif;
 
   generate
     if (CH_PAIRS_NUM == 1) begin
@@ -1438,21 +1438,21 @@ module gpt_top
 
   // TIM_ARR
   logic [CNT_WIDTH - 1:0] arr;
-  assign arr = gpt_hwif_out.TIM_ARR.value;
+  assign arr = gpt_hwif_out.TIM_ARR.ARR.value;
 
   // TIM_PSC
   logic [PSC_WIDTH - 1:0] psc;
-  assign psc = gpt_hwif_out.TIM_PSC.value;
+  assign psc = gpt_hwif_out.TIM_PSC.PSC.value;
 
   // TIM_CNT
   logic [CNT_WIDTH - 1:0] cnt;
-  assign cnt = gpt_hwif_out.TIM_CNT.value;
+  assign cnt = gpt_hwif_out.TIM_CNT.CNT.value;
 
   // TIM_SMCR
   logic [2:0] sms ;
   logic [2:0] ts  ; 
   logic       msm ;
-  logic [2:0] etf ;
+  logic [3:0] etf ;
   logic [1:0] etps;
   logic       ece ;
   logic       etp ;
@@ -1507,7 +1507,7 @@ module gpt_top
     .clk_psc_o  (clk_psc  )
   );
 
-  prescaler #(.PSC_WIDTH(PSC_WIDTH))
+  prescaler #(.PSC_WIDTH(PSC_WIDTH)) i_psc
   (
     .clk_i    (clk_psc  ),
     .aresetn_i(aresetn_i),
@@ -1565,21 +1565,12 @@ module gpt_top
     .cc1np_i        (ccxnp          [0]),
 
     .ti1_fd_o       (ti1f_ed           ),
-<<<<<<< Updated upstream
     .oc_ref_o       (oc_ref_mms     [0]),
     .ccxif_o        (ccxif          [0]),
     .ccr_o          (ccr_to_regblock[0]),
     .ccxof_o        (ccxof          [0]),
     .tixfpx_o       (ti1fp1            ),
     .ti_o           (ch_o           [0])
-=======
-    .oc_ref_o       (oc_ref_mms        ),
-    .ccxif_o        (ccxif    [0]      ),
-    .ccr_o          (ccr_to_regblock[0]),
-    .ccxof_o        (ccxof    [0]      ),
-    .ti1fp1_o       (ti1fp1            ),
-    .ti_o           (ch_      [0]      )
->>>>>>> Stashed changes
   );
   tim_channel channel_inst_2
   (
@@ -1599,20 +1590,15 @@ module gpt_top
     .ocxm_i         (ocxm           [1]),
     .ccg_i          (ccxg           [1]),
     .ocxpe_i        (ocxpe          [1]),
-    .ti_neigx_fpx_i (ti2fp2            ),
+    .ti_neigx_fpx_i (ti1fp1            ),
     .cc1p_i         (ccxp           [1]),
     .cc1np_i        (ccxnp          [1]),
 
-    .ti1_fd_o       (ti1f_ed           ),
-<<<<<<< Updated upstream
     .ccxif_o        (ccxif          [1]),
     .oc_ref_o       (oc_ref_mms     [1]),
-=======
-    .ccxif_o        (ccxif[1]          ),
->>>>>>> Stashed changes
     .ccr_o          (ccr_to_regblock[1]),
     .ccxof_o        (ccxof          [1]),
-    .tixfpx_o       (ti1fp1            ),
+    .tixfpx_o       (ti2fp2            ),
     .ti_o           (ch_o           [1])
   );
 
@@ -1622,7 +1608,6 @@ module gpt_top
       for (genvar i = 2; i < CH_PAIRS_NUM; i++) begin : g_tim_ch
         tim_channel i_channel_i
         (
-<<<<<<< Updated upstream
           .clk_i          (aclk_i                ),
           .aresetn_i      (aresetn_i             ),
           .ckd_i          (ckd                   ),
@@ -1643,7 +1628,6 @@ module gpt_top
           .cc1p_i         (ccxp           [i]    ),
           .cc1np_i        (ccxnp          [i]    ),
 
-          .ti1_fd_o       (ti1f_ed               ),
           .ccxif_o        (ccxif          [i]    ),
           .oc_ref_o       (oc_ref_mms     [i]    ),
           .ccr_o          (ccr_to_regblock[i]    ),
@@ -1675,40 +1659,11 @@ module gpt_top
           .cc1np_i        (ccxnp          [i + 1]),
 
           .oc_ref_o       (oc_ref_mms     [i + 1]),
-          .ti1_fd_o       (ti1f_ed               ),
           .ccxif_o        (ccxif          [i + 1]),
           .ccr_o          (ccr_to_regblock[i + 1]),
           .ccxof_o        (ccxof          [i + 1]),
           .tixfpx_o       (ti_cur_fp_cur  [i + 1]),
           .ti_o           (ch_o           [i + 1])
-=======
-          .clk_i          (aclk_i      ),
-          .aresetn_i      (aresetn_i   ),
-          .ckd_i          (ckd         ),
-          .icf_i          (icxf     [i]),
-          .cnt_i          (cnt_value   ),
-          .ccr_i          (ccr_reg  [i]),
-          .uev_i          (uev         ),
-          .ti_i           (ch_i     [i]),
-          .trc_i          (trc         ),
-          .cc1s_i         (ccxs     [i]),
-          .icps_i         (icxpsc   [i]),
-          .cce_i          (ccxe     [i]),
-          .dir_i          (dir         ),
-          .ocxm_i         (ocxm     [i]),
-          .ccg_i          (ccxg     [i]),
-          .ocxpe_i        (ocxpe    [i]),
-          .ti_neigx_fpx_i (),
-          .cc1p_i         (ccxp     [i]),
-          .cc1np_i        (ccxnp    [i]),
-
-          .ti1_fd_o       (ti1f_ed           ),
-          .ccxif_o        (ccxif[i]          ),
-          .ccr_o          (ccr_to_regblock[i]),
-          .ccxof_o        (ccxof[i]          ),
-          .ti1fp1_o       (ti_cur_fp_cur[i]  ),
-          .ti_o           (ch_o[i]           )
->>>>>>> Stashed changes
         );
       end
     end

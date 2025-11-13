@@ -1,0 +1,17 @@
+//
+// File created by:  xrun
+// Do not modify this file
+//
+-elaborate
+-elabonly
+-64bit
+-top
+tb_gpt
+-snapshot
+tb_gpt_opt
+-xmlibdirpath
+/home/Stepan/General-Purpose-Timers/build/work
+-access
++rwc
+-l
+/home/Stepan/General-Purpose-Timers/build/opt.log

@@ -82,7 +82,7 @@ module tim_channel #(parameter CCR_WIDTH = 32,
     .aresetn_i(aresetn_i),
     .a_i      (ti_i     ),
     .f_coef_i (icf_i    ),
-    .af_o   (tif      )
+    .af_o     (tif      )
   );
 
   logic tif_r;
