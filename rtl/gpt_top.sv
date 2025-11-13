@@ -1520,26 +1520,26 @@ module gpt_top
 
   time_base_unit time_base_inst
   (
-    .clk_i     (clk_cnt       ),
-    .aresetn_i (aresetn_i     ),
-    .cnt_i     (cnt           ),
-    .cen_i     (cen           ),
-    .arr_i     (arr           ),
-    .psc_i     (psc           ),
-    .dir_i     (dir           ),
-    .sm_reset_i(sm_reset      ),
-    .sm_gate_i (sm_gate       ),
-    .sm_trig_i (sm_trig       ),
-    .apre_i    (apre          ),
-    .cms_i     (cms           ),
-    .udis_i    (udis          ),
-    .ug_i      (ug            ),
-    .opm_i     (opm           ),
-    .tif_o     (tif           ),
-    .cnt_en_o  (cnt_en        ),
-    .uif_o     (uif           ),
-    .uev_o     (uev           ),
-    .cnt_o     (cnt_value     )
+    .clk_i     (clk_cnt  ),
+    .aresetn_i (aresetn_i),
+    .cnt_i     (cnt      ),
+    .cen_i     (cen      ),
+    .arr_i     (arr      ),
+    .psc_i     (psc      ),
+    .dir_i     (dir      ),
+    .sm_reset_i(sm_reset ),
+    .sm_gate_i (sm_gate  ),
+    .sm_trig_i (sm_trig  ),
+    .apre_i    (apre     ),
+    .cms_i     (cms      ),
+    .udis_i    (udis     ),
+    .ug_i      (ug       ),
+    .opm_i     (opm      ),
+    .tif_o     (tif      ),
+    .cnt_en_o  (cnt_en   ),
+    .uif_o     (uif      ),
+    .uev_o     (uev      ),
+    .cnt_o     (cnt_value)
   );
 
   tim_channel channel_inst_1
@@ -1565,12 +1565,21 @@ module gpt_top
     .cc1np_i        (ccxnp          [0]),
 
     .ti1_fd_o       (ti1f_ed           ),
+<<<<<<< Updated upstream
     .oc_ref_o       (oc_ref_mms     [0]),
     .ccxif_o        (ccxif          [0]),
     .ccr_o          (ccr_to_regblock[0]),
     .ccxof_o        (ccxof          [0]),
     .tixfpx_o       (ti1fp1            ),
     .ti_o           (ch_o           [0])
+=======
+    .oc_ref_o       (oc_ref_mms        ),
+    .ccxif_o        (ccxif    [0]      ),
+    .ccr_o          (ccr_to_regblock[0]),
+    .ccxof_o        (ccxof    [0]      ),
+    .ti1fp1_o       (ti1fp1            ),
+    .ti_o           (ch_      [0]      )
+>>>>>>> Stashed changes
   );
   tim_channel channel_inst_2
   (
@@ -1595,8 +1604,12 @@ module gpt_top
     .cc1np_i        (ccxnp          [1]),
 
     .ti1_fd_o       (ti1f_ed           ),
+<<<<<<< Updated upstream
     .ccxif_o        (ccxif          [1]),
     .oc_ref_o       (oc_ref_mms     [1]),
+=======
+    .ccxif_o        (ccxif[1]          ),
+>>>>>>> Stashed changes
     .ccr_o          (ccr_to_regblock[1]),
     .ccxof_o        (ccxof          [1]),
     .tixfpx_o       (ti1fp1            ),
@@ -1609,6 +1622,7 @@ module gpt_top
       for (genvar i = 2; i < CH_PAIRS_NUM; i++) begin : g_tim_ch
         tim_channel i_channel_i
         (
+<<<<<<< Updated upstream
           .clk_i          (aclk_i                ),
           .aresetn_i      (aresetn_i             ),
           .ckd_i          (ckd                   ),
@@ -1667,6 +1681,34 @@ module gpt_top
           .ccxof_o        (ccxof          [i + 1]),
           .tixfpx_o       (ti_cur_fp_cur  [i + 1]),
           .ti_o           (ch_o           [i + 1])
+=======
+          .clk_i          (aclk_i      ),
+          .aresetn_i      (aresetn_i   ),
+          .ckd_i          (ckd         ),
+          .icf_i          (icxf     [i]),
+          .cnt_i          (cnt_value   ),
+          .ccr_i          (ccr_reg  [i]),
+          .uev_i          (uev         ),
+          .ti_i           (ch_i     [i]),
+          .trc_i          (trc         ),
+          .cc1s_i         (ccxs     [i]),
+          .icps_i         (icxpsc   [i]),
+          .cce_i          (ccxe     [i]),
+          .dir_i          (dir         ),
+          .ocxm_i         (ocxm     [i]),
+          .ccg_i          (ccxg     [i]),
+          .ocxpe_i        (ocxpe    [i]),
+          .ti_neigx_fpx_i (),
+          .cc1p_i         (ccxp     [i]),
+          .cc1np_i        (ccxnp    [i]),
+
+          .ti1_fd_o       (ti1f_ed           ),
+          .ccxif_o        (ccxif[i]          ),
+          .ccr_o          (ccr_to_regblock[i]),
+          .ccxof_o        (ccxof[i]          ),
+          .ti1fp1_o       (ti_cur_fp_cur[i]  ),
+          .ti_o           (ch_o[i]           )
+>>>>>>> Stashed changes
         );
       end
     end
