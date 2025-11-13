@@ -1,6 +1,6 @@
 module time_base_unit # (parameter CNT_WIDTH = 32,
-                         parameter ARR_WIDTH = 32,
-                         parameter PSC_WIDTH = 16) (
+                        parameter ARR_WIDTH = 32,
+                        parameter PSC_WIDTH = 16) (
   input  logic                   clk_i      ,   // Тактовый сигнал
   input  logic                   aresetn_i  ,   // Асинхронный сброс
   input  logic [CNT_WIDTH - 1:0] cnt_i      ,   // Значение счетчика из регистра TIM_CNT
@@ -40,10 +40,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
     CNT_UP   = 3'b010,
     CNT_DOWN = 3'b011,
     RESET    = 3'b100
-  } state;
-
-  state state_ff;
-  state next;
+  } state_ff, next;
 
   always_ff @(posedge clk_i)
     enable_preload_arr <= apre_i;
@@ -88,15 +85,15 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
     next = state_ff;
     case (state_ff)
       IDLE    : if      (cen_i && ~dir_i)                next = CNT_UP  ;
-                else if (cen_i && dir_I)                 next = CNT_DOWN;
+                else if (cen_i && dir_i)                 next = CNT_DOWN;
 
       CNT_UP  : if      (sm_reset_i || overflow)         next = RESET   ;
                 else if (~cen_i)                         next = STOP    ;
-                else if (cms != 2'b00 && overflow)       next = CNT_DOWN;                  
+                else if (cms_i != 2'b00 && overflow)     next = CNT_DOWN;                  
 
       CNT_DOWN: if      (sm_reset_i || underflow)        next = RESET   ;
                 else if (~cen_i)                         next = STOP    ;
-                else if (cms != 2'b00 && underflow)      next = CNT_UP  ;
+                else if (cms_i != 2'b00 && underflow)    next = CNT_UP  ;
 
       RESET   : if      (dir_i)                          next = CNT_DOWN;
                 else if (~dir_i)                         next = CNT_UP  ;
@@ -108,7 +105,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
 
 // General counter logic
   always_ff @(posedge clk_i) begin
-    if (cnt_ff_en) begin
+    if (cnt_en_ff) begin
       case (state_ff)
         IDLE    : cnt_ff <= {CNT_WIDTH{1'b0}};
         CNT_UP  : cnt_ff <= cnt_ff + 'b1;

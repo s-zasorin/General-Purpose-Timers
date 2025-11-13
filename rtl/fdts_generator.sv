@@ -1,9 +1,9 @@
 module fdts_generator (
-  input        logic clk_i    ,
-  input        logic aresetn_i,
-  input  [1:0] logic ckd_i    ,
+  input  logic       clk_i    ,
+  input  logic       aresetn_i,
+  input  logic [1:0] ckd_i    ,
 
-  output       logic clk_dts_o
+  output logic       clk_dts_o
 );
 
   logic [1:0] cnt;

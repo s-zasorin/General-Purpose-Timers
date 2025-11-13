@@ -1,0 +1,14 @@
+TOOL:	xrun(64)	20.09-s011: Started on Nov 09, 2025 at 13:10:50 MSK
+xrun(64): 20.09-s011: (c) Copyright 1995-2021 Cadence Design Systems, Inc.
+Recompiling... reason: file '../tb/tb_gpt.sv' is newer than expected.
+	expected: Sun Nov  9 08:32:11 2025
+	actual:   Sun Nov  9 13:10:47 2025
+file: /home/Stepan/General-Purpose-Timers/build/../rtl/encoder_mode.sv
+module encoder_mode (
+                  |
+xmvlog: *W,RECOME (/home/Stepan/General-Purpose-Timers/build/../rtl/encoder_mode.sv,1|18): recompiling design unit worklib.encoder_mode:sv.
+	First compiled from line 1 of /home/Stepan/General-Purpose-Timers/build/../rtl/encoder_mode.sv.
+file: /home/Stepan/General-Purpose-Timers/build/../tb/tb_gpt.sv
+	module worklib.tb_gpt:sv
+		errors: 0, warnings: 0
+TOOL:	xrun(64)	20.09-s011: Exiting on Nov 09, 2025 at 13:10:50 MSK  (total: 00:00:00)

@@ -1,5 +1,7 @@
 module edge_detector (
-  input  logic a_i,
+  input  logic clk_i      ,
+  input  logic aresetn_i  ,
+  input  logic a_i        ,
 
   output logic edge_rise_o,
   output logic edge_fall_o
