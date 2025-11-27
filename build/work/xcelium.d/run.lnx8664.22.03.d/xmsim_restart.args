@@ -8,7 +8,7 @@
 +EMGRLOG
 /home/Stepan/General-Purpose-Timers/build/compile.log
 -XLSTIME
-1763058086
+1763721081
 -XLKEEP
 -XLMODE
 /home/Stepan/General-Purpose-Timers/build/work/xcelium.d/run.lnx8664.22.03.d
@@ -22,4 +22,4 @@ xrun
 -XLVERSION
 "TOOL:	xrun(64)	22.03-s001"
 -XLNAME
-./work/xcelium.d/run.lnx8664.22.03.d/miet-cad-edu_8600
+./work/xcelium.d/run.lnx8664.22.03.d/miet-cad-edu_17512

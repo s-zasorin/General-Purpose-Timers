@@ -2,7 +2,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
                         parameter ARR_WIDTH = 32,
                         parameter PSC_WIDTH = 16) (
   input  logic                   clk_i      ,   // Тактовый сигнал
-  input  logic                   aresetn_i  ,   // Асинхронный сброс
+  input  logic                   rst_i  ,   // Асинхронный сброс
   input  logic [CNT_WIDTH - 1:0] cnt_i      ,   // Значение счетчика из регистра TIM_CNT
   input  logic                   cen_i      ,   // Сигнал активации счетчика
   input  logic [ARR_WIDTH - 1:0] arr_i      ,   // Значение ARR из регистра TIM_ARR
@@ -51,15 +51,15 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
 
 // Preload ARR
 
-  always_ff @(posedge clk_i or negedge aresetn_i)
-    if (~aresetn_i)
+  always_ff @(posedge clk_i)
+    if (rst_i)
       arr_shadow_reg <= {ARR_WIDTH{1'b0}};
     else if ((~dir_i  && (cnt_ff == (arr_shadow_reg - 'b1)) && ~udis_i) || (dir_i && (cnt_ff == ({CNT_WIDTH{1'b0}} + 'b1)) && ~udis_i))
       arr_shadow_reg <= arr_i;
 
 // Preload PSC
-  always_ff @(posedge clk_i or negedge aresetn_i)
-    if (~aresetn_i)
+  always_ff @(posedge clk_i)
+    if (rst_i)
       psc_shadow_reg <= {PSC_WIDTH{1'b0}};
     else if ((~dir_i  && (cnt_ff == (arr_shadow_reg - 'b1)) && ~udis_i) || (dir_i && (cnt_ff == ({CNT_WIDTH{1'b0}} + 'b1)) && ~udis_i))
       psc_shadow_reg <= psc_i;
@@ -75,8 +75,8 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
     else
       uev_o <= 1'b0;
 
-  always_ff @(posedge clk_i or negedge aresetn_i)
-    if (~aresetn_i)
+  always_ff @(posedge clk_i)
+    if (rst_i)
       state_ff <= IDLE;
     else
       state_ff <= next;

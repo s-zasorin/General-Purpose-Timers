@@ -1,7 +1,7 @@
 module tim_channel #(parameter CCR_WIDTH = 32,
                     parameter  CNT_WIDTH = 32) (
   input logic                    clk_i    ,
-  input logic                    aresetn_i,
+  input logic                    rst_i    ,
   input logic  [1:0]             ckd_i    ,
   input logic  [3:0]             icf_i    ,
   input logic  [CNT_WIDTH - 1:0] cnt_i    ,       // Counter value from Time-Base Unit
@@ -46,22 +46,22 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   assign compare_enable = output_mode & (~ocxpe_i | uev_i);
 
  // Shadow Register logic 
-  always_ff @(posedge clk_i or negedge aresetn_i)
-    if (~aresetn_i)
+  always_ff @(posedge clk_i)
+    if (rst_i)
       shadow_reg_ccr <= {CCR_WIDTH{1'b0}};
     else if (capture_enable)  // Capture Mode
       shadow_reg_ccr <= cnt_i;
     else if (compare_enable)    // Compare Mode
       shadow_reg_ccr <= ccr_i;
   
-  always_ff @(posedge clk_i or negedge aresetn_i)
-    if (~aresetn_i)
+  always_ff @(posedge clk_i)
+    if (rst_i)
       ccxif_o <= 1'b0;
     else if (capture_enable) // Capture first value into CCR Register
       ccxif_o <= 1'b1;
   
-  always_ff @(posedge clk_i or negedge aresetn_i)
-    if (~aresetn_i)
+  always_ff @(posedge clk_i)
+    if (rst_i)
       ccxof_o <= 1'b0;
     else if (capture_enable & ccxif_o) // Capture second value into CCR Register
       ccxof_o <= 1'b1;
@@ -70,19 +70,19 @@ module tim_channel #(parameter CCR_WIDTH = 32,
 
   fdts_generator fdts_gen 
   (
-    .clk_i    (clk_i    ),
-    .aresetn_i(aresetn_i),
-    .ckd_i    (ckd_i    ),
-    .clk_dts_o(clk_dts  )
+    .clk_i    (clk_i  ),
+    .rst_i    (rst_i  ),
+    .ckd_i    (ckd_i  ),
+    .clk_dts_o(clk_dts)
   );
 
   digital_filter i_filt
   (
-    .clk_i    (clk_dts  ),
-    .aresetn_i(aresetn_i),
-    .a_i      (ti_i     ),
-    .f_coef_i (icf_i    ),
-    .af_o     (tif      )
+    .clk_i   (clk_dts),
+    .rst_i   (rst_i  ),
+    .a_i     (ti_i   ),
+    .f_coef_i(icf_i  ),
+    .af_o    (tif    )
   );
 
   logic tif_r;
@@ -90,11 +90,11 @@ module tim_channel #(parameter CCR_WIDTH = 32,
 
   edge_detector i_edge
   (
-    .clk_i      (clk_i    ),
-    .aresetn_i  (aresetn_i),
-    .a_i        (tif      ),
-    .edge_rise_o(tif_r    ),
-    .edge_fall_o(tif_f    )
+    .clk_i      (clk_i),
+    .rst_i      (rst_i),
+    .a_i        (tif  ),
+    .edge_rise_o(tif_r),
+    .edge_fall_o(tif_f)
   );
 
   assign tixfpx = cc1p_i ? tif_r : tif_f;
@@ -113,11 +113,11 @@ module tim_channel #(parameter CCR_WIDTH = 32,
 
   divider_output div_inst
   (
-    .clk_i    (ic1      ),
-    .aresetn_i(aresetn_i),
-    .cce_i    (cce_i    ),
-    .icps_i   (icps_i   ),
-    .clk_o    (ic1ps    )
+    .clk_i (ic1      ),
+    .rst_i (rst_i    ),
+    .cce_i (cce_i    ),
+    .icps_i(icps_i   ),
+    .clk_o (ic1ps    )
   );
 
   logic cnt_equal_ccr    ;
@@ -131,7 +131,7 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   output_control i_control_out
   (
     .clk_i              (clk_i            ),
-    .aresetn_i          (aresetn_i        ),
+    .rst_i              (rst_i            ),
     .cnt_equal_ccr_i    (cnt_equal_ccr    ),
     .dir_i              (dir_i            ),
     .cnt_less_than_ccr_i(cnt_less_than_ccr),

@@ -1,37 +1,37 @@
 module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
-  input  logic                          clk_i         ,
-  input  logic                          aresetn_i     ,
-  input  logic [3:0]                    itr_i         ,
-  input  logic [1:0]                    ckd_i         ,
-  input  logic                          etp_i         ,
-  input  logic [2:0]                    sms_i         ,
-  input  logic [2:0]                    mms_i         ,
-  input  logic [1:0]                    etps_i        ,
-  input  logic [2:0]                    ts_i          ,
-  input  logic [3:0]                    etf_i         ,
-  input  logic                          ug_i          ,
-  input  logic                          cc1if_i       ,
-  input  logic                          uev_i         ,
-  input  logic                          cnt_en_i      ,
-  input  logic                          ece_i         ,
-  input  logic                          ti2fp2_i      ,
-  input  logic                          ti1fp1_i      ,
-  input  logic                          ti1_ed_i      ,
-  input  logic                          etr_i         ,
+  input  logic         clk_i         ,
+  input  logic         rst_i         ,
+  input  logic [3:0]   itr_i         ,
+  input  logic [1:0]   ckd_i         ,
+  input  logic         etp_i         ,
+  input  logic [2:0]   sms_i         ,
+  input  logic [2:0]   mms_i         ,
+  input  logic [1:0]   etps_i        ,
+  input  logic [2:0]   ts_i          ,
+  input  logic [3:0]   etf_i         ,
+  input  logic         ug_i          ,
+  input  logic         cc1if_i       ,
+  input  logic         uev_i         ,
+  input  logic         cnt_en_i      ,
+  input  logic         ece_i         ,
+  input  logic         ti2fp2_i      ,
+  input  logic         ti1fp1_i      ,
+  input  logic         ti1_ed_i      ,
+  input  logic         etr_i         ,
 
-  output logic                          sm_reset_o    ,
-  output logic                          sm_gate_o     ,
-  output logic                          sm_trig_o     ,
-  output logic                          trc_o         ,
-  output logic                          trg_o         ,
-  output logic                          clk_psc_o
+  output logic         sm_reset_o    ,
+  output logic         sm_gate_o     ,
+  output logic         sm_trig_o     ,
+  output logic         trc_o         ,
+  output logic         trg_o         ,
+  output logic         clk_psc_o
 );
 
   logic clk_dts;
   fdts_generator fd_gen
   (
     .clk_i    (clk_i    ),
-    .aresetn_i(aresetn_i),
+    .rst_i    (rst_i    ),
     .ckd_i    (ckd_i    ),
     .clk_dts_o(clk_dts  )
   );
@@ -45,7 +45,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   divider_trigger div_trig_inst
   (
     .clk_i    (etrp     ),
-    .aresetn_i(aresetn_i),
+    .rst_i    (rst_i    ),
     .etps_i   (etps_i   ),
     .clk_o    (etrpd    )
   );
@@ -53,7 +53,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   digital_filter i_digital_filter
   (
     .clk_i    (clk_dts  ),
-    .aresetn_i(aresetn_i),
+    .rst_i    (rst_i    ),
     .a_i      (etrpd    ),
     .f_coef_i (etf_i    ),
     .af_o     (etrpdf   )
@@ -87,7 +87,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   encoder_mode i_enc_mode
   (
     .clk_i    (clk_i      ),
-    .aresetn_i(aresetn_i  ),
+    .rst_i    (rst_i      ),
     .ti1f_i   (ti1fp1_i   ),
     .ti2f_i   (ti2fp2_i   ),
     .clk_1d2_o(enc_clk_1d2),

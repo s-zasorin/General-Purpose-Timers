@@ -1,6 +1,6 @@
 module output_control (
   input  logic       clk_i              ,
-  input  logic       aresetn_i          ,
+  input  logic       rst_i              ,
   input  logic       cnt_equal_ccr_i    ,
   input  logic       dir_i              ,
   input  logic       cnt_less_than_ccr_i,
@@ -12,8 +12,8 @@ module output_control (
 
   logic oc_ref_ff;
 
-  always_ff @(posedge clk_i or negedge aresetn_i)
-    if (~aresetn_i)
+  always_ff @(posedge clk_i)
+    if (rst_i)
       oc_ref_ff <= 1'b0;
     else
       oc_ref_ff <= oc_ref_o;
