@@ -7,7 +7,7 @@ reg TIM_PSC {
   (UEV).";
   field {
     name = "PSC";
-    hw = rw;
+    hw = r;
     sw = rw;
   } PSC[31:0];
 };

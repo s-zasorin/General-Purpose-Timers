@@ -6,7 +6,7 @@ reg TIM_ARR {
   desc = "Данный регистр является Preload регистром для теневого регистра ARR.";
   field {
     name = "ARR";
-    hw = rw;
+    hw = r;
     sw = rw;
   } ARR[31:0];
 };
