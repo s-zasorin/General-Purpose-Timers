@@ -3,7 +3,7 @@ interface axi4lite_intf #(
   parameter DATA_WIDTH = 32,
   parameter RESP_WIDTH = 1
 );
-localparam STRB_WIDTH = (DATA_WIDTH + 7) / 8;
+localparam STRB_WIDTH = DATA_WIDTH / 8;
 
 // read address channel
 logic [ ADDR_WIDTH-1:0 ]  ARADDR;

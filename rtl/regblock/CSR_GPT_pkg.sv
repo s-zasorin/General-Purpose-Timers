@@ -5,24 +5,13 @@ package CSR_GPT_pkg;
 
     localparam CSR_GPT_DATA_WIDTH = 32;
     localparam CSR_GPT_MIN_ADDR_WIDTH = 6;
-    localparam CSR_GPT_SIZE = 'h40;
 
     typedef struct {
         logic next;
     } TIM_CR1__CEN__in_t;
 
     typedef struct {
-        logic next;
-    } TIM_CR1__UDIS__in_t;
-
-    typedef struct {
-        logic [1:0] next;
-    } TIM_CR1__CMS__in_t;
-
-    typedef struct {
         TIM_CR1__CEN__in_t CEN;
-        TIM_CR1__UDIS__in_t UDIS;
-        TIM_CR1__CMS__in_t CMS;
     } TIM_CR1__in_t;
 
     typedef struct {
@@ -247,22 +236,6 @@ package CSR_GPT_pkg;
 
     typedef struct {
         logic [31:0] next;
-    } TIM_PSC__PSC__in_t;
-
-    typedef struct {
-        TIM_PSC__PSC__in_t PSC;
-    } TIM_PSC__in_t;
-
-    typedef struct {
-        logic [31:0] next;
-    } TIM_ARR__ARR__in_t;
-
-    typedef struct {
-        TIM_ARR__ARR__in_t ARR;
-    } TIM_ARR__in_t;
-
-    typedef struct {
-        logic [31:0] next;
     } TIM_CCR__CCR__in_t;
 
     typedef struct {
@@ -329,8 +302,6 @@ package CSR_GPT_pkg;
         TIM_CCER__in_t TIM_CCER1;
         TIM_EGR__in_t TIM_EGR1;
         TIM_CNT__in_t TIM_CNT;
-        TIM_PSC__in_t TIM_PSC;
-        TIM_ARR__in_t TIM_ARR;
         TIM_CCR__in_t TIM_CCR1;
         TIM_CCR__in_t TIM_CCR2;
         TIM_CCR__in_t TIM_CCR3;

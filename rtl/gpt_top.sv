@@ -34,7 +34,7 @@ module gpt_top
 
   CSR_GPT i_regblock
   (
-    .clk     (clk_i       ),
+    .clk     (aclk_i      ),
     .rst     (rst_i       ),
     .s_axil  (s_axil      ),
     .hwif_in (gpt_hwif_in ),
@@ -43,7 +43,6 @@ module gpt_top
 
   // TIM_CR1
   logic       cen;  // Counter enable
-  logic       urs;
   logic       udis;
   logic       opm;
   logic       dir;
@@ -52,7 +51,7 @@ module gpt_top
   logic [1:0] ckd;
 
   assign cen  = gpt_hwif_out.TIM_CR1.CEN.value ;
-  assign urs  = gpt_hwif_out.TIM_CR1.URS.value ;
+  assign udis = gpt_hwif_out.TIM_CR1.UDIS.value;
   assign opm  = gpt_hwif_out.TIM_CR1.OPM.value ;
   assign dir  = gpt_hwif_out.TIM_CR1.DIR.value ;
   assign cms  = gpt_hwif_out.TIM_CR1.CMS.value ;
@@ -1488,7 +1487,13 @@ module gpt_top
   logic sm_trig ;
 
   logic uev;  // Update Event
+  logic uev_tbu; // Update Event from Time Base Unit
+
+  assign uev = ug ? 1'b1 : uev_tbu;
   logic cnt_en;
+
+  // Write CEN to Program Registers
+  assign gpt_hwif_in.TIM_CR1.CEN.next = cnt_en;
 
   trigger_controller trig_inst 
   (
@@ -1522,11 +1527,11 @@ module gpt_top
 
   prescaler #(.PSC_WIDTH(PSC_WIDTH)) i_psc
   (
-    .clk_i    (clk_psc  ),
-    .rst_i(rst_i),
-    .uev_i    (uev      ),
-    .psc_i    (psc      ),
-    .clk_o    (clk_cnt  )
+    .clk_i    (clk_psc),
+    .rst_i    (rst_i  ),
+    .uev_i    (uev    ),
+    .psc_i    (psc    ),
+    .clk_o    (clk_cnt)
   );
 
   logic [CNT_WIDTH - 1:0] cnt_value;
@@ -1534,7 +1539,7 @@ module gpt_top
   time_base_unit time_base_inst
   (
     .clk_i     (clk_cnt  ),
-    .rst_i (rst_i),
+    .rst_i     (rst_i    ),
     .cnt_i     (cnt      ),
     .cen_i     (cen      ),
     .arr_i     (arr      ),
@@ -1551,7 +1556,7 @@ module gpt_top
     .tif_o     (tif      ),
     .cnt_en_o  (cnt_en   ),
     .uif_o     (uif      ),
-    .uev_o     (uev      ),
+    .uev_o     (uev_tbu  ),
     .cnt_o     (cnt_value)
   );
 

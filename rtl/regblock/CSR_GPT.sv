@@ -29,15 +29,6 @@ module CSR_GPT (
     logic cpuif_wr_ack;
     logic cpuif_wr_err;
 
-    `ifndef SYNTHESIS
-        initial begin
-            assert_bad_addr_width: assert($bits(s_axil.ARADDR) >= CSR_GPT_pkg::CSR_GPT_MIN_ADDR_WIDTH)
-                else $error("Interface address width of %0d is too small. Shall be at least %0d bits", $bits(s_axil.ARADDR), CSR_GPT_pkg::CSR_GPT_MIN_ADDR_WIDTH);
-            assert_bad_data_width: assert($bits(s_axil.WDATA) == CSR_GPT_pkg::CSR_GPT_DATA_WIDTH)
-                else $error("Interface data width of %0d is incorrect. Shall be %0d bits", $bits(s_axil.WDATA), CSR_GPT_pkg::CSR_GPT_DATA_WIDTH);
-        end
-    `endif
-
     // Max Outstanding Transactions: 2
     logic [1:0] axil_n_in_flight;
     logic axil_prev_was_rd;
@@ -952,6 +943,7 @@ module CSR_GPT (
         field_combo.TIM_CR1.CEN.next = next_c;
         field_combo.TIM_CR1.CEN.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR1.CEN.load_next) begin
             field_storage.TIM_CR1.CEN.value <= field_combo.TIM_CR1.CEN.next;
@@ -967,13 +959,11 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CR1.UDIS.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CR1.UDIS.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CR1.UDIS.next = next_c;
         field_combo.TIM_CR1.UDIS.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR1.UDIS.load_next) begin
             field_storage.TIM_CR1.UDIS.value <= field_combo.TIM_CR1.UDIS.next;
@@ -993,6 +983,7 @@ module CSR_GPT (
         field_combo.TIM_CR1.URS.next = next_c;
         field_combo.TIM_CR1.URS.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR1.URS.load_next) begin
             field_storage.TIM_CR1.URS.value <= field_combo.TIM_CR1.URS.next;
@@ -1012,6 +1003,7 @@ module CSR_GPT (
         field_combo.TIM_CR1.OPM.next = next_c;
         field_combo.TIM_CR1.OPM.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR1.OPM.load_next) begin
             field_storage.TIM_CR1.OPM.value <= field_combo.TIM_CR1.OPM.next;
@@ -1031,6 +1023,7 @@ module CSR_GPT (
         field_combo.TIM_CR1.DIR.next = next_c;
         field_combo.TIM_CR1.DIR.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR1.DIR.load_next) begin
             field_storage.TIM_CR1.DIR.value <= field_combo.TIM_CR1.DIR.next;
@@ -1046,13 +1039,11 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CR1.CMS.value & ~decoded_wr_biten[6:5]) | (decoded_wr_data[6:5] & decoded_wr_biten[6:5]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CR1.CMS.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CR1.CMS.next = next_c;
         field_combo.TIM_CR1.CMS.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR1.CMS.load_next) begin
             field_storage.TIM_CR1.CMS.value <= field_combo.TIM_CR1.CMS.next;
@@ -1072,6 +1063,7 @@ module CSR_GPT (
         field_combo.TIM_CR1.APRE.next = next_c;
         field_combo.TIM_CR1.APRE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR1.APRE.load_next) begin
             field_storage.TIM_CR1.APRE.value <= field_combo.TIM_CR1.APRE.next;
@@ -1091,6 +1083,7 @@ module CSR_GPT (
         field_combo.TIM_CR1.CKD.next = next_c;
         field_combo.TIM_CR1.CKD.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR1.CKD.load_next) begin
             field_storage.TIM_CR1.CKD.value <= field_combo.TIM_CR1.CKD.next;
@@ -1112,6 +1105,7 @@ module CSR_GPT (
         field_combo.TIM_CR2.CCDS.next = next_c;
         field_combo.TIM_CR2.CCDS.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR2.CCDS.load_next) begin
             field_storage.TIM_CR2.CCDS.value <= field_combo.TIM_CR2.CCDS.next;
@@ -1131,6 +1125,7 @@ module CSR_GPT (
         field_combo.TIM_CR2.MMS.next = next_c;
         field_combo.TIM_CR2.MMS.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR2.MMS.load_next) begin
             field_storage.TIM_CR2.MMS.value <= field_combo.TIM_CR2.MMS.next;
@@ -1150,6 +1145,7 @@ module CSR_GPT (
         field_combo.TIM_CR2.TI1S.next = next_c;
         field_combo.TIM_CR2.TI1S.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CR2.TI1S.load_next) begin
             field_storage.TIM_CR2.TI1S.value <= field_combo.TIM_CR2.TI1S.next;
@@ -1170,6 +1166,7 @@ module CSR_GPT (
         field_combo.TIM_SMCR.SMS.next = next_c;
         field_combo.TIM_SMCR.SMS.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SMCR.SMS.load_next) begin
             field_storage.TIM_SMCR.SMS.value <= field_combo.TIM_SMCR.SMS.next;
@@ -1190,6 +1187,7 @@ module CSR_GPT (
         field_combo.TIM_SMCR.TS.next = next_c;
         field_combo.TIM_SMCR.TS.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SMCR.TS.load_next) begin
             field_storage.TIM_SMCR.TS.value <= field_combo.TIM_SMCR.TS.next;
@@ -1209,6 +1207,7 @@ module CSR_GPT (
         field_combo.TIM_SMCR.MSM.next = next_c;
         field_combo.TIM_SMCR.MSM.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SMCR.MSM.load_next) begin
             field_storage.TIM_SMCR.MSM.value <= field_combo.TIM_SMCR.MSM.next;
@@ -1228,6 +1227,7 @@ module CSR_GPT (
         field_combo.TIM_SMCR.ETF.next = next_c;
         field_combo.TIM_SMCR.ETF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SMCR.ETF.load_next) begin
             field_storage.TIM_SMCR.ETF.value <= field_combo.TIM_SMCR.ETF.next;
@@ -1247,6 +1247,7 @@ module CSR_GPT (
         field_combo.TIM_SMCR.ETPS.next = next_c;
         field_combo.TIM_SMCR.ETPS.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SMCR.ETPS.load_next) begin
             field_storage.TIM_SMCR.ETPS.value <= field_combo.TIM_SMCR.ETPS.next;
@@ -1266,6 +1267,7 @@ module CSR_GPT (
         field_combo.TIM_SMCR.ECE.next = next_c;
         field_combo.TIM_SMCR.ECE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SMCR.ECE.load_next) begin
             field_storage.TIM_SMCR.ECE.value <= field_combo.TIM_SMCR.ECE.next;
@@ -1285,6 +1287,7 @@ module CSR_GPT (
         field_combo.TIM_SMCR.ETP.next = next_c;
         field_combo.TIM_SMCR.ETP.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SMCR.ETP.load_next) begin
             field_storage.TIM_SMCR.ETP.value <= field_combo.TIM_SMCR.ETP.next;
@@ -1307,6 +1310,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.UIE.next = next_c;
         field_combo.TIM_DIER1.UIE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.UIE.load_next) begin
             field_storage.TIM_DIER1.UIE.value <= field_combo.TIM_DIER1.UIE.next;
@@ -1329,6 +1333,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.CC1IE.next = next_c;
         field_combo.TIM_DIER1.CC1IE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.CC1IE.load_next) begin
             field_storage.TIM_DIER1.CC1IE.value <= field_combo.TIM_DIER1.CC1IE.next;
@@ -1351,6 +1356,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.CC2IE.next = next_c;
         field_combo.TIM_DIER1.CC2IE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.CC2IE.load_next) begin
             field_storage.TIM_DIER1.CC2IE.value <= field_combo.TIM_DIER1.CC2IE.next;
@@ -1373,6 +1379,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.CC3IE.next = next_c;
         field_combo.TIM_DIER1.CC3IE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.CC3IE.load_next) begin
             field_storage.TIM_DIER1.CC3IE.value <= field_combo.TIM_DIER1.CC3IE.next;
@@ -1395,6 +1402,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.CC4IE.next = next_c;
         field_combo.TIM_DIER1.CC4IE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.CC4IE.load_next) begin
             field_storage.TIM_DIER1.CC4IE.value <= field_combo.TIM_DIER1.CC4IE.next;
@@ -1418,6 +1426,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.TIE.next = next_c;
         field_combo.TIM_DIER1.TIE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.TIE.load_next) begin
             field_storage.TIM_DIER1.TIE.value <= field_combo.TIM_DIER1.TIE.next;
@@ -1441,6 +1450,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.UDE.next = next_c;
         field_combo.TIM_DIER1.UDE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.UDE.load_next) begin
             field_storage.TIM_DIER1.UDE.value <= field_combo.TIM_DIER1.UDE.next;
@@ -1463,6 +1473,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.CC1DE.next = next_c;
         field_combo.TIM_DIER1.CC1DE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.CC1DE.load_next) begin
             field_storage.TIM_DIER1.CC1DE.value <= field_combo.TIM_DIER1.CC1DE.next;
@@ -1485,6 +1496,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.CC2DE.next = next_c;
         field_combo.TIM_DIER1.CC2DE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.CC2DE.load_next) begin
             field_storage.TIM_DIER1.CC2DE.value <= field_combo.TIM_DIER1.CC2DE.next;
@@ -1507,6 +1519,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.CC3DE.next = next_c;
         field_combo.TIM_DIER1.CC3DE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.CC3DE.load_next) begin
             field_storage.TIM_DIER1.CC3DE.value <= field_combo.TIM_DIER1.CC3DE.next;
@@ -1529,6 +1542,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.CC4DE.next = next_c;
         field_combo.TIM_DIER1.CC4DE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.CC4DE.load_next) begin
             field_storage.TIM_DIER1.CC4DE.value <= field_combo.TIM_DIER1.CC4DE.next;
@@ -1552,6 +1566,7 @@ module CSR_GPT (
         field_combo.TIM_DIER1.TDE.next = next_c;
         field_combo.TIM_DIER1.TDE.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_DIER1.TDE.load_next) begin
             field_storage.TIM_DIER1.TDE.value <= field_combo.TIM_DIER1.TDE.next;
@@ -1575,6 +1590,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.UIF.next = next_c;
         field_combo.TIM_SR1.UIF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.UIF.load_next) begin
             field_storage.TIM_SR1.UIF.value <= field_combo.TIM_SR1.UIF.next;
@@ -1597,6 +1613,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.CC1IF.next = next_c;
         field_combo.TIM_SR1.CC1IF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.CC1IF.load_next) begin
             field_storage.TIM_SR1.CC1IF.value <= field_combo.TIM_SR1.CC1IF.next;
@@ -1619,6 +1636,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.CC2IF.next = next_c;
         field_combo.TIM_SR1.CC2IF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.CC2IF.load_next) begin
             field_storage.TIM_SR1.CC2IF.value <= field_combo.TIM_SR1.CC2IF.next;
@@ -1641,6 +1659,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.CC3IF.next = next_c;
         field_combo.TIM_SR1.CC3IF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.CC3IF.load_next) begin
             field_storage.TIM_SR1.CC3IF.value <= field_combo.TIM_SR1.CC3IF.next;
@@ -1663,6 +1682,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.CC4IF.next = next_c;
         field_combo.TIM_SR1.CC4IF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.CC4IF.load_next) begin
             field_storage.TIM_SR1.CC4IF.value <= field_combo.TIM_SR1.CC4IF.next;
@@ -1686,6 +1706,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.TIF.next = next_c;
         field_combo.TIM_SR1.TIF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.TIF.load_next) begin
             field_storage.TIM_SR1.TIF.value <= field_combo.TIM_SR1.TIF.next;
@@ -1709,6 +1730,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.CC1OF.next = next_c;
         field_combo.TIM_SR1.CC1OF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.CC1OF.load_next) begin
             field_storage.TIM_SR1.CC1OF.value <= field_combo.TIM_SR1.CC1OF.next;
@@ -1731,6 +1753,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.CC2OF.next = next_c;
         field_combo.TIM_SR1.CC2OF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.CC2OF.load_next) begin
             field_storage.TIM_SR1.CC2OF.value <= field_combo.TIM_SR1.CC2OF.next;
@@ -1753,6 +1776,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.CC3OF.next = next_c;
         field_combo.TIM_SR1.CC3OF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.CC3OF.load_next) begin
             field_storage.TIM_SR1.CC3OF.value <= field_combo.TIM_SR1.CC3OF.next;
@@ -1775,6 +1799,7 @@ module CSR_GPT (
         field_combo.TIM_SR1.CC4OF.next = next_c;
         field_combo.TIM_SR1.CC4OF.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_SR1.CC4OF.load_next) begin
             field_storage.TIM_SR1.CC4OF.value <= field_combo.TIM_SR1.CC4OF.next;
@@ -1798,6 +1823,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC1E.next = next_c;
         field_combo.TIM_CCER1.CC1E.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC1E.load_next) begin
             field_storage.TIM_CCER1.CC1E.value <= field_combo.TIM_CCER1.CC1E.next;
@@ -1820,6 +1846,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC1P.next = next_c;
         field_combo.TIM_CCER1.CC1P.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC1P.load_next) begin
             field_storage.TIM_CCER1.CC1P.value <= field_combo.TIM_CCER1.CC1P.next;
@@ -1843,6 +1870,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC1NP.next = next_c;
         field_combo.TIM_CCER1.CC1NP.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC1NP.load_next) begin
             field_storage.TIM_CCER1.CC1NP.value <= field_combo.TIM_CCER1.CC1NP.next;
@@ -1865,6 +1893,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC2E.next = next_c;
         field_combo.TIM_CCER1.CC2E.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC2E.load_next) begin
             field_storage.TIM_CCER1.CC2E.value <= field_combo.TIM_CCER1.CC2E.next;
@@ -1887,6 +1916,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC2P.next = next_c;
         field_combo.TIM_CCER1.CC2P.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC2P.load_next) begin
             field_storage.TIM_CCER1.CC2P.value <= field_combo.TIM_CCER1.CC2P.next;
@@ -1910,6 +1940,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC2NP.next = next_c;
         field_combo.TIM_CCER1.CC2NP.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC2NP.load_next) begin
             field_storage.TIM_CCER1.CC2NP.value <= field_combo.TIM_CCER1.CC2NP.next;
@@ -1932,6 +1963,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC3E.next = next_c;
         field_combo.TIM_CCER1.CC3E.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC3E.load_next) begin
             field_storage.TIM_CCER1.CC3E.value <= field_combo.TIM_CCER1.CC3E.next;
@@ -1954,6 +1986,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC3P.next = next_c;
         field_combo.TIM_CCER1.CC3P.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC3P.load_next) begin
             field_storage.TIM_CCER1.CC3P.value <= field_combo.TIM_CCER1.CC3P.next;
@@ -1977,6 +2010,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC3NP.next = next_c;
         field_combo.TIM_CCER1.CC3NP.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC3NP.load_next) begin
             field_storage.TIM_CCER1.CC3NP.value <= field_combo.TIM_CCER1.CC3NP.next;
@@ -1999,6 +2033,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC4E.next = next_c;
         field_combo.TIM_CCER1.CC4E.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC4E.load_next) begin
             field_storage.TIM_CCER1.CC4E.value <= field_combo.TIM_CCER1.CC4E.next;
@@ -2021,6 +2056,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC4P.next = next_c;
         field_combo.TIM_CCER1.CC4P.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC4P.load_next) begin
             field_storage.TIM_CCER1.CC4P.value <= field_combo.TIM_CCER1.CC4P.next;
@@ -2044,6 +2080,7 @@ module CSR_GPT (
         field_combo.TIM_CCER1.CC4NP.next = next_c;
         field_combo.TIM_CCER1.CC4NP.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCER1.CC4NP.load_next) begin
             field_storage.TIM_CCER1.CC4NP.value <= field_combo.TIM_CCER1.CC4NP.next;
@@ -2066,6 +2103,7 @@ module CSR_GPT (
         field_combo.TIM_EGR1.UG.next = next_c;
         field_combo.TIM_EGR1.UG.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_EGR1.UG.load_next) begin
             field_storage.TIM_EGR1.UG.value <= field_combo.TIM_EGR1.UG.next;
@@ -2088,6 +2126,7 @@ module CSR_GPT (
         field_combo.TIM_EGR1.CC1G.next = next_c;
         field_combo.TIM_EGR1.CC1G.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_EGR1.CC1G.load_next) begin
             field_storage.TIM_EGR1.CC1G.value <= field_combo.TIM_EGR1.CC1G.next;
@@ -2110,6 +2149,7 @@ module CSR_GPT (
         field_combo.TIM_EGR1.CC2G.next = next_c;
         field_combo.TIM_EGR1.CC2G.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_EGR1.CC2G.load_next) begin
             field_storage.TIM_EGR1.CC2G.value <= field_combo.TIM_EGR1.CC2G.next;
@@ -2132,6 +2172,7 @@ module CSR_GPT (
         field_combo.TIM_EGR1.CC3G.next = next_c;
         field_combo.TIM_EGR1.CC3G.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_EGR1.CC3G.load_next) begin
             field_storage.TIM_EGR1.CC3G.value <= field_combo.TIM_EGR1.CC3G.next;
@@ -2154,6 +2195,7 @@ module CSR_GPT (
         field_combo.TIM_EGR1.CC4G.next = next_c;
         field_combo.TIM_EGR1.CC4G.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_EGR1.CC4G.load_next) begin
             field_storage.TIM_EGR1.CC4G.value <= field_combo.TIM_EGR1.CC4G.next;
@@ -2177,6 +2219,7 @@ module CSR_GPT (
         field_combo.TIM_EGR1.TG.next = next_c;
         field_combo.TIM_EGR1.TG.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_EGR1.TG.load_next) begin
             field_storage.TIM_EGR1.TG.value <= field_combo.TIM_EGR1.TG.next;
@@ -2200,6 +2243,7 @@ module CSR_GPT (
         field_combo.TIM_CNT.CNT.next = next_c;
         field_combo.TIM_CNT.CNT.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CNT.CNT.load_next) begin
             field_storage.TIM_CNT.CNT.value <= field_combo.TIM_CNT.CNT.next;
@@ -2215,13 +2259,11 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_PSC && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_PSC.PSC.value & ~decoded_wr_biten[31:0]) | (decoded_wr_data[31:0] & decoded_wr_biten[31:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_PSC.PSC.next;
-            load_next_c = '1;
         end
         field_combo.TIM_PSC.PSC.next = next_c;
         field_combo.TIM_PSC.PSC.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_PSC.PSC.load_next) begin
             field_storage.TIM_PSC.PSC.value <= field_combo.TIM_PSC.PSC.next;
@@ -2237,13 +2279,11 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_ARR && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_ARR.ARR.value & ~decoded_wr_biten[31:0]) | (decoded_wr_data[31:0] & decoded_wr_biten[31:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_ARR.ARR.next;
-            load_next_c = '1;
         end
         field_combo.TIM_ARR.ARR.next = next_c;
         field_combo.TIM_ARR.ARR.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_ARR.ARR.load_next) begin
             field_storage.TIM_ARR.ARR.value <= field_combo.TIM_ARR.ARR.next;
@@ -2266,6 +2306,7 @@ module CSR_GPT (
         field_combo.TIM_CCR1.CCR.next = next_c;
         field_combo.TIM_CCR1.CCR.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCR1.CCR.load_next) begin
             field_storage.TIM_CCR1.CCR.value <= field_combo.TIM_CCR1.CCR.next;
@@ -2288,6 +2329,7 @@ module CSR_GPT (
         field_combo.TIM_CCR2.CCR.next = next_c;
         field_combo.TIM_CCR2.CCR.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCR2.CCR.load_next) begin
             field_storage.TIM_CCR2.CCR.value <= field_combo.TIM_CCR2.CCR.next;
@@ -2310,6 +2352,7 @@ module CSR_GPT (
         field_combo.TIM_CCR3.CCR.next = next_c;
         field_combo.TIM_CCR3.CCR.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCR3.CCR.load_next) begin
             field_storage.TIM_CCR3.CCR.value <= field_combo.TIM_CCR3.CCR.next;
@@ -2332,6 +2375,7 @@ module CSR_GPT (
         field_combo.TIM_CCR4.CCR.next = next_c;
         field_combo.TIM_CCR4.CCR.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCR4.CCR.load_next) begin
             field_storage.TIM_CCR4.CCR.value <= field_combo.TIM_CCR4.CCR.next;
@@ -2354,6 +2398,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.CC1S.next = next_c;
         field_combo.TIM_CCMR1.CC1S.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.CC1S.load_next) begin
             field_storage.TIM_CCMR1.CC1S.value <= field_combo.TIM_CCMR1.CC1S.next;
@@ -2376,6 +2421,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.OC1FE_IC1PSC0.next = next_c;
         field_combo.TIM_CCMR1.OC1FE_IC1PSC0.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.OC1FE_IC1PSC0.load_next) begin
             field_storage.TIM_CCMR1.OC1FE_IC1PSC0.value <= field_combo.TIM_CCMR1.OC1FE_IC1PSC0.next;
@@ -2398,6 +2444,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.OC1PE_IC1PSC1.next = next_c;
         field_combo.TIM_CCMR1.OC1PE_IC1PSC1.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.OC1PE_IC1PSC1.load_next) begin
             field_storage.TIM_CCMR1.OC1PE_IC1PSC1.value <= field_combo.TIM_CCMR1.OC1PE_IC1PSC1.next;
@@ -2420,6 +2467,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.OC1M_IC1F.next = next_c;
         field_combo.TIM_CCMR1.OC1M_IC1F.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.OC1M_IC1F.load_next) begin
             field_storage.TIM_CCMR1.OC1M_IC1F.value <= field_combo.TIM_CCMR1.OC1M_IC1F.next;
@@ -2442,6 +2490,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.OC1CE_IC1F3.next = next_c;
         field_combo.TIM_CCMR1.OC1CE_IC1F3.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.OC1CE_IC1F3.load_next) begin
             field_storage.TIM_CCMR1.OC1CE_IC1F3.value <= field_combo.TIM_CCMR1.OC1CE_IC1F3.next;
@@ -2464,6 +2513,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.CC2S.next = next_c;
         field_combo.TIM_CCMR1.CC2S.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.CC2S.load_next) begin
             field_storage.TIM_CCMR1.CC2S.value <= field_combo.TIM_CCMR1.CC2S.next;
@@ -2486,6 +2536,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.OC2FE_IC2PSC0.next = next_c;
         field_combo.TIM_CCMR1.OC2FE_IC2PSC0.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.OC2FE_IC2PSC0.load_next) begin
             field_storage.TIM_CCMR1.OC2FE_IC2PSC0.value <= field_combo.TIM_CCMR1.OC2FE_IC2PSC0.next;
@@ -2508,6 +2559,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.OC2PE_IC2PSC1.next = next_c;
         field_combo.TIM_CCMR1.OC2PE_IC2PSC1.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.OC2PE_IC2PSC1.load_next) begin
             field_storage.TIM_CCMR1.OC2PE_IC2PSC1.value <= field_combo.TIM_CCMR1.OC2PE_IC2PSC1.next;
@@ -2530,6 +2582,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.OC2M_IC2F.next = next_c;
         field_combo.TIM_CCMR1.OC2M_IC2F.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.OC2M_IC2F.load_next) begin
             field_storage.TIM_CCMR1.OC2M_IC2F.value <= field_combo.TIM_CCMR1.OC2M_IC2F.next;
@@ -2552,6 +2605,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR1.OC2CE_IC2F3.next = next_c;
         field_combo.TIM_CCMR1.OC2CE_IC2F3.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR1.OC2CE_IC2F3.load_next) begin
             field_storage.TIM_CCMR1.OC2CE_IC2F3.value <= field_combo.TIM_CCMR1.OC2CE_IC2F3.next;
@@ -2574,6 +2628,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.CC1S.next = next_c;
         field_combo.TIM_CCMR2.CC1S.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.CC1S.load_next) begin
             field_storage.TIM_CCMR2.CC1S.value <= field_combo.TIM_CCMR2.CC1S.next;
@@ -2596,6 +2651,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.OC1FE_IC1PSC0.next = next_c;
         field_combo.TIM_CCMR2.OC1FE_IC1PSC0.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.OC1FE_IC1PSC0.load_next) begin
             field_storage.TIM_CCMR2.OC1FE_IC1PSC0.value <= field_combo.TIM_CCMR2.OC1FE_IC1PSC0.next;
@@ -2618,6 +2674,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.OC1PE_IC1PSC1.next = next_c;
         field_combo.TIM_CCMR2.OC1PE_IC1PSC1.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.OC1PE_IC1PSC1.load_next) begin
             field_storage.TIM_CCMR2.OC1PE_IC1PSC1.value <= field_combo.TIM_CCMR2.OC1PE_IC1PSC1.next;
@@ -2640,6 +2697,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.OC1M_IC1F.next = next_c;
         field_combo.TIM_CCMR2.OC1M_IC1F.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.OC1M_IC1F.load_next) begin
             field_storage.TIM_CCMR2.OC1M_IC1F.value <= field_combo.TIM_CCMR2.OC1M_IC1F.next;
@@ -2662,6 +2720,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.OC1CE_IC1F3.next = next_c;
         field_combo.TIM_CCMR2.OC1CE_IC1F3.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.OC1CE_IC1F3.load_next) begin
             field_storage.TIM_CCMR2.OC1CE_IC1F3.value <= field_combo.TIM_CCMR2.OC1CE_IC1F3.next;
@@ -2684,6 +2743,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.CC2S.next = next_c;
         field_combo.TIM_CCMR2.CC2S.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.CC2S.load_next) begin
             field_storage.TIM_CCMR2.CC2S.value <= field_combo.TIM_CCMR2.CC2S.next;
@@ -2706,6 +2766,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.OC2FE_IC2PSC0.next = next_c;
         field_combo.TIM_CCMR2.OC2FE_IC2PSC0.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.OC2FE_IC2PSC0.load_next) begin
             field_storage.TIM_CCMR2.OC2FE_IC2PSC0.value <= field_combo.TIM_CCMR2.OC2FE_IC2PSC0.next;
@@ -2728,6 +2789,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.OC2PE_IC2PSC1.next = next_c;
         field_combo.TIM_CCMR2.OC2PE_IC2PSC1.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.OC2PE_IC2PSC1.load_next) begin
             field_storage.TIM_CCMR2.OC2PE_IC2PSC1.value <= field_combo.TIM_CCMR2.OC2PE_IC2PSC1.next;
@@ -2750,6 +2812,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.OC2M_IC2F.next = next_c;
         field_combo.TIM_CCMR2.OC2M_IC2F.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.OC2M_IC2F.load_next) begin
             field_storage.TIM_CCMR2.OC2M_IC2F.value <= field_combo.TIM_CCMR2.OC2M_IC2F.next;
@@ -2772,6 +2835,7 @@ module CSR_GPT (
         field_combo.TIM_CCMR2.OC2CE_IC2F3.next = next_c;
         field_combo.TIM_CCMR2.OC2CE_IC2F3.load_next = load_next_c;
     end
+
     always_ff @(posedge clk) begin
         if(field_combo.TIM_CCMR2.OC2CE_IC2F3.load_next) begin
             field_storage.TIM_CCMR2.OC2CE_IC2F3.value <= field_combo.TIM_CCMR2.OC2CE_IC2F3.next;

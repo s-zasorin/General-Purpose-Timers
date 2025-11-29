@@ -24,15 +24,15 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   output logic [CNT_WIDTH - 1:0] cnt_o
 );
 
-  logic [CNT_WIDTH - 1:0] cnt_ff            ;
-  logic [CNT_WIDTH - 1:0] cnt_next          ;
-  logic [ARR_WIDTH - 1:0] arr_shadow_reg    ;
-  logic [ARR_WIDTH - 1:0] arr_compare_reg   ;
-  logic [PSC_WIDTH - 1:0] psc_shadow_reg    ;
-  logic                   enable_preload_arr;
-  logic                   overflow          ;
-  logic                   underflow         ;
-  logic                   cnt_en_ff         ;
+  logic [CNT_WIDTH - 1:0] cnt_ff         ;
+  logic [CNT_WIDTH - 1:0] cnt_next       ;
+  logic [ARR_WIDTH - 1:0] arr_shadow_reg ;
+  logic [ARR_WIDTH - 1:0] arr_compare_reg;
+  logic [PSC_WIDTH - 1:0] psc_shadow_reg ;
+  logic                   overflow       ;
+  logic                   underflow      ;
+  logic                   cnt_en_ff      ;
+  logic                   trig_enable    ;
 
   enum logic [2:0] {
     IDLE     = 3'b000,
@@ -43,18 +43,19 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   } state_ff, next;
 
   always_ff @(posedge clk_i)
-    enable_preload_arr <= apre_i;
-
-  always_ff @(posedge clk_i)
-    if (state_ff == CNT_UP || CNT_DOWN)
-      cnt_en_ff <= cen_i;
+    if (rst_i)
+      cnt_en_ff <= 1'b0;
+    else if (cen_i)
+      cnt_en_ff <= 1'b1;
+    else if (~cen_i)
+      cnt_en_ff <= 1'b0;
 
 // Preload ARR
 
   always_ff @(posedge clk_i)
     if (rst_i)
       arr_shadow_reg <= {ARR_WIDTH{1'b0}};
-    else if ((~dir_i  && (cnt_ff == (arr_shadow_reg - 'b1)) && ~udis_i) || (dir_i && (cnt_ff == ({CNT_WIDTH{1'b0}} + 'b1)) && ~udis_i))
+    else if ((~dir_i  && (cnt_ff == (arr_shadow_reg - 'b1)) && ~udis_i) || (dir_i && (cnt_ff == ({CNT_WIDTH{1'b0}} + 'b1)) && ~udis_i) || apre_i)
       arr_shadow_reg <= arr_i;
 
 // Preload PSC
@@ -65,15 +66,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
       psc_shadow_reg <= psc_i;
 
 // UEV logic
-  always_ff @(posedge clk_i)
-    if (ug_i)
-      uev_o <= 1'b1;
-    else if (~dir_i  && (cnt_ff == arr_shadow_reg  ) && ~udis_i)
-      uev_o <= 1'b1;
-    else if (dir_i && (cnt_ff == {CNT_WIDTH{1'b0}}) && ~udis_i)
-      uev_o <= 1'b1;
-    else
-      uev_o <= 1'b0;
+  assign uev_o = overflow || underflow;
 
   always_ff @(posedge clk_i)
     if (rst_i)
@@ -124,10 +117,11 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
     end
   end
 
-  assign overflow  = cnt_ff == arr_shadow_reg;
-  assign underflow = cnt_ff == 1'b0          ;
+  assign overflow  = cnt_ff    == arr_shadow_reg;
+  assign underflow = (state_ff == CNT_DOWN && cnt_ff == 1'b0);
 
-  assign uif_o     = (overflow || underflow) & udis_i;
+  assign cnt_o     = cnt_ff                          ;
+  assign uif_o     = (overflow || underflow) & ~udis_i;
   assign tif_o     = (state_ff == STOP && sm_trig_i) ;
-    
+  assign cnt_en_o  = cnt_en_ff || sm_trig_i;
 endmodule
