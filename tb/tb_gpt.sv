@@ -132,14 +132,14 @@ endtask
 task up_count_mode();
   // Запись в SMCR
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));         // SMS = 0 - тактирование от внутреннего Clock
-  // Запись в TIM_CR1
-  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b1111));  // CEN = 1, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
   // Запись в PSC
   axi_lite_write(.addr('h20), .data(32'd1), .strb(4'b1111));        // PSC = 0x1 - Clock для счетчика = CLK_INT / 2
   // Запись в TIM_ARR
   axi_lite_write(.addr('h24), .data(32'd40), .strb(4'b1111));       // ARR = 40 - Значение автоматической перезагрузки
   // Запись в EGR
   axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
+  // Запись в TIM_CR1
+  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b1111));  // CEN = 1, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
 endtask
 
 task down_count_mode();
@@ -185,6 +185,7 @@ endtask
     etr_i   = 1'b0;
 
     up_count_mode();
+    @(posedge aclk);
     down_count_mode();
     repeat (10) @(posedge aclk);
     stop_counter();
