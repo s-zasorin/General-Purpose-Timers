@@ -98,7 +98,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
     sm_gate_o    = 1'b0;
     sm_reset_o     = 1'b0;
     sm_trig_o      = 1'b0;
-    clk_psc_o      = 1'b0;
+    clk_psc_o      = clk_i;
     case (sms_i)
       3'b000: begin                   // Режим внутреннего тактирования
         clk_psc_o = clk_i      ;

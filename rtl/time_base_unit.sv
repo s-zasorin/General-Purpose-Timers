@@ -117,11 +117,11 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
     end
   end
 
-  assign overflow  = cnt_ff    == arr_shadow_reg;
-  assign underflow = (state_ff == CNT_DOWN && cnt_ff == 1'b0);
+  assign overflow  = (cnt_ff   == arr_shadow_reg && state_ff == CNT_UP  );
+  assign underflow = (cnt_ff   == 1'b0           && state_ff == CNT_DOWN);
 
-  assign cnt_o     = cnt_ff                          ;
+  assign cnt_o     = cnt_ff                           ;
   assign uif_o     = (overflow || underflow) & ~udis_i;
-  assign tif_o     = (state_ff == STOP && sm_trig_i) ;
-  assign cnt_en_o  = cnt_en_ff || sm_trig_i;
+  assign tif_o     = (state_ff == STOP && sm_trig_i)  ;
+  assign cnt_en_o  = sm_trig_i ? sm_trig_i : cnt_en_ff;
 endmodule
