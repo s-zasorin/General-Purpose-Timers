@@ -132,69 +132,6 @@ package CSR_GPT_pkg;
 
     typedef struct {
         logic next;
-    } TIM_CCER__CC1E__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC1P__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC1NP__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC2E__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC2P__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC2NP__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC3E__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC3P__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC3NP__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC4E__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC4P__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCER__CC4NP__in_t;
-
-    typedef struct {
-        TIM_CCER__CC1E__in_t CC1E;
-        TIM_CCER__CC1P__in_t CC1P;
-        TIM_CCER__CC1NP__in_t CC1NP;
-        TIM_CCER__CC2E__in_t CC2E;
-        TIM_CCER__CC2P__in_t CC2P;
-        TIM_CCER__CC2NP__in_t CC2NP;
-        TIM_CCER__CC3E__in_t CC3E;
-        TIM_CCER__CC3P__in_t CC3P;
-        TIM_CCER__CC3NP__in_t CC3NP;
-        TIM_CCER__CC4E__in_t CC4E;
-        TIM_CCER__CC4P__in_t CC4P;
-        TIM_CCER__CC4NP__in_t CC4NP;
-    } TIM_CCER__in_t;
-
-    typedef struct {
-        logic next;
     } TIM_EGR__UG__in_t;
 
     typedef struct {
@@ -243,71 +180,15 @@ package CSR_GPT_pkg;
     } TIM_CCR__in_t;
 
     typedef struct {
-        logic [1:0] next;
-    } TIM_CCMR__CC1S__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCMR__OC1FE_IC1PSC0__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCMR__OC1PE_IC1PSC1__in_t;
-
-    typedef struct {
-        logic [2:0] next;
-    } TIM_CCMR__OC1M_IC1F__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCMR__OC1CE_IC1F3__in_t;
-
-    typedef struct {
-        logic [1:0] next;
-    } TIM_CCMR__CC2S__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCMR__OC2FE_IC2PSC0__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCMR__OC2PE_IC2PSC1__in_t;
-
-    typedef struct {
-        logic [2:0] next;
-    } TIM_CCMR__OC2M_IC2F__in_t;
-
-    typedef struct {
-        logic next;
-    } TIM_CCMR__OC2CE_IC2F3__in_t;
-
-    typedef struct {
-        TIM_CCMR__CC1S__in_t CC1S;
-        TIM_CCMR__OC1FE_IC1PSC0__in_t OC1FE_IC1PSC0;
-        TIM_CCMR__OC1PE_IC1PSC1__in_t OC1PE_IC1PSC1;
-        TIM_CCMR__OC1M_IC1F__in_t OC1M_IC1F;
-        TIM_CCMR__OC1CE_IC1F3__in_t OC1CE_IC1F3;
-        TIM_CCMR__CC2S__in_t CC2S;
-        TIM_CCMR__OC2FE_IC2PSC0__in_t OC2FE_IC2PSC0;
-        TIM_CCMR__OC2PE_IC2PSC1__in_t OC2PE_IC2PSC1;
-        TIM_CCMR__OC2M_IC2F__in_t OC2M_IC2F;
-        TIM_CCMR__OC2CE_IC2F3__in_t OC2CE_IC2F3;
-    } TIM_CCMR__in_t;
-
-    typedef struct {
         TIM_CR1__in_t TIM_CR1;
         TIM_DIER__in_t TIM_DIER1;
         TIM_SR__in_t TIM_SR1;
-        TIM_CCER__in_t TIM_CCER1;
         TIM_EGR__in_t TIM_EGR1;
         TIM_CNT__in_t TIM_CNT;
         TIM_CCR__in_t TIM_CCR1;
         TIM_CCR__in_t TIM_CCR2;
         TIM_CCR__in_t TIM_CCR3;
         TIM_CCR__in_t TIM_CCR4;
-        TIM_CCMR__in_t TIM_CCMR1;
-        TIM_CCMR__in_t TIM_CCMR2;
     } CSR_GPT__in_t;
 
     typedef struct {

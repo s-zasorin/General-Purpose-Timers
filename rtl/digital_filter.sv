@@ -10,7 +10,7 @@ module digital_filter (
   logic [3:0] cnt_in;
   logic [3:0] cnt_out;
 
-  always_ff @(posedge clk_i)
+  always_ff @(posedge clk_i or posedge rst_i)
     if (rst_i)
       cnt_in <= 'b0;
     else if (cnt_in == f_coef_i)
@@ -18,8 +18,8 @@ module digital_filter (
     else if (a_i)
       cnt_in <= cnt_in + 'b1;
 
-  always_ff @(posedge clk_i)
-    if (~rst_i)
+  always_ff @(posedge clk_i or posedge rst_i)
+    if (rst_i)
       cnt_out <= 'b0;
     else if (cnt_in == f_coef_i)
       cnt_out <= f_coef_i;

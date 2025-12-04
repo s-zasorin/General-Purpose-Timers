@@ -1458,7 +1458,10 @@ module gpt_top
 
   // TIM_CNT
   logic [CNT_WIDTH - 1:0] cnt;
+  logic [CNT_WIDTH - 1:0] cnt_value;
+
   assign cnt = gpt_hwif_out.TIM_CNT.CNT.value;
+  assign gpt_hwif_in.TIM_CNT.CNT.next = cnt_value;
 
   // TIM_SMCR
   logic [2:0] sms ;
@@ -1534,7 +1537,6 @@ module gpt_top
     .clk_o    (clk_cnt)
   );
 
-  logic [CNT_WIDTH - 1:0] cnt_value;
 
   time_base_unit time_base_inst
   (
@@ -1563,7 +1565,7 @@ module gpt_top
   tim_channel channel_inst_1
   (
     .clk_i          (aclk_i            ),
-    .rst_i      (rst_i         ),
+    .rst_i          (rst_i             ),
     .ckd_i          (ckd               ),
     .icf_i          (icxf           [0]),
     .cnt_i          (cnt_value         ),

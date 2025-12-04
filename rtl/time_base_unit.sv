@@ -2,7 +2,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
                         parameter ARR_WIDTH = 32,
                         parameter PSC_WIDTH = 16) (
   input  logic                   clk_i      ,   // Тактовый сигнал
-  input  logic                   rst_i  ,   // Асинхронный сброс
+  input  logic                   rst_i      ,   // Cинхронный сброс
   input  logic [CNT_WIDTH - 1:0] cnt_i      ,   // Значение счетчика из регистра TIM_CNT
   input  logic                   cen_i      ,   // Сигнал активации счетчика
   input  logic [ARR_WIDTH - 1:0] arr_i      ,   // Значение ARR из регистра TIM_ARR
@@ -24,15 +24,39 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   output logic [CNT_WIDTH - 1:0] cnt_o
 );
 
-  logic [CNT_WIDTH - 1:0] cnt_ff         ;
-  logic [CNT_WIDTH - 1:0] cnt_next       ;
-  logic [ARR_WIDTH - 1:0] arr_shadow_reg ;
-  logic [ARR_WIDTH - 1:0] arr_compare_reg;
-  logic [PSC_WIDTH - 1:0] psc_shadow_reg ;
-  logic                   overflow       ;
-  logic                   underflow      ;
-  logic                   cnt_en_ff      ;
-  logic                   trig_enable    ;
+  logic [CNT_WIDTH - 1:0] cnt_ff        ;
+  logic [ARR_WIDTH - 1:0] arr_shadow_reg;
+  logic [PSC_WIDTH - 1:0] psc_shadow_reg;
+  logic                   overflow      ;
+  logic                   underflow     ;
+  logic                   cnt_en_ff     ;
+  logic                   sm_reset_ff   ;
+  logic                   sm_gate_ff    ;
+  logic                   sm_trig_ff    ;
+
+  sync_cell sync_reset
+  (
+    .clk_i(clk_i      ),
+    .rst_i(rst_i      ),
+    .a_i  (sm_reset_i ),
+    .a_o  (sm_reset_ff)
+  );
+
+  sync_cell sync_trig
+  (
+    .clk_i(clk_i     ),
+    .rst_i(rst_i     ),
+    .a_i  (sm_trig_i ),
+    .a_o  (sm_trig_ff)
+  );
+
+  sync_cell sync_gate
+  (
+    .clk_i(clk_i     ),
+    .rst_i(rst_i     ),
+    .a_i  (sm_gate_i ),
+    .a_o  (sm_gate_ff)
+  );
 
   enum logic [2:0] {
     IDLE     = 3'b000,
@@ -55,18 +79,18 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   always_ff @(posedge clk_i)
     if (rst_i)
       arr_shadow_reg <= {ARR_WIDTH{1'b0}};
-    else if ((~dir_i  && (cnt_ff == (arr_shadow_reg - 'b1)) && ~udis_i) || (dir_i && (cnt_ff == ({CNT_WIDTH{1'b0}} + 'b1)) && ~udis_i) || apre_i)
+    else if (uev_o && apre_i)
       arr_shadow_reg <= arr_i;
 
 // Preload PSC
   always_ff @(posedge clk_i)
     if (rst_i)
       psc_shadow_reg <= {PSC_WIDTH{1'b0}};
-    else if ((~dir_i  && (cnt_ff == (arr_shadow_reg - 'b1)) && ~udis_i) || (dir_i && (cnt_ff == ({CNT_WIDTH{1'b0}} + 'b1)) && ~udis_i))
+    else if (uev_o)
       psc_shadow_reg <= psc_i;
 
 // UEV logic
-  assign uev_o = overflow || underflow;
+  assign uev_o = overflow || underflow || ug_i || sm_reset_ff;
 
   always_ff @(posedge clk_i)
     if (rst_i)
@@ -77,22 +101,22 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   always_comb begin
     next = state_ff;
     case (state_ff)
-      IDLE    : if      (cen_i && ~dir_i)                next = CNT_UP  ;
-                else if (cen_i && dir_i)                 next = CNT_DOWN;
+      IDLE    : if      (cen_i && ~dir_i)                 next = CNT_UP  ;
+                else if (cen_i && dir_i)                  next = CNT_DOWN;
 
-      CNT_UP  : if      (sm_reset_i || overflow)         next = RESET   ;
-                else if (~cen_i)                         next = STOP    ;
-                else if (cms_i != 2'b00 && overflow)     next = CNT_DOWN;                  
+      CNT_UP  : if      (sm_reset_ff || overflow)         next = RESET   ;
+                else if (~cen_i)                          next = STOP    ;
+                else if (cms_i != 2'b00 && overflow)      next = CNT_DOWN;                  
 
-      CNT_DOWN: if      (sm_reset_i || underflow)        next = RESET   ;
-                else if (~cen_i)                         next = STOP    ;
-                else if (cms_i != 2'b00 && underflow)    next = CNT_UP  ;
+      CNT_DOWN: if      (sm_reset_ff || underflow)        next = RESET   ;
+                else if (~cen_i)                          next = STOP    ;
+                else if (cms_i != 2'b00 && underflow)     next = CNT_UP  ;
 
-      RESET   : if      (dir_i)                          next = CNT_DOWN;
-                else if (~dir_i)                         next = CNT_UP  ;
+      RESET   : if      (dir_i)                           next = CNT_DOWN;
+                else if (~dir_i)                          next = CNT_UP  ;
 
-      STOP    : if      ((sm_trig_i || cen_i) && dir_i)  next = CNT_DOWN;
-                else if ((sm_trig_i || cen_i) && ~dir_i) next = CNT_UP  ;
+      STOP    : if      ((sm_trig_ff || cen_i) && dir_i)  next = CNT_DOWN;
+                else if ((sm_trig_ff || cen_i) && ~dir_i) next = CNT_UP  ;
     endcase
   end
 
@@ -110,18 +134,20 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
     else begin
       case (state_ff)
         IDLE    : cnt_ff <= {CNT_WIDTH{1'b0}};
-        CNT_UP  : cnt_ff <= {CNT_WIDTH{1'b0}};
-        CNT_DOWN: cnt_ff <= cnt_i;
         default : cnt_ff <= cnt_ff;
       endcase
     end
   end
 
-  assign overflow  = (cnt_ff   == arr_shadow_reg && state_ff == CNT_UP  );
+  assign overflow  = (cnt_ff   == arr_shadow_reg && state_ff == CNT_UP   && arr_shadow_reg != 'b0);
   assign underflow = (cnt_ff   == 1'b0           && state_ff == CNT_DOWN);
 
-  assign cnt_o     = cnt_ff                           ;
-  assign uif_o     = (overflow || underflow) & ~udis_i;
-  assign tif_o     = (state_ff == STOP && sm_trig_i)  ;
-  assign cnt_en_o  = sm_trig_i ? sm_trig_i : cnt_en_ff;
+  assign cnt_o     = cnt_ff                                   ;
+  assign uif_o     = (overflow || underflow) & ~udis_i || ug_i;
+  assign tif_o     = (state_ff == STOP && sm_trig_i)          ;
+  
+  always_ff @(posedge clk_i)
+    if (sm_trig_ff)
+    cnt_en_o <= 1'b1;
+
 endmodule

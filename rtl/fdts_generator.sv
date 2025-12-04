@@ -11,11 +11,11 @@ module fdts_generator (
   always_ff @(posedge clk_i)
     if (rst_i)
       cnt <= 'b0;
-    else if (cnt == ckd_i)
+    else if (cnt > ckd_i)
       cnt <= 'b0;
     else
       cnt <= cnt + 'b1;
 
-assign clk_dts_o = (cnt == ckd_i);
+assign clk_dts_o = ckd_i == 2'b0 ? clk_i : (cnt == ckd_i);
 
 endmodule

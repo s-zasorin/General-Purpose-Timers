@@ -93,9 +93,9 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
     .clk_1d2_o(enc_clk_1d2),
     .clk_2d1_o(enc_clk_2d1)
   );
-
+  
   always_comb begin
-    sm_gate_o    = 1'b0;
+    sm_gate_o      = 1'b0;
     sm_reset_o     = 1'b0;
     sm_trig_o      = 1'b0;
     clk_psc_o      = clk_i;
@@ -107,11 +107,11 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
       3'b010: clk_psc_o = enc_clk_2d1; // Режим энкодера №2
       3'b100: begin                    // Режим сброса
         clk_psc_o  = clk_i;
-        sm_reset_o = trgi ;
+        sm_reset_o = 1'b1 ;
       end
       3'b101: begin                   // Режим стробирования
-        clk_psc_o   = clk_i;
-        sm_gate_o = trgi ;
+        clk_psc_o  = clk_i;
+        sm_gate_o  = trgi ;
       end
       3'b110: begin                   // Режим триггера
         clk_psc_o  = clk_i;

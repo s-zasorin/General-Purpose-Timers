@@ -1816,9 +1816,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC1E.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC1E.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC1E.next = next_c;
         field_combo.TIM_CCER1.CC1E.load_next = load_next_c;
@@ -1838,9 +1835,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC1P.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC1P.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC1P.next = next_c;
@@ -1863,9 +1857,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC1NP.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC1NP.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC1NP.next = next_c;
         field_combo.TIM_CCER1.CC1NP.load_next = load_next_c;
@@ -1886,9 +1877,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC2E.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC2E.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC2E.next = next_c;
         field_combo.TIM_CCER1.CC2E.load_next = load_next_c;
@@ -1908,9 +1896,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC2P.value & ~decoded_wr_biten[5:5]) | (decoded_wr_data[5:5] & decoded_wr_biten[5:5]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC2P.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC2P.next = next_c;
@@ -1933,9 +1918,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC2NP.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC2NP.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC2NP.next = next_c;
         field_combo.TIM_CCER1.CC2NP.load_next = load_next_c;
@@ -1956,9 +1938,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC3E.value & ~decoded_wr_biten[8:8]) | (decoded_wr_data[8:8] & decoded_wr_biten[8:8]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC3E.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC3E.next = next_c;
         field_combo.TIM_CCER1.CC3E.load_next = load_next_c;
@@ -1978,9 +1957,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC3P.value & ~decoded_wr_biten[9:9]) | (decoded_wr_data[9:9] & decoded_wr_biten[9:9]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC3P.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC3P.next = next_c;
@@ -2003,9 +1979,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC3NP.value & ~decoded_wr_biten[11:11]) | (decoded_wr_data[11:11] & decoded_wr_biten[11:11]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC3NP.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC3NP.next = next_c;
         field_combo.TIM_CCER1.CC3NP.load_next = load_next_c;
@@ -2025,9 +1998,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC4E.value & ~decoded_wr_biten[12:12]) | (decoded_wr_data[12:12] & decoded_wr_biten[12:12]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC4E.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC4E.next = next_c;
@@ -2049,9 +2019,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC4P.value & ~decoded_wr_biten[13:13]) | (decoded_wr_data[13:13] & decoded_wr_biten[13:13]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC4P.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC4P.next = next_c;
         field_combo.TIM_CCER1.CC4P.load_next = load_next_c;
@@ -2072,9 +2039,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCER1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCER1.CC4NP.value & ~decoded_wr_biten[15:15]) | (decoded_wr_data[15:15] & decoded_wr_biten[15:15]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCER1.CC4NP.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCER1.CC4NP.next = next_c;
@@ -2391,9 +2355,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.CC1S.value & ~decoded_wr_biten[1:0]) | (decoded_wr_data[1:0] & decoded_wr_biten[1:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.CC1S.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR1.CC1S.next = next_c;
         field_combo.TIM_CCMR1.CC1S.load_next = load_next_c;
@@ -2413,9 +2374,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.OC1FE_IC1PSC0.value & ~decoded_wr_biten[2:2]) | (decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.OC1FE_IC1PSC0.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR1.OC1FE_IC1PSC0.next = next_c;
@@ -2437,9 +2395,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.OC1PE_IC1PSC1.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.OC1PE_IC1PSC1.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR1.OC1PE_IC1PSC1.next = next_c;
         field_combo.TIM_CCMR1.OC1PE_IC1PSC1.load_next = load_next_c;
@@ -2459,9 +2414,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.OC1M_IC1F.value & ~decoded_wr_biten[6:4]) | (decoded_wr_data[6:4] & decoded_wr_biten[6:4]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.OC1M_IC1F.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR1.OC1M_IC1F.next = next_c;
@@ -2483,9 +2435,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.OC1CE_IC1F3.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.OC1CE_IC1F3.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR1.OC1CE_IC1F3.next = next_c;
         field_combo.TIM_CCMR1.OC1CE_IC1F3.load_next = load_next_c;
@@ -2505,9 +2454,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.CC2S.value & ~decoded_wr_biten[9:8]) | (decoded_wr_data[9:8] & decoded_wr_biten[9:8]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.CC2S.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR1.CC2S.next = next_c;
@@ -2529,9 +2475,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.OC2FE_IC2PSC0.value & ~decoded_wr_biten[10:10]) | (decoded_wr_data[10:10] & decoded_wr_biten[10:10]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.OC2FE_IC2PSC0.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR1.OC2FE_IC2PSC0.next = next_c;
         field_combo.TIM_CCMR1.OC2FE_IC2PSC0.load_next = load_next_c;
@@ -2551,9 +2494,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.OC2PE_IC2PSC1.value & ~decoded_wr_biten[11:11]) | (decoded_wr_data[11:11] & decoded_wr_biten[11:11]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.OC2PE_IC2PSC1.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR1.OC2PE_IC2PSC1.next = next_c;
@@ -2575,9 +2515,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.OC2M_IC2F.value & ~decoded_wr_biten[14:12]) | (decoded_wr_data[14:12] & decoded_wr_biten[14:12]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.OC2M_IC2F.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR1.OC2M_IC2F.next = next_c;
         field_combo.TIM_CCMR1.OC2M_IC2F.load_next = load_next_c;
@@ -2597,9 +2534,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR1.OC2CE_IC2F3.value & ~decoded_wr_biten[15:15]) | (decoded_wr_data[15:15] & decoded_wr_biten[15:15]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR1.OC2CE_IC2F3.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR1.OC2CE_IC2F3.next = next_c;
@@ -2621,9 +2555,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.CC1S.value & ~decoded_wr_biten[1:0]) | (decoded_wr_data[1:0] & decoded_wr_biten[1:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.CC1S.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR2.CC1S.next = next_c;
         field_combo.TIM_CCMR2.CC1S.load_next = load_next_c;
@@ -2643,9 +2574,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.OC1FE_IC1PSC0.value & ~decoded_wr_biten[2:2]) | (decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.OC1FE_IC1PSC0.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR2.OC1FE_IC1PSC0.next = next_c;
@@ -2667,9 +2595,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.OC1PE_IC1PSC1.value & ~decoded_wr_biten[3:3]) | (decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.OC1PE_IC1PSC1.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR2.OC1PE_IC1PSC1.next = next_c;
         field_combo.TIM_CCMR2.OC1PE_IC1PSC1.load_next = load_next_c;
@@ -2689,9 +2614,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.OC1M_IC1F.value & ~decoded_wr_biten[6:4]) | (decoded_wr_data[6:4] & decoded_wr_biten[6:4]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.OC1M_IC1F.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR2.OC1M_IC1F.next = next_c;
@@ -2713,9 +2635,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.OC1CE_IC1F3.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.OC1CE_IC1F3.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR2.OC1CE_IC1F3.next = next_c;
         field_combo.TIM_CCMR2.OC1CE_IC1F3.load_next = load_next_c;
@@ -2735,9 +2654,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.CC2S.value & ~decoded_wr_biten[9:8]) | (decoded_wr_data[9:8] & decoded_wr_biten[9:8]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.CC2S.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR2.CC2S.next = next_c;
@@ -2759,9 +2675,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.OC2FE_IC2PSC0.value & ~decoded_wr_biten[10:10]) | (decoded_wr_data[10:10] & decoded_wr_biten[10:10]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.OC2FE_IC2PSC0.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR2.OC2FE_IC2PSC0.next = next_c;
         field_combo.TIM_CCMR2.OC2FE_IC2PSC0.load_next = load_next_c;
@@ -2781,9 +2694,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.OC2PE_IC2PSC1.value & ~decoded_wr_biten[11:11]) | (decoded_wr_data[11:11] & decoded_wr_biten[11:11]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.OC2PE_IC2PSC1.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR2.OC2PE_IC2PSC1.next = next_c;
@@ -2805,9 +2715,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.OC2M_IC2F.value & ~decoded_wr_biten[14:12]) | (decoded_wr_data[14:12] & decoded_wr_biten[14:12]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.OC2M_IC2F.next;
-            load_next_c = '1;
         end
         field_combo.TIM_CCMR2.OC2M_IC2F.next = next_c;
         field_combo.TIM_CCMR2.OC2M_IC2F.load_next = load_next_c;
@@ -2827,9 +2734,6 @@ module CSR_GPT (
         load_next_c = '0;
         if(decoded_reg_strb.TIM_CCMR2 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CCMR2.OC2CE_IC2F3.value & ~decoded_wr_biten[15:15]) | (decoded_wr_data[15:15] & decoded_wr_biten[15:15]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_CCMR2.OC2CE_IC2F3.next;
             load_next_c = '1;
         end
         field_combo.TIM_CCMR2.OC2CE_IC2F3.next = next_c;

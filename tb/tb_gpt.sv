@@ -39,15 +39,29 @@ module tb_gpt();
     end
   end
   
-  task gen_ch();
+  task gen_ch1();
     repeat (100) begin
       ch_i[0] <= 1'b1;
-      repeat ($urandom_range(1, 10)) @(posedge aclk);
+      repeat ($urandom_range(1, 5)) @(posedge aclk);
       ch_i[0] <= 1'b0;
-      repeat ($urandom_range(1, 10)) @(posedge aclk);
+      repeat ($urandom_range(1, 5)) @(posedge aclk);
       ch_i[0] <= 1'b1;
-      repeat ($urandom_range(1, 10)) begin
+      repeat ($urandom_range(1, 5)) begin
         ch_i[0] <= ~ch_i[0];
+        repeat($urandom_range(1, 5)) @(posedge aclk);
+      end
+    end
+  endtask
+
+  task gen_ch2();
+    repeat (100) begin
+      ch_i[1] <= 1'b1;
+      repeat ($urandom_range(1, 10)) @(posedge aclk);
+      ch_i[1] <= 1'b0;
+      repeat ($urandom_range(1, 10)) @(posedge aclk);
+      ch_i[1] <= 1'b1;
+      repeat ($urandom_range(1, 10)) begin
+        ch_i[1] <= ~ch_i[1];
         repeat($urandom_range(1, 10)) @(posedge aclk);
       end
     end
@@ -130,6 +144,8 @@ task automatic axi_lite_read(
 endtask
 
 task up_count_mode();
+  // Запись в TIM_CR1
+  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b1111));  // CEN = 1, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
   // Запись в SMCR
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));         // SMS = 0 - тактирование от внутреннего Clock
   // Запись в PSC
@@ -138,8 +154,7 @@ task up_count_mode();
   axi_lite_write(.addr('h24), .data(32'd40), .strb(4'b1111));       // ARR = 40 - Значение автоматической перезагрузки
   // Запись в EGR
   axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
-  // Запись в TIM_CR1
-  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b1111));  // CEN = 1, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
+
 endtask
 
 task down_count_mode();
@@ -161,20 +176,52 @@ task trigger_mode();
   // Запись в CCMR1
   axi_lite_write(.addr('h38), .data(32'b01000001), .strb(4'b1111));    // IC1F = 0100, CC1S = 01 - Режим входа
   // Запись в SMCR
-  axi_lite_write(.addr('h8), .data(32'b1010110), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1
+  axi_lite_write(.addr('h8), .data(32'b1010110), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 110 - Триггерный режим
   // Запись в CCER
   axi_lite_write(.addr('h14), .data(32'b0), .strb(4'b1111));
   // Запись в SMCR
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));            // Отключение режима триггера
 endtask
 
+task reset_mode();
+  // Запись в CCMR1
+  axi_lite_write(.addr('h38), .data(32'b01010001), .strb(4'b1111));    // IC1F = 0100, CC1S = 01 - Режим входа
+  // Запись в SMCR
+  axi_lite_write(.addr('h8), .data(32'b1010100), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 100 - Режим сброса
+  // Запись в CCER
+  axi_lite_write(.addr('h14), .data(32'b0), .strb(4'b1111));
+  // Запись в SMCR
+  axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));            // Отключение режима сброса
+endtask
+
 task output_pwm_mode();
+  // Запись в CCR1
+  axi_lite_write(.addr('h28), .data(32'b0000011), .strb(4'b1111)); // CCR1 = 3
+  // Запись в CCMR1
+  axi_lite_write(.addr('h38), .data(32'b01101000), .strb(4'b1111));    // CC1S = 00 - Режим выхода, OC1M = 110 - Режим ШИМ №1, OC1PE = 1 - Предзагрузка CCR1
+  // Запись в EGR - Загрузка значений в теневые регистры
+  axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
+  // Запись в CCER - Активация выхода
+  axi_lite_write(.addr('h14), .data(32'b01), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 1 - положительная полярность
+endtask
+
+task up_down_cnt();
+endtask
+
+task input_capture_mode();
+  // Запись в CCMR1
+  axi_lite_write(.addr('h38), .data(32'b01100001), .strb(4'b1111));    // CC1S = 01 - Режим входа, IC1F = 0110, IC1PS = 00 - нет прескалера
+  // Запись в CCER - Активация выхода
+  axi_lite_write(.addr('h14), .data(32'b01), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 1 - положительная полярность
+  // Запись в TIM_DIER
+  axi_lite_write(.addr('hC), .data(32'b01000000010), .strb(4'b1111));
 endtask
 
 task input_pwm_mode();
 endtask
 
-  initial gen_ch();
+  initial gen_ch1();
+  initial gen_ch2();
 
   initial begin
     rst = 1'b1;
@@ -185,12 +232,19 @@ endtask
     etr_i   = 1'b0;
 
     up_count_mode();
-    @(posedge aclk);
+    repeat (30) @(posedge aclk);
     down_count_mode();
-    repeat (10) @(posedge aclk);
+    repeat (15) @(posedge aclk);
     stop_counter();
     @(posedge aclk);
     trigger_mode();
+    repeat (23) @(posedge aclk);
+    reset_mode();
+    repeat (15) @(posedge aclk);
+    reset_mode();
+    output_pwm_mode();
+    repeat (400) @(posedge aclk);
+    input_capture_mode();
     repeat (100) @(posedge aclk);
     $finish();
   end

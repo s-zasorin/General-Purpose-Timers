@@ -29,15 +29,15 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   output logic                   ti_o
 );
 
-  logic       clk_dts         ;
-  logic       tif             ;
-  logic [1:0] polarity_sel    ;
-  logic       input_mode      ;
-  logic       output_mode     ;
-  logic       shadow_reg_ccr  ; // shadow register for CCRx
-  logic       capture_enable  ; // enable capture mode
-  logic       compare_enable  ; // enable compare mode
-  logic       ic1ps           ;
+  logic                   clk_dts         ;
+  logic                   tif             ;
+  logic [1:0]             polarity_sel    ;
+  logic                   input_mode      ;
+  logic                   output_mode     ;
+  logic [CCR_WIDTH - 1:0] shadow_reg_ccr  ; // shadow register for CCRx
+  logic                   capture_enable  ; // enable capture mode
+  logic                   compare_enable  ; // enable compare mode
+  logic                   ic1ps           ;
 
   assign input_mode  =   cc1s_i[0] | cc1s_i[1];
   assign output_mode = ~(cc1s_i[0] | cc1s_i[1]);
@@ -66,7 +66,7 @@ module tim_channel #(parameter CCR_WIDTH = 32,
     else if (capture_enable & ccxif_o) // Capture second value into CCR Register
       ccxof_o <= 1'b1;
 
-  assign ccr_o = shadow_reg_ccr;
+  assign ccr_o = ccr_i;
 
   fdts_generator fdts_gen 
   (
@@ -97,14 +97,14 @@ module tim_channel #(parameter CCR_WIDTH = 32,
     .edge_fall_o(tif_f)
   );
 
-  assign tixfpx = cc1p_i ? tif_r : tif_f;
+  assign tixfpx_o = cc1p_i ? tif_r : tif_f;
   assign polarity_sel = {cc1p_i, cc1np_i};
 
   logic ic1;
 
   always_comb begin
     case (cc1s_i)
-      2'b00:  ic1 = tixfpx        ;
+      2'b00:  ic1 = tixfpx_o      ;
       2'b01:  ic1 = ti_neigx_fpx_i;
       2'b10:  ic1 = trc_i         ;
       default ic1 = 1'b0          ;
