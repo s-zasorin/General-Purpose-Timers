@@ -3,7 +3,7 @@ module tb_gpt();
   localparam  CH_PAIRS_NUM = 2;
 
   logic                          aclk   ;
-  logic                          rst    ;
+  logic                          aresetn    ;
   logic [3:0]                    itr_i  ;
   logic                          etr_i  ;
   logic [2 * CH_PAIRS_NUM - 1:0] ch_i   ;
@@ -21,14 +21,14 @@ module tb_gpt();
 
   gpt_top DUT 
   (
-    .aclk_i(aclk   ),
-    .rst_i (rst    ),
-    .itr_i (itr_i  ),
-    .etr_i (etr_i  ),
-    .ch_i  (ch_i   ),
-    .trg_o (trg_o  ),
-    .ch_o  (ch_o   ),
-    .s_axil(axil   )
+    .aclk_i   (aclk   ),
+    .aresetn_i(aresetn),
+    .itr_i    (itr_i  ),
+    .etr_i    (etr_i  ),
+    .ch_i     (ch_i   ),
+    .trg_o    (trg_o  ),
+    .ch_o     (ch_o   ),
+    .s_axil   (axil   )
   );
 
   initial begin
@@ -179,6 +179,7 @@ task trigger_mode();
   axi_lite_write(.addr('h8), .data(32'b1010110), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 110 - Триггерный режим
   // Запись в CCER
   axi_lite_write(.addr('h14), .data(32'b0), .strb(4'b1111));
+  repeat (4) @(posedge aclk);
   // Запись в SMCR
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));            // Отключение режима триггера
 endtask
@@ -194,15 +195,28 @@ task reset_mode();
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));            // Отключение режима сброса
 endtask
 
+task gate_mode();
+  // Запись в CCMR1
+  axi_lite_write(.addr('h38), .data(32'b00000001), .strb(4'b1111));    // IC1F = 0000, CC1S = 01 - Режим входа
+  // Запись в SMCR
+  axi_lite_write(.addr('h8), .data(32'b1010101), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 100 - Режим сброса
+  // Запись в CCER
+  axi_lite_write(.addr('h14), .data(32'b0), .strb(4'b1111));
+endtask
+
 task output_pwm_mode();
   // Запись в CCR1
   axi_lite_write(.addr('h28), .data(32'b0000011), .strb(4'b1111)); // CCR1 = 3
-  // Запись в CCMR1
-  axi_lite_write(.addr('h38), .data(32'b01101000), .strb(4'b1111));    // CC1S = 00 - Режим выхода, OC1M = 110 - Режим ШИМ №1, OC1PE = 1 - Предзагрузка CCR1
   // Запись в EGR - Загрузка значений в теневые регистры
   axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
+  // Запись в CCMR1
+  axi_lite_write(.addr('h38), .data(32'b01101000), .strb(4'b1111));    // CC1S = 00 - Режим выхода, OC1M = 110 - Режим ШИМ №1, OC1PE = 1 - Предзагрузка CCR1
   // Запись в CCER - Активация выхода
   axi_lite_write(.addr('h14), .data(32'b01), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 1 - положительная полярность
+endtask
+
+task one_pulse_mode();
+
 endtask
 
 task up_down_cnt();
@@ -217,6 +231,7 @@ task input_capture_mode();
   axi_lite_write(.addr('hC), .data(32'b01000000010), .strb(4'b1111));
 endtask
 
+// Для входного режима ШИМ необходимо настроить минимум 2 канала. Например TI1 и TI2
 task input_pwm_mode();
 endtask
 
@@ -224,23 +239,31 @@ endtask
   initial gen_ch2();
 
   initial begin
-    rst = 1'b1;
+    aresetn = 1'b0;
     @(posedge aclk);
-    @(posedge aclk);
-    rst     = 1'b0;
+    aresetn = 1'b1;
     itr_i   = 4'b0010;
     etr_i   = 1'b0;
-
+    @(posedge aclk);
+    @(posedge aclk);
     up_count_mode();
     repeat (30) @(posedge aclk);
+
     down_count_mode();
     repeat (15) @(posedge aclk);
+  
     stop_counter();
     @(posedge aclk);
+
     trigger_mode();
     repeat (23) @(posedge aclk);
+
     reset_mode();
     repeat (15) @(posedge aclk);
+  
+    gate_mode();
+    repeat (30) @(posedge aclk);
+
     reset_mode();
     output_pwm_mode();
     repeat (400) @(posedge aclk);
