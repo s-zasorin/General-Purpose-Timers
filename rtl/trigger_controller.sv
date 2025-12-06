@@ -1,31 +1,39 @@
 module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
-  input  logic         clk_i         ,
-  input  logic         rst_i         ,
-  input  logic [3:0]   itr_i         ,
-  input  logic [1:0]   ckd_i         ,
-  input  logic         etp_i         ,
-  input  logic [2:0]   sms_i         ,
-  input  logic [2:0]   mms_i         ,
-  input  logic [1:0]   etps_i        ,
-  input  logic [2:0]   ts_i          ,
-  input  logic [3:0]   etf_i         ,
-  input  logic         ug_i          ,
-  input  logic         cc1if_i       ,
-  input  logic         uev_i         ,
-  input  logic         cnt_en_i      ,
-  input  logic         ece_i         ,
-  input  logic         ti2fp2_i      ,
-  input  logic         ti1fp1_i      ,
-  input  logic         ti1_ed_i      ,
-  input  logic         etr_i         ,
+  input  logic         clk_i       ,
+  input  logic         rst_i       ,
+  input  logic [3:0]   itr_i       ,
+  input  logic [1:0]   ckd_i       ,
+  input  logic         etp_i       ,
+  input  logic [2:0]   sms_i       ,
+  input  logic [2:0]   mms_i       ,
+  input  logic [1:0]   etps_i      ,
+  input  logic [2:0]   ts_i        ,
+  input  logic [3:0]   etf_i       ,
+  input  logic         ug_i        ,
+  input  logic         ti1f_i      ,
+  input  logic         cc1if_i     ,
+  input  logic         uev_i       ,
+  input  logic         cnt_en_i    ,
+  input  logic         ece_i       ,
+  input  logic         ti2fp2_i    ,
+  input  logic         ti1fp1_i    ,
+  input  logic         ti1_ed_i    ,
+  input  logic         etr_i       ,
 
-  output logic         sm_reset_o    ,
-  output logic         sm_gate_o     ,
-  output logic         sm_trig_o     ,
-  output logic         trc_o         ,
-  output logic         trg_o         ,
-  output logic         clk_psc_o
+  output logic         sm_reset_o  ,
+  output logic         sm_gate_o   ,
+  output logic         sm_trig_o   ,
+  output logic         trc_o       ,
+  output logic         trg_o       ,
+  output logic         clk_psc_en_o
 );
+
+  logic sm_reset;
+  logic sm_gate;
+  logic sm_trig;
+  logic sm_reset_ff;
+  logic sm_gate_ff;
+  logic sm_trig_ff;
 
   logic clk_dts;
   fdts_generator fd_gen
@@ -73,11 +81,11 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
 
   always_comb begin
     case (ts_i)
-      3'b0xx:  trgi = trc_o   ;
-      3'b100:  trgi = ti1_ed_i;
-      3'b101:  trgi = ti1fp1_i;
-      3'b110:  trgi = ti2fp2_i;
-      3'b111:  trgi = etrpdf  ;
+      3'b0xx : trgi = trc_o   ;
+      3'b100 : trgi = ti1_ed_i;
+      3'b101 : trgi = ti1fp1_i;
+      3'b110 : trgi = ti2fp2_i;
+      3'b111 : trgi = etrpdf  ;
       default: trgi = 3'b000  ;
     endcase
   end
@@ -95,29 +103,29 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   );
   
   always_comb begin
-    sm_gate_o      = 1'b0;
-    sm_reset_o     = 1'b0;
-    sm_trig_o      = 1'b0;
-    clk_psc_o      = clk_i;
+    sm_gate                = 1'b0;
+    sm_reset               = 1'b0;
+    sm_trig                = 1'b0;
+    clk_psc_en_o           = 1'b0;
     case (sms_i)
       3'b000: begin                   // Режим внутреннего тактирования
-        clk_psc_o = clk_i      ;
+        clk_psc_en_o       = 1'b1      ;
       end
-      3'b001: clk_psc_o = enc_clk_1d2; // Режим энкодера №1
-      3'b010: clk_psc_o = enc_clk_2d1; // Режим энкодера №2
+      3'b001: clk_psc_en_o = enc_clk_1d2; // Режим энкодера №1
+      3'b010: clk_psc_en_o = enc_clk_2d1; // Режим энкодера №2
       3'b100: begin                    // Режим сброса
-        clk_psc_o  = clk_i;
-        sm_reset_o = 1'b1 ;
+        clk_psc_en_o       = 1'b1;
+        sm_reset           = trgi;
       end
       3'b101: begin                   // Режим стробирования
-        clk_psc_o  = clk_i;
-        sm_gate_o  = trgi ;
+        clk_psc_en_o       = 1'b1;
+        sm_gate            = ti1f_i;
       end
       3'b110: begin                   // Режим триггера
-        clk_psc_o  = clk_i;
-        sm_trig_o  = 1'b1 ;
+        clk_psc_en_o       = 1'b1;
+        sm_trig            = trgi;
       end
-      3'b111: clk_psc_o = trgi;
+      3'b111: clk_psc_en_o = trgi;
     endcase
   end
 
@@ -131,4 +139,16 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
     endcase
   end
 
+  always_ff @(posedge clk_i)
+    sm_gate_ff <= sm_gate;
+  
+  always_ff @(posedge clk_i)
+    sm_reset_ff <= sm_reset;
+  
+  always_ff @(posedge clk_i)
+    sm_trig_ff <= sm_trig;
+
+  assign sm_trig_o  = sm_trig_ff ;
+  assign sm_gate_o  = sm_gate_ff ;
+  assign sm_reset_o = sm_reset_ff;
 endmodule

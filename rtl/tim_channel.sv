@@ -25,35 +25,41 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   output logic                   ccxif_o  ,
   output logic [CCR_WIDTH - 1:0] ccr_o    ,      // output CCRx value for load into RegBlock
   output logic                   ccxof_o  ,
+  output logic                   tif_o    ,
   output logic                   tixfpx_o ,
   output logic                   ti_o
 );
 
-  logic                   clk_dts         ;
-  logic                   tif             ;
-  logic [1:0]             polarity_sel    ;
-  logic                   input_mode      ;
-  logic                   output_mode     ;
-  logic [CCR_WIDTH - 1:0] shadow_reg_ccr  ; // shadow register for CCRx
-  logic                   capture_enable  ; // enable capture mode
-  logic                   compare_enable  ; // enable compare mode
-  logic                   ic1ps           ;
+  logic                   clk_dts              ;
+  logic                   tif                  ;
+  logic [1:0]             polarity_sel         ;
+  logic                   input_mode           ;
+  logic                   output_mode          ;
+  logic [CCR_WIDTH - 1:0] shadow_reg_ccr       ; // temp shadow register for CCRx
+  logic                   capture_enable       ; // enable capture mode
+  logic                   compare_enable       ; // enable compare mode
+  logic                   ic1ps                ; // 
+  logic [CCR_WIDTH - 1:0] total_shadow_reg_ccr ; // total shadow register for CCRx
 
-  assign input_mode  =   cc1s_i[0] | cc1s_i[1];
+  assign input_mode  =   cc1s_i[0] | cc1s_i[1] ;
   assign output_mode = ~(cc1s_i[0] | cc1s_i[1]);
 
-  assign capture_enable = input_mode & (cce_i | ic1ps & ccg_i);
+  assign capture_enable = input_mode & (cce_i & ic1ps | ccg_i);
   assign compare_enable = output_mode & (~ocxpe_i | uev_i);
 
  // Shadow Register logic 
   always_ff @(posedge clk_i)
     if (rst_i)
       shadow_reg_ccr <= {CCR_WIDTH{1'b0}};
-    else if (capture_enable)  // Capture Mode
-      shadow_reg_ccr <= cnt_i;
-    else if (compare_enable)    // Compare Mode
+    else if (uev_i)              // Update Event
       shadow_reg_ccr <= ccr_i;
-  
+    else if (capture_enable)     // Capture Mode
+      shadow_reg_ccr <= cnt_i;
+    else if (compare_enable)     // Compare Mode
+      shadow_reg_ccr <= ccr_i;
+
+  assign total_shadow_reg_ccr = ocxpe_i ? shadow_reg_ccr : ccr_i;
+
   always_ff @(posedge clk_i)
     if (rst_i)
       ccxif_o <= 1'b0;
@@ -66,7 +72,7 @@ module tim_channel #(parameter CCR_WIDTH = 32,
     else if (capture_enable & ccxif_o) // Capture second value into CCR Register
       ccxof_o <= 1'b1;
 
-  assign ccr_o = ccr_i;
+  assign ccr_o = total_shadow_reg_ccr;
 
   fdts_generator fdts_gen 
   (
@@ -97,16 +103,17 @@ module tim_channel #(parameter CCR_WIDTH = 32,
     .edge_fall_o(tif_f)
   );
 
-  assign tixfpx_o = cc1p_i ? tif_r : tif_f;
+  assign ti1_fd_o     = tif_r || tif_f;
+  assign tixfpx_o     = cc1p_i ? tif_r : tif_f;
   assign polarity_sel = {cc1p_i, cc1np_i};
 
   logic ic1;
 
   always_comb begin
     case (cc1s_i)
-      2'b00:  ic1 = tixfpx_o      ;
-      2'b01:  ic1 = ti_neigx_fpx_i;
-      2'b10:  ic1 = trc_i         ;
+      2'b01:  ic1 = tixfpx_o      ;
+      2'b10:  ic1 = ti_neigx_fpx_i;
+      2'b11:  ic1 = trc_i         ;
       default ic1 = 1'b0          ;
     endcase
   end
@@ -124,9 +131,9 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   logic cnt_less_than_ccr;
   logic cnt_more_than_ccr;
 
-  assign cnt_equal_ccr     = (cnt_i == shadow_reg_ccr);
-  assign cnt_less_than_ccr = (cnt_i < shadow_reg_ccr) ;
-  assign cnt_more_than_ccr = (cnt_i > shadow_reg_ccr) ;
+  assign cnt_equal_ccr     = (cnt_i == total_shadow_reg_ccr);
+  assign cnt_less_than_ccr = (cnt_i < total_shadow_reg_ccr) ;
+  assign cnt_more_than_ccr = (cnt_i > total_shadow_reg_ccr) ;
 
   output_control i_control_out
   (
@@ -144,5 +151,5 @@ module tim_channel #(parameter CCR_WIDTH = 32,
 
   assign oc_ref_p = cc1p_i ? ~oc_ref_o : oc_ref_o;
   assign ti_o     = cce_i  ? oc_ref_p  : 1'b0    ;
-
+  assign tif_o    = tif                          ;
 endmodule

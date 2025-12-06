@@ -6,18 +6,26 @@ module gpt_top
   parameter CCR_WIDTH    = 32,
   parameter WSTRB_WIDTH  = CSR_WIDTH / 8) 
 (
-  input  logic                          aclk_i,
-  input  logic                          rst_i ,
-  input  logic [3:0]                    itr_i ,
-  input  logic                          etr_i ,
-  input  logic [2 * CH_PAIRS_NUM - 1:0] ch_i  ,
-  output logic                          trg_o ,    
-  output logic [2 * CH_PAIRS_NUM - 1:0] ch_o  ,  
+  input  logic                          aclk_i   ,
+  input  logic                          aresetn_i,
+  input  logic [3:0]                    itr_i    ,
+  input  logic                          etr_i    ,
+  input  logic [2 * CH_PAIRS_NUM - 1:0] ch_i     ,
+  output logic                          trg_o    ,    
+  output logic [2 * CH_PAIRS_NUM - 1:0] ch_o     ,  
 
   // AXI-Lite Interface
 
   axi4lite_intf.slave s_axil
 );
+
+  logic rst;
+  sync_cell i_sync_reset
+  (
+    .clk_i(aclk_i    ),
+    .a_i  (~aresetn_i),
+    .a_o  (rst       )
+  );
 
   logic [2 * CH_PAIRS_NUM - 1:0] internal_triggers;
   logic                          trigger          ;
@@ -25,8 +33,8 @@ module gpt_top
   logic                          trc              ;
   logic                          etrf             ;
   logic                          etrp             ;
-  logic                          clk_psc          ;  // clock prescaler
-  logic                          clk_cnt          ;  // clock counter
+  logic                          clk_psc_en       ;  // clock prescaler
+  logic                          clk_cnt_en       ;  // clock counter
 
   // regblock interface
   CSR_GPT_pkg::CSR_GPT__in_t  gpt_hwif_in;
@@ -35,7 +43,7 @@ module gpt_top
   CSR_GPT i_regblock
   (
     .clk     (aclk_i      ),
-    .rst     (rst_i       ),
+    .rst     (rst         ),
     .s_axil  (s_axil      ),
     .hwif_in (gpt_hwif_in ),
     .hwif_out(gpt_hwif_out)
@@ -1498,74 +1506,79 @@ module gpt_top
   // Write CEN to Program Registers
   assign gpt_hwif_in.TIM_CR1.CEN.next = cnt_en;
 
+  logic [2 * CH_PAIRS_NUM - 1:0] tif_arr;
+
   trigger_controller trig_inst 
   (
-    .clk_i      (aclk_i   ),
-    .rst_i      (rst_i    ),
-    .itr_i      (itr_i    ),
-    .ckd_i      (ckd      ),
-    .etp_i      (etp      ),
-    .sms_i      (sms      ),
-    .etps_i     (etps     ),
-    .ts_i       (ts       ),
-    .etf_i      (etf      ),
-    .ug_i       (ug       ),
-    .uev_i      (uev      ),
-    .mms_i      (mms      ),
-    .cc1if_i    (ccxif[0] ),
-    .cnt_en_i   (cnt_en   ),
-    .ece_i      (ece      ),
-    .ti2fp2_i   (ti2fp2   ),
-    .ti1fp1_i   (ti1fp1   ),
-    .ti1_ed_i   (ti1f_ed  ),
-    .etr_i      (etr_i    ),
+    .clk_i       (aclk_i    ),
+    .rst_i       (rst       ),
+    .itr_i       (itr_i     ),
+    .ckd_i       (ckd       ),
+    .etp_i       (etp       ),
+    .sms_i       (sms       ),
+    .etps_i      (etps      ),
+    .ts_i        (ts        ),
+    .etf_i       (etf       ),
+    .ug_i        (ug        ),
+    .uev_i       (uev       ),
+    .mms_i       (mms       ),
+    .cc1if_i     (ccxif[0]  ),
+    .cnt_en_i    (cnt_en    ),
+    .ece_i       (ece       ),
+    .ti2fp2_i    (ti2fp2    ),
+    .ti1fp1_i    (ti1fp1    ),
+    .ti1f_i      (tif_arr[0]),
+    .ti1_ed_i    (ti1f_ed   ),
+    .etr_i       (etr_i     ),
 
-    .trc_o      (trc      ),
-    .sm_reset_o (sm_reset ),
-    .sm_gate_o  (sm_gate  ),
-    .sm_trig_o  (sm_trig  ),
-    .trg_o      (trg_o    ),
-    .clk_psc_o  (clk_psc  )
+    .trc_o       (trc       ),
+    .sm_reset_o  (sm_reset  ),
+    .sm_gate_o   (sm_gate   ),
+    .sm_trig_o   (sm_trig   ),
+    .trg_o       (trg_o     ),
+    .clk_psc_en_o(clk_psc_en)
   );
 
   prescaler #(.PSC_WIDTH(PSC_WIDTH)) i_psc
   (
-    .clk_i    (clk_psc),
-    .rst_i    (rst_i  ),
-    .uev_i    (uev    ),
-    .psc_i    (psc    ),
-    .clk_o    (clk_cnt)
+    .clk_i       (aclk_i    ),
+    .clk_psc_en_i(clk_psc_en),
+    .rst_i       (rst       ),
+    .uev_i       (uev       ),
+    .psc_i       (psc       ),
+    .clk_o       (clk_cnt_en)
   );
 
 
   time_base_unit time_base_inst
   (
-    .clk_i     (clk_cnt  ),
-    .rst_i     (rst_i    ),
-    .cnt_i     (cnt      ),
-    .cen_i     (cen      ),
-    .arr_i     (arr      ),
-    .psc_i     (psc      ),
-    .dir_i     (dir      ),
-    .sm_reset_i(sm_reset ),
-    .sm_gate_i (sm_gate  ),
-    .sm_trig_i (sm_trig  ),
-    .apre_i    (apre     ),
-    .cms_i     (cms      ),
-    .udis_i    (udis     ),
-    .ug_i      (ug       ),
-    .opm_i     (opm      ),
-    .tif_o     (tif      ),
-    .cnt_en_o  (cnt_en   ),
-    .uif_o     (uif      ),
-    .uev_o     (uev_tbu  ),
-    .cnt_o     (cnt_value)
+    .clk_i       (aclk_i    ),
+    .rst_i       (rst       ),
+    .cnt_i       (cnt       ),
+    .cen_i       (cen       ),
+    .clk_cnt_en_i(clk_cnt_en),
+    .arr_i       (arr       ),
+    .psc_i       (psc       ),
+    .dir_i       (dir       ),
+    .sm_reset_i  (sm_reset  ),
+    .sm_gate_i   (sm_gate   ),
+    .sm_trig_i   (sm_trig   ),
+    .apre_i      (apre      ),
+    .cms_i       (cms       ),
+    .udis_i      (udis      ),
+    .ug_i        (ug        ),
+    .opm_i       (opm       ),
+    .tif_o       (tif       ),
+    .cnt_en_o    (cnt_en    ),
+    .uif_o       (uif       ),
+    .uev_o       (uev_tbu   ),
+    .cnt_o       (cnt_value )
   );
 
   tim_channel channel_inst_1
   (
     .clk_i          (aclk_i            ),
-    .rst_i          (rst_i             ),
+    .rst_i          (rst               ),
     .ckd_i          (ckd               ),
     .icf_i          (icxf           [0]),
     .cnt_i          (cnt_value         ),
@@ -1590,36 +1603,39 @@ module gpt_top
     .ccr_o          (ccr_to_regblock[0]),
     .ccxof_o        (ccxof          [0]),
     .tixfpx_o       (ti1fp1            ),
+    .tif_o          (tif_arr        [0]),
     .ti_o           (ch_o           [0])
   );
+
   tim_channel channel_inst_2
   (
-    .clk_i          (aclk_i            ),
-    .rst_i      (rst_i         ),
-    .ckd_i          (ckd               ),
-    .icf_i          (icxf           [1]),
-    .cnt_i          (cnt_value         ),
-    .ccr_i          (ccr_reg        [1]),
-    .uev_i          (uev               ),
-    .ti_i           (ch_i           [1]),
-    .trc_i          (trc               ),
-    .cc1s_i         (ccxs           [1]),
-    .icps_i         (icxpsc         [1]),
-    .cce_i          (ccxe           [1]),
-    .dir_i          (dir               ),
-    .ocxm_i         (ocxm           [1]),
-    .ccg_i          (ccxg           [1]),
-    .ocxpe_i        (ocxpe          [1]),
-    .ti_neigx_fpx_i (ti1fp1            ),
-    .cc1p_i         (ccxp           [1]),
-    .cc1np_i        (ccxnp          [1]),
+    .clk_i         (aclk_i            ),
+    .rst_i         (rst               ),
+    .ckd_i         (ckd               ),
+    .icf_i         (icxf           [1]),
+    .cnt_i         (cnt_value         ),
+    .ccr_i         (ccr_reg        [1]),
+    .uev_i         (uev               ),
+    .ti_i          (ch_i           [1]),
+    .trc_i         (trc               ),
+    .cc1s_i        (ccxs           [1]),
+    .icps_i        (icxpsc         [1]),
+    .cce_i         (ccxe           [1]),
+    .dir_i         (dir               ),
+    .ocxm_i        (ocxm           [1]),
+    .ccg_i         (ccxg           [1]),
+    .ocxpe_i       (ocxpe          [1]),
+    .ti_neigx_fpx_i(ti1fp1            ),
+    .cc1p_i        (ccxp           [1]),
+    .cc1np_i       (ccxnp          [1]),
 
-    .ccxif_o        (ccxif          [1]),
-    .oc_ref_o       (oc_ref_mms     [1]),
-    .ccr_o          (ccr_to_regblock[1]),
-    .ccxof_o        (ccxof          [1]),
-    .tixfpx_o       (ti2fp2            ),
-    .ti_o           (ch_o           [1])
+    .ccxif_o       (ccxif          [1]),
+    .oc_ref_o      (oc_ref_mms     [1]),
+    .ccr_o         (ccr_to_regblock[1]),
+    .ccxof_o       (ccxof          [1]),
+    .tixfpx_o      (ti2fp2            ),
+    .tif_o         (tif_arr        [1]),
+    .ti_o          (ch_o           [1])
   );
 
   logic [2 * CH_PAIRS_NUM - 2:0] ti_cur_fp_cur;
@@ -1629,7 +1645,7 @@ module gpt_top
         tim_channel i_channel_i
         (
           .clk_i          (aclk_i                ),
-          .rst_i      (rst_i             ),
+          .rst_i          (rst                   ),
           .ckd_i          (ckd                   ),
           .icf_i          (icxf           [i]    ),
           .cnt_i          (cnt_value             ),
@@ -1653,13 +1669,14 @@ module gpt_top
           .ccr_o          (ccr_to_regblock[i]    ),
           .ccxof_o        (ccxof          [i]    ),
           .tixfpx_o       (ti_cur_fp_cur  [i]    ),
+          .tif_o          (tif_arr        [i]    ),
           .ti_o           (ch_o           [i]    )
         );
       
         tim_channel i_channel_i_plus_1
         (
           .clk_i         (aclk_i                ),
-          .rst_i         (rst_i                 ),
+          .rst_i         (rst                   ),
           .ckd_i         (ckd                   ),
           .icf_i         (icxf           [i + 1]),
           .cnt_i         (cnt_value             ),
@@ -1683,6 +1700,7 @@ module gpt_top
           .ccr_o         (ccr_to_regblock[i + 1]),
           .ccxof_o       (ccxof          [i + 1]),
           .tixfpx_o      (ti_cur_fp_cur  [i + 1]),
+          .tif_o         (tif_arr        [i + 1]),
           .ti_o          (ch_o           [i + 1])
         );
       end

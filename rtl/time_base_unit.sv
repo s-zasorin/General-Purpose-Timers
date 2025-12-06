@@ -1,21 +1,22 @@
 module time_base_unit # (parameter CNT_WIDTH = 32,
                         parameter ARR_WIDTH = 32,
                         parameter PSC_WIDTH = 16) (
-  input  logic                   clk_i      ,   // Тактовый сигнал
-  input  logic                   rst_i      ,   // Cинхронный сброс
-  input  logic [CNT_WIDTH - 1:0] cnt_i      ,   // Значение счетчика из регистра TIM_CNT
-  input  logic                   cen_i      ,   // Сигнал активации счетчика
-  input  logic [ARR_WIDTH - 1:0] arr_i      ,   // Значение ARR из регистра TIM_ARR
-  input  logic [PSC_WIDTH - 1:0] psc_i      ,   // Значение PSC из регистр TIM_PSC
-  input  logic                   dir_i      ,   // Направление счета
-  input  logic                   sm_reset_i ,   // Сброса счетчика из Slave Mode Controller
-  input  logic                   sm_gate_i  ,   // Строббирование сигнала из Slave Mode Controller
-  input  logic                   sm_trig_i  ,   // Запуск счетчика из Slave Mode Controller
-  input  logic                   apre_i     ,   // Активация предзагрузки регистра TIM_ARR
-  input  logic [1:0]             cms_i      ,   // Выбор режима счета вверх/вниз
-  input  logic                   udis_i     ,   // Запрет на генерацию Update Event (UEV)
-  input  logic                   ug_i       ,   // Программное выставление сигнала UEV
-  input  logic                   opm_i      ,   // Остановка после генерации UEV (Генерация строба)
+  input  logic                   clk_i       ,   // Тактовый сигнал
+  input  logic                   rst_i       ,   // Cинхронный сброс
+  input  logic [CNT_WIDTH - 1:0] cnt_i       ,   // Значение счетчика из регистра TIM_CNT
+  input  logic                   cen_i       ,   // Сигнал активации счетчика
+  input  logic                   clk_cnt_en_i,   // Событие для счета
+  input  logic [ARR_WIDTH - 1:0] arr_i       ,   // Значение ARR из регистра TIM_ARR
+  input  logic [PSC_WIDTH - 1:0] psc_i       ,   // Значение PSC из регистр TIM_PSC
+  input  logic                   dir_i       ,   // Направление счета
+  input  logic                   sm_reset_i  ,   // Сброса счетчика из Slave Mode Controller
+  input  logic                   sm_gate_i   ,   // Строббирование сигнала из Slave Mode Controller
+  input  logic                   sm_trig_i   ,   // Запуск счетчика из Slave Mode Controller
+  input  logic                   apre_i      ,   // Активация предзагрузки регистра TIM_ARR
+  input  logic [1:0]             cms_i       ,   // Выбор режима счета вверх/вниз
+  input  logic                   udis_i      ,   // Запрет на генерацию Update Event (UEV)
+  input  logic                   ug_i        ,   // Программное выставление сигнала UEV
+  input  logic                   opm_i       ,   // Остановка после генерации UEV (Генерация строба)
 
   output logic                   uif_o     ,
   output logic                   tif_o     ,
@@ -30,33 +31,6 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   logic                   overflow      ;
   logic                   underflow     ;
   logic                   cnt_en_ff     ;
-  logic                   sm_reset_ff   ;
-  logic                   sm_gate_ff    ;
-  logic                   sm_trig_ff    ;
-
-  sync_cell sync_reset
-  (
-    .clk_i(clk_i      ),
-    .rst_i(rst_i      ),
-    .a_i  (sm_reset_i ),
-    .a_o  (sm_reset_ff)
-  );
-
-  sync_cell sync_trig
-  (
-    .clk_i(clk_i     ),
-    .rst_i(rst_i     ),
-    .a_i  (sm_trig_i ),
-    .a_o  (sm_trig_ff)
-  );
-
-  sync_cell sync_gate
-  (
-    .clk_i(clk_i     ),
-    .rst_i(rst_i     ),
-    .a_i  (sm_gate_i ),
-    .a_o  (sm_gate_ff)
-  );
 
   enum logic [2:0] {
     IDLE     = 3'b000,
@@ -90,46 +64,47 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
       psc_shadow_reg <= psc_i;
 
 // UEV logic
-  assign uev_o = overflow || underflow || ug_i || sm_reset_ff;
+  assign uev_o = overflow || underflow || ug_i || sm_reset_i;
 
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (rst_i) 
       state_ff <= IDLE;
     else
       state_ff <= next;
 
+
   always_comb begin
     next = state_ff;
     case (state_ff)
-      IDLE    : if      (cen_i && ~dir_i)                 next = CNT_UP  ;
-                else if (cen_i && dir_i)                  next = CNT_DOWN;
+      IDLE    : if      (cen_i && ~dir_i)                next = CNT_UP  ;
+                else if (cen_i && dir_i)                 next = CNT_DOWN;
 
-      CNT_UP  : if      (sm_reset_ff || overflow)         next = RESET   ;
-                else if (~cen_i)                          next = STOP    ;
-                else if (cms_i != 2'b00 && overflow)      next = CNT_DOWN;                  
+      CNT_UP  : if      (sm_reset_i || overflow)         next = RESET   ;
+                else if (~cen_i || sm_gate_i)            next = STOP    ;
+                else if (cms_i != 2'b00 && overflow)     next = CNT_DOWN;                  
 
-      CNT_DOWN: if      (sm_reset_ff || underflow)        next = RESET   ;
-                else if (~cen_i)                          next = STOP    ;
-                else if (cms_i != 2'b00 && underflow)     next = CNT_UP  ;
+      CNT_DOWN: if      (sm_reset_i || underflow)        next = RESET   ;
+                else if (~cen_i)                         next = STOP    ;
+                else if (cms_i != 2'b00 && underflow)    next = CNT_UP  ;
 
-      RESET   : if      (dir_i)                           next = CNT_DOWN;
-                else if (~dir_i)                          next = CNT_UP  ;
+      RESET   : if      (dir_i)                          next = CNT_DOWN;
+                else if (~dir_i)                         next = CNT_UP  ;
 
-      STOP    : if      ((sm_trig_ff || cen_i) && dir_i)  next = CNT_DOWN;
-                else if ((sm_trig_ff || cen_i) && ~dir_i) next = CNT_UP  ;
+      STOP    : if      ((sm_trig_i || cen_i) && dir_i)  next = CNT_DOWN;
+                else if ((sm_trig_i || cen_i) && ~dir_i) next = CNT_UP  ;
     endcase
   end
 
 // General counter logic
   always_ff @(posedge clk_i) begin
     if (cnt_en_ff) begin
-      case (state_ff)
-        IDLE    : cnt_ff <= {CNT_WIDTH{1'b0}};
-        CNT_UP  : cnt_ff <= cnt_ff + 'b1;
-        CNT_DOWN: cnt_ff <= cnt_ff - 'b1;
-        RESET   : cnt_ff <= dir_i ? arr_i : {CNT_WIDTH{1'b0}};
-        default : cnt_ff <= cnt_ff;
-      endcase
+        case (state_ff)
+          IDLE    : cnt_ff <= {CNT_WIDTH{1'b0}};
+          CNT_UP  : if (clk_cnt_en_i) cnt_ff <= cnt_ff + 'b1;
+          CNT_DOWN: if (clk_cnt_en_i) cnt_ff <= cnt_ff - 'b1;
+          RESET   : cnt_ff <= dir_i ? arr_i : {CNT_WIDTH{1'b0}};
+          default : cnt_ff <= cnt_ff;
+        endcase
     end
     else begin
       case (state_ff)
@@ -147,7 +122,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   assign tif_o     = (state_ff == STOP && sm_trig_i)          ;
   
   always_ff @(posedge clk_i)
-    if (sm_trig_ff)
-    cnt_en_o <= 1'b1;
+    if (sm_trig_i)
+      cnt_en_o <= 1'b1;
 
 endmodule

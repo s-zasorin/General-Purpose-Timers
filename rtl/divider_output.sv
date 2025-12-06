@@ -20,13 +20,13 @@ module divider_output (
     endcase
   end
 
-  always_ff @(posedge clk_i)
+  always_ff @(posedge clk_i or posedge rst_i)
     if (rst_i)
       div_cnt <= 4'b0;
-    else if (div_cnt == div_value)
+    else if (div_cnt > div_value)
       div_cnt <= 4'b0;
     else
       div_cnt <= div_cnt + 'b1;
   
-  assign clk_o = cce_i ? ((div_cnt == div_value) ? 1'b1 : 1'b0) : 1'b0;
+  assign clk_o = cce_i ? (div_value == 'b0 ? clk_i : (div_value == div_cnt)) : 1'b0;
 endmodule
