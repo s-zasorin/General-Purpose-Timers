@@ -120,11 +120,12 @@ module tim_channel #(parameter CCR_WIDTH = 32,
 
   divider_output div_inst
   (
-    .clk_i (ic1      ),
-    .rst_i (rst_i    ),
-    .cce_i (cce_i    ),
-    .icps_i(icps_i   ),
-    .clk_o (ic1ps    )
+    .clk_i  (clk_i ),
+    .ic_en_i(ic1   ),
+    .rst_i  (rst_i ),
+    .cce_i  (cce_i ),
+    .icps_i (icps_i),
+    .clk_o  (ic1ps )
   );
 
   logic cnt_equal_ccr    ;

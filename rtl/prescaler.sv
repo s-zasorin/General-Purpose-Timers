@@ -8,7 +8,9 @@ module prescaler #(parameter PSC_WIDTH = 16) (
   output logic                   clk_o
 );
   logic [PSC_WIDTH - 1:0] psc_shadow_reg;
-  logic [PSC_WIDTH - 1:0] cnt;
+  logic [PSC_WIDTH - 1:0] cnt           ;
+  logic                   cg_enable     ;
+  logic                   gated_clock   ;
 
   always_ff @(posedge clk_i)
     if (rst_i)
@@ -26,5 +28,14 @@ module prescaler #(parameter PSC_WIDTH = 16) (
         cnt <= cnt + 'b1;
     end
   
-  assign clk_o = (psc_shadow_reg == 'b0) ? clk_i : (cnt == psc_shadow_reg);
+  assign cg_enable = (cnt == psc_shadow_reg) && clk_psc_en_i;
+
+  clock_gate i_cg
+  (
+    .clk_i      (clk_i      ),
+    .en_i       (cg_enable  ),
+    .gated_clk_o(gated_clock)
+  );
+
+  assign clk_o = gated_clock;
 endmodule
