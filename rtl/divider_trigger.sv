@@ -1,6 +1,6 @@
 module divider_trigger (
   input  logic       clk_i ,
-  input  logic       rst_i ,
+  input  logic       rstn_i,
   input  logic [1:0] etps_i,
 
   output logic       clk_o
@@ -20,7 +20,7 @@ module divider_trigger (
   end
 
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (~rstn_i)
       div_cnt <= 4'b0;
     else if (div_cnt == div_value)
       div_cnt <= 4'b0;

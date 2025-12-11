@@ -1,6 +1,6 @@
 module edge_detector (
   input  logic clk_i      ,
-  input  logic rst_i      ,
+  input  logic rstn_i     ,
   input  logic a_i        ,
 
   output logic edge_rise_o,
@@ -10,7 +10,7 @@ module edge_detector (
   logic a_ff;
 
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (~rstn_i)
       a_ff <= 'b0;
     else
       a_ff <= a_i;

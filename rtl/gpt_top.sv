@@ -19,12 +19,12 @@ module gpt_top
   axi4lite_intf.slave s_axil
 );
 
-  logic rst;
-  sync_cell i_sync_reset
+  logic rst_n;
+  reset_sync i_sync_reset
   (
-    .clk_i(aclk_i    ),
-    .a_i  (~aresetn_i),
-    .a_o  (rst       )
+    .clk_i    (aclk_i   ),
+    .aresetn_i(aresetn_i),
+    .rstn_o   (rst_n    )
   );
 
   logic [2 * CH_PAIRS_NUM - 1:0] internal_triggers;
@@ -43,7 +43,7 @@ module gpt_top
   CSR_GPT i_regblock
   (
     .clk     (aclk_i      ),
-    .rst     (rst         ),
+    .rst     (~rst_n      ),
     .s_axil  (s_axil      ),
     .hwif_in (gpt_hwif_in ),
     .hwif_out(gpt_hwif_out)
@@ -1511,7 +1511,7 @@ module gpt_top
   trigger_controller trig_inst 
   (
     .clk_i       (aclk_i    ),
-    .rst_i       (rst       ),
+    .rstn_i      (rst_n     ),
     .itr_i       (itr_i     ),
     .ckd_i       (ckd       ),
     .etp_i       (etp       ),
@@ -1543,7 +1543,7 @@ module gpt_top
   (
     .clk_i       (aclk_i    ),
     .clk_psc_en_i(clk_psc_en),
-    .rst_i       (rst       ),
+    .rstn_i      (rst_n     ),
     .uev_i       (uev       ),
     .psc_i       (psc       ),
     .clk_o       (clk_cnt_en)
@@ -1553,7 +1553,7 @@ module gpt_top
   time_base_unit time_base_inst
   (
     .clk_i       (aclk_i    ),
-    .rst_i       (rst       ),
+    .rstn_i      (rst_n     ),
     .cnt_i       (cnt       ),
     .cen_i       (cen       ),
     .clk_cnt_en_i(clk_cnt_en),
@@ -1578,7 +1578,7 @@ module gpt_top
   tim_channel channel_inst_1
   (
     .clk_i          (aclk_i            ),
-    .rst_i          (rst               ),
+    .rstn_i         (rst_n              ),
     .ckd_i          (ckd               ),
     .icf_i          (icxf           [0]),
     .cnt_i          (cnt_value         ),
@@ -1610,7 +1610,7 @@ module gpt_top
   tim_channel channel_inst_2
   (
     .clk_i         (aclk_i            ),
-    .rst_i         (rst               ),
+    .rstn_i        (rst_n             ),
     .ckd_i         (ckd               ),
     .icf_i         (icxf           [1]),
     .cnt_i         (cnt_value         ),
@@ -1645,7 +1645,7 @@ module gpt_top
         tim_channel i_channel_i
         (
           .clk_i          (aclk_i                ),
-          .rst_i          (rst                   ),
+          .rstn_i         (rst_n                 ),
           .ckd_i          (ckd                   ),
           .icf_i          (icxf           [i]    ),
           .cnt_i          (cnt_value             ),
@@ -1676,7 +1676,7 @@ module gpt_top
         tim_channel i_channel_i_plus_1
         (
           .clk_i         (aclk_i                ),
-          .rst_i         (rst                   ),
+          .rstn_i        (rst_n                 ),
           .ckd_i         (ckd                   ),
           .icf_i         (icxf           [i + 1]),
           .cnt_i         (cnt_value             ),

@@ -1,7 +1,7 @@
 module divider_output (
   input  logic       clk_i  ,
   input  logic       ic_en_i,
-  input  logic       rst_i  ,
+  input  logic       rstn_i ,
   input  logic       cce_i  ,
   input  logic [1:0] icps_i ,
 
@@ -24,7 +24,7 @@ module divider_output (
   end
 
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (~rstn_i)
       div_cnt <= 4'b0;
     else if (ic_en_i) begin
       if (div_cnt > div_value)

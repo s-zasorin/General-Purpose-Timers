@@ -2,7 +2,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
                         parameter ARR_WIDTH = 32,
                         parameter PSC_WIDTH = 16) (
   input  logic                   clk_i       ,   // Тактовый сигнал
-  input  logic                   rst_i       ,   // Cинхронный сброс
+  input  logic                   rstn_i      ,   // Cинхронный сброс
   input  logic [CNT_WIDTH - 1:0] cnt_i       ,   // Значение счетчика из регистра TIM_CNT
   input  logic                   cen_i       ,   // Сигнал активации счетчика
   input  logic                   clk_cnt_en_i,   // Событие для счета
@@ -41,7 +41,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   } state_ff, next;
 
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (~rstn_i)
       cnt_en_ff <= 1'b0;
     else if (cen_i)
       cnt_en_ff <= 1'b1;
@@ -51,14 +51,14 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
 // Preload ARR
 
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (~rstn_i)
       arr_shadow_reg <= {ARR_WIDTH{1'b0}};
     else if (uev_o && apre_i)
       arr_shadow_reg <= arr_i;
 
 // Preload PSC
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (~rstn_i)
       psc_shadow_reg <= {PSC_WIDTH{1'b0}};
     else if (uev_o)
       psc_shadow_reg <= psc_i;
@@ -67,7 +67,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   assign uev_o = overflow || underflow || ug_i || sm_reset_i;
 
   always_ff @(posedge clk_i)
-    if (rst_i) 
+    if (~rstn_i) 
       state_ff <= IDLE;
     else
       state_ff <= next;

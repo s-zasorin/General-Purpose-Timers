@@ -1,6 +1,6 @@
 module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   input  logic         clk_i       ,
-  input  logic         rst_i       ,
+  input  logic         rstn_i      ,
   input  logic [3:0]   itr_i       ,
   input  logic [1:0]   ckd_i       ,
   input  logic         etp_i       ,
@@ -39,7 +39,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   fdts_generator fd_gen
   (
     .clk_i    (clk_i    ),
-    .rst_i    (rst_i    ),
+    .rstn_i   (rstn_i   ),
     .ckd_i    (ckd_i    ),
     .clk_dts_o(clk_dts  )
   );
@@ -53,7 +53,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   divider_trigger div_trig_inst
   (
     .clk_i    (etrp     ),
-    .rst_i    (rst_i    ),
+    .rstn_i   (rst_i    ),
     .etps_i   (etps_i   ),
     .clk_o    (etrpd    )
   );
@@ -61,7 +61,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   digital_filter i_digital_filter
   (
     .clk_i    (clk_dts  ),
-    .rst_i    (rst_i    ),
+    .rstn_i   (rst_i    ),
     .a_i      (etrpd    ),
     .f_coef_i (etf_i    ),
     .af_o     (etrpdf   )
@@ -95,7 +95,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   encoder_mode i_enc_mode
   (
     .clk_i    (clk_i      ),
-    .rst_i    (rst_i      ),
+    .rstn_i   (rstn_i     ),
     .ti1f_i   (ti1fp1_i   ),
     .ti2f_i   (ti2fp2_i   ),
     .clk_1d2_o(enc_clk_1d2),

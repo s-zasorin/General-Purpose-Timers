@@ -1,7 +1,7 @@
 module tim_channel #(parameter CCR_WIDTH = 32,
                     parameter  CNT_WIDTH = 32) (
   input logic                    clk_i    ,
-  input logic                    rst_i    ,
+  input logic                    rstn_i   ,
   input logic  [1:0]             ckd_i    ,
   input logic  [3:0]             icf_i    ,
   input logic  [CNT_WIDTH - 1:0] cnt_i    ,       // Counter value from Time-Base Unit
@@ -49,7 +49,7 @@ module tim_channel #(parameter CCR_WIDTH = 32,
 
  // Shadow Register logic 
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (~rstn_i)
       shadow_reg_ccr <= {CCR_WIDTH{1'b0}};
     else if (uev_i)              // Update Event
       shadow_reg_ccr <= ccr_i;
@@ -61,13 +61,13 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   assign total_shadow_reg_ccr = ocxpe_i ? shadow_reg_ccr : ccr_i;
 
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (~rstn_i)
       ccxif_o <= 1'b0;
     else if (capture_enable) // Capture first value into CCR Register
       ccxif_o <= 1'b1;
   
   always_ff @(posedge clk_i)
-    if (rst_i)
+    if (~rstn_i)
       ccxof_o <= 1'b0;
     else if (capture_enable & ccxif_o) // Capture second value into CCR Register
       ccxof_o <= 1'b1;
