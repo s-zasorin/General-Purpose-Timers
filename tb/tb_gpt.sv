@@ -3,15 +3,12 @@ module tb_gpt();
   localparam  CH_PAIRS_NUM = 2;
 
   logic                          aclk   ;
-  logic                          aresetn    ;
+  logic                          aresetn;
   logic [3:0]                    itr_i  ;
   logic                          etr_i  ;
   logic [2 * CH_PAIRS_NUM - 1:0] ch_i   ;
   logic                          trg_o  ;
   logic [2 * CH_PAIRS_NUM - 1:0] ch_o   ;
-
-
-  CSR_GPT_pkg::CSR_GPT__in_t  gpt_hwif_in;
 
   axi4lite_intf #(
   .ADDR_WIDTH(32),
@@ -144,17 +141,18 @@ task automatic axi_lite_read(
 endtask
 
 task up_count_mode();
-  // Запись в TIM_CR1
-  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b1111));  // CEN = 1, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
   // Запись в SMCR
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));         // SMS = 0 - тактирование от внутреннего Clock
+  // Запись в TIM_CR1
+  axi_lite_write(.addr('h0), .data(32'b10000000), .strb(4'b1111));  // CEN = 0, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
   // Запись в PSC
   axi_lite_write(.addr('h20), .data(32'd1), .strb(4'b1111));        // PSC = 0x1 - Clock для счетчика = CLK_INT / 2
   // Запись в TIM_ARR
   axi_lite_write(.addr('h24), .data(32'd40), .strb(4'b1111));       // ARR = 40 - Значение автоматической перезагрузки
   // Запись в EGR
   axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
-
+  // Запись в TIM_CR1
+  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b0001));  // CEN = 1, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
 endtask
 
 task down_count_mode();
