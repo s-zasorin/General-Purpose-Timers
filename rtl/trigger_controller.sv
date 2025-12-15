@@ -109,20 +109,20 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
     clk_psc_en_o           = 1'b0;
     case (sms_i)
       3'b000: begin                   // Режим внутреннего тактирования
-        clk_psc_en_o       = 1'b1      ;
+        clk_psc_en_o       = clk_i      ;
       end
       3'b001: clk_psc_en_o = enc_clk_1d2; // Режим энкодера №1
       3'b010: clk_psc_en_o = enc_clk_2d1; // Режим энкодера №2
       3'b100: begin                    // Режим сброса
-        clk_psc_en_o       = 1'b1;
+        clk_psc_en_o       = clk_i;
         sm_reset           = trgi;
       end
       3'b101: begin                   // Режим стробирования
-        clk_psc_en_o       = 1'b1;
+        clk_psc_en_o       = clk_i;
         sm_gate            = ti1f_i;
       end
       3'b110: begin                   // Режим триггера
-        clk_psc_en_o       = 1'b1;
+        clk_psc_en_o       = clk_i;
         sm_trig            = trgi;
       end
       3'b111: clk_psc_en_o = trgi;

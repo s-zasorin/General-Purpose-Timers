@@ -77,7 +77,7 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   fdts_generator fdts_gen 
   (
     .clk_i    (clk_i  ),
-    .rst_i    (rst_i  ),
+    .rstn_i   (rstn_i ),
     .ckd_i    (ckd_i  ),
     .clk_dts_o(clk_dts)
   );
@@ -85,7 +85,7 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   digital_filter i_filt
   (
     .clk_i   (clk_dts),
-    .rst_i   (rst_i  ),
+    .rstn_i  (rstn_i ),
     .a_i     (ti_i   ),
     .f_coef_i(icf_i  ),
     .af_o    (tif    )
@@ -96,11 +96,11 @@ module tim_channel #(parameter CCR_WIDTH = 32,
 
   edge_detector i_edge
   (
-    .clk_i      (clk_i),
-    .rst_i      (rst_i),
-    .a_i        (tif  ),
-    .edge_rise_o(tif_r),
-    .edge_fall_o(tif_f)
+    .clk_i      (clk_i ),
+    .rstn_i     (rstn_i),
+    .a_i        (tif   ),
+    .edge_rise_o(tif_r ),
+    .edge_fall_o(tif_f )
   );
 
   assign ti1_fd_o     = tif_r || tif_f;
@@ -122,7 +122,7 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   (
     .clk_i  (clk_i ),
     .ic_en_i(ic1   ),
-    .rst_i  (rst_i ),
+    .rstn_i (rstn_i ),
     .cce_i  (cce_i ),
     .icps_i (icps_i),
     .clk_o  (ic1ps )
@@ -139,7 +139,7 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   output_control i_control_out
   (
     .clk_i              (clk_i            ),
-    .rst_i              (rst_i            ),
+    .rstn_i             (rstn_i           ),
     .cnt_equal_ccr_i    (cnt_equal_ccr    ),
     .dir_i              (dir_i            ),
     .cnt_less_than_ccr_i(cnt_less_than_ccr),

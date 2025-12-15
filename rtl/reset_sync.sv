@@ -4,7 +4,7 @@ module reset_sync (
   output logic rstn_o
 );
 
-  logic [1:0] rst_ff;
+  logic [1:0] rstn_ff;
 
   always_ff @(posedge clk_i or negedge aresetn_i)
     if (~aresetn_i)

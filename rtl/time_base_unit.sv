@@ -5,7 +5,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   input  logic                   rstn_i      ,   // Cинхронный сброс
   input  logic [CNT_WIDTH - 1:0] cnt_i       ,   // Значение счетчика из регистра TIM_CNT
   input  logic                   cen_i       ,   // Сигнал активации счетчика
-  input  logic                   clk_cnt_en_i,   // Событие для счета
+  //input  logic                   clk_cnt_en_i,   // Событие для счета
   input  logic [ARR_WIDTH - 1:0] arr_i       ,   // Значение ARR из регистра TIM_ARR
   input  logic [PSC_WIDTH - 1:0] psc_i       ,   // Значение PSC из регистр TIM_PSC
   input  logic                   dir_i       ,   // Направление счета
@@ -100,8 +100,8 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
     if (cnt_en_ff) begin
         case (state_ff)
           IDLE    : cnt_ff <= {CNT_WIDTH{1'b0}};
-          CNT_UP  : if (clk_cnt_en_i) cnt_ff <= cnt_ff + 'b1;
-          CNT_DOWN: if (clk_cnt_en_i) cnt_ff <= cnt_ff - 'b1;
+          CNT_UP  : cnt_ff <= cnt_ff + 'b1;
+          CNT_DOWN: cnt_ff <= cnt_ff - 'b1;
           RESET   : cnt_ff <= dir_i ? arr_i : {CNT_WIDTH{1'b0}};
           default : cnt_ff <= cnt_ff;
         endcase

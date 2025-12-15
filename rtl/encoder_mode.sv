@@ -1,6 +1,6 @@
 module encoder_mode (
   input  logic clk_i ,
-  input  logic rst_i , 
+  input  logic rstn_i, 
   input  logic ti1f_i,
   input  logic ti2f_i,
 

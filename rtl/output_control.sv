@@ -13,7 +13,7 @@ module output_control (
   logic oc_ref_ff;
 
   always_ff @(posedge clk_i)
-    if (rstn_i)
+    if (~rstn_i)
       oc_ref_ff <= 1'b0;
     else
       oc_ref_ff <= oc_ref_o;

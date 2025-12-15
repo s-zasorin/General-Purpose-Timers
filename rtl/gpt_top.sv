@@ -27,7 +27,6 @@ module gpt_top
     .rstn_o   (rst_n    )
   );
 
-  logic [2 * CH_PAIRS_NUM - 1:0] internal_triggers;
   logic                          trigger          ;
   logic                          ti1f_ed          ;
   logic                          trc              ;
@@ -35,6 +34,8 @@ module gpt_top
   logic                          etrp             ;
   logic                          clk_psc_en       ;  // clock prescaler
   logic                          clk_cnt_en       ;  // clock counter
+  logic [2 * CH_PAIRS_NUM - 1:0] sync_tim_in      ;
+  logic [2 * CH_PAIRS_NUM - 1:0] sync_itr_in      ;
 
   // regblock interface
   CSR_GPT_pkg::CSR_GPT__in_t  gpt_hwif_in;
@@ -48,6 +49,28 @@ module gpt_top
     .hwif_in (gpt_hwif_in ),
     .hwif_out(gpt_hwif_out)
   );
+
+  generate
+    for (genvar i = 0; i < 2 * CH_PAIRS_NUM; i = i + 1) begin
+      sync_cell i_sync_tim
+      (
+        .clk_i(aclk_i        ),
+        .a_i  (ch_i[i]       ),
+        .a_o  (sync_tim_in[i])
+      );
+    end
+  endgenerate
+
+  generate
+    for (genvar i = 0; i < 2 * CH_PAIRS_NUM; i = i + 1) begin
+      sync_cell i_sync_itr
+      (
+        .clk_i(aclk_i        ),
+        .a_i  (itr_i[i]      ),
+        .a_o  (sync_itr_in[i])
+      );
+    end
+  endgenerate
 
   // TIM_CR1
   logic       cen;  // Counter enable
@@ -366,14 +389,14 @@ module gpt_top
     logic       ocxpe_icxpsc1 [2 * CH_PAIRS_NUM - 1:0];
     logic [2:0] ocxm_icxf     [2 * CH_PAIRS_NUM - 1:0];
     // Input Channel
-    logic [1:0] icxpsc [1:0];
-    logic [3:0] icxf   [1:0];
+    logic [1:0] icxpsc [2 * CH_PAIRS_NUM - 1:0];
+    logic [3:0] icxf   [2 * CH_PAIRS_NUM - 1:0];
 
     //Output Channel
-    logic       ocxfe [1:0];
-    logic       ocxpe [1:0];
-    logic [2:0] ocxm  [1:0];
-    logic       ocxce [1:0];
+    logic       ocxfe [2 * CH_PAIRS_NUM - 1:0];
+    logic       ocxpe [2 * CH_PAIRS_NUM - 1:0];
+    logic [2:0] ocxm  [2 * CH_PAIRS_NUM - 1:0];
+    logic       ocxce [2 * CH_PAIRS_NUM - 1:0];
   generate
     if (CH_PAIRS_NUM == 1) begin: one_ccmr_reg
       assign ccxs         [0] = gpt_hwif_out.TIM_CCMR1.CC1S.value         ;
@@ -1488,6 +1511,134 @@ module gpt_top
   assign ece  = gpt_hwif_out.TIM_SMCR.ECE.value ;
   assign etp  = gpt_hwif_out.TIM_SMCR.ETP.value ;
 
+// ### ACTIVE SET ###  
+  logic                          active_udis                            ;
+  logic                          active_opm                             ;
+  logic                          active_dir                             ;
+  logic [1:0]                    active_cms                             ;
+  logic                          active_apre                            ;
+  logic [1:0]                    active_ckd                             ;
+  logic                          active_ti1s                            ;
+  logic [2:0]                    active_mms                             ;
+  logic                          active_ccds                            ;
+  logic                          active_ug                              ;
+  logic                          active_tg                              ;
+  logic [2 * CH_PAIRS_NUM - 1:0] active_ccxg                            ;
+  logic [CNT_WIDTH - 1:0]        active_ccr_reg [2 * CH_PAIRS_NUM - 1:0];
+  logic [1:0]                    active_icxpsc  [2 * CH_PAIRS_NUM - 1:0];
+  logic [3:0]                    active_icxf    [2 * CH_PAIRS_NUM - 1:0];
+  logic                          active_ocxfe   [2 * CH_PAIRS_NUM - 1:0];
+  logic                          active_ocxpe   [2 * CH_PAIRS_NUM - 1:0];
+  logic [2:0]                    active_ocxm    [2 * CH_PAIRS_NUM - 1:0];
+  logic                          active_ocxce   [2 * CH_PAIRS_NUM - 1:0];
+  logic [2 * CH_PAIRS_NUM - 1:0] active_ccxe                            ;
+  logic [2 * CH_PAIRS_NUM - 1:0] active_ccxp                            ;
+  logic [2 * CH_PAIRS_NUM - 1:0] active_ccxnp                           ;
+  logic                          active_uie                             ;
+  logic [2 * CH_PAIRS_NUM - 1:0] active_ccxie                           ;
+  logic                          active_tie                             ;
+  logic                          active_ude                             ;
+  logic [2 * CH_PAIRS_NUM - 1:0] active_ccxde                           ;
+  logic                          active_tde                             ;
+  logic [CNT_WIDTH        - 1:0] active_arr                             ;
+  logic [PSC_WIDTH        - 1:0] active_psc                             ;
+  logic [CNT_WIDTH        - 1:0] active_cnt                             ;
+  logic [2:0]                    active_sms                             ;
+  logic [2:0]                    active_ts                              ;
+  logic                          active_msm                             ;
+  logic [3:0]                    active_etf                             ;
+  logic [1:0]                    active_etps                            ;
+  logic                          active_ece                             ;
+  logic                          active_etp                             ;
+  logic [1:0]                    active_ccxs [2 * CH_PAIRS_NUM - 1:0]   ;
+
+  active_set #(.CH_PAIRS_NUM(CH_PAIRS_NUM), .CNT_WIDTH(CNT_WIDTH)) i_active
+  (
+    .clk_i    (aclk_i        ),
+    .rstn_i   (rst_n         ),
+
+    .cen_i    (cen           ),
+    .udis_i   (udis          ),
+    .opm_i    (opm           ), 
+    .dir_i    (dir           ), 
+    .cms_i    (cms           ), 
+    .apre_i   (apre          ),
+    .ckd_i    (ckd           ),
+    .ti1s_i   (ti1s          ),
+    .mms_i    (mms           ),
+    .ccds_i   (ccds          ),
+    .ug_i     (ug            ),
+    .tg_i     (tg            ),
+    .ccxg_i   (ccxg          ),
+    .ccr_reg_i(ccr_reg       ),
+    .icxpsc_i (icxpsc        ),
+    .icxf_i   (icxf          ),
+    .ocxfe_i  (ocxfe         ),
+    .ocxpe_i  (ocxpe         ),
+    .ocxm_i   (ocxm          ),
+    .ocxce_i  (ocxce         ),
+    .ccxe_i   (ccxe          ),
+    .ccxp_i   (ccxp          ),
+    .ccxnp_i  (ccxnp         ),
+    .uie_i    (uie           ),
+    .ccxie_i  (ccxie         ),
+    .tie_i    (tie           ),
+    .ude_i    (ude           ),
+    .ccxde_i  (ccxde         ),
+    .tde_i    (tde           ),
+    .arr_i    (arr           ),
+    .psc_i    (psc           ),
+    .cnt_i    (cnt           ),
+    .sms_i    (sms           ),
+    .ts_i     (ts            ),
+    .msm_i    (msm           ),
+    .etf_i    (etf           ),
+    .etps_i   (etps          ),
+    .ece_i    (ece           ),
+    .etp_i    (etp           ),
+    .ccxs_i   (ccxs          ),
+
+    .udis_o   (active_udis   ),
+    .opm_o    (active_opm    ), 
+    .dir_o    (active_dir    ), 
+    .cms_o    (active_cms    ), 
+    .apre_o   (active_apre   ),
+    .ckd_o    (active_ckd    ),
+    .ti1s_o   (active_ti1s   ),
+    .mms_o    (active_mms    ),
+    .ccds_o   (active_ccds   ),
+    .ug_o     (active_ug     ),
+    .tg_o     (active_tg     ),
+    .ccxg_o   (active_ccxg   ),
+    .ccr_reg_o(active_ccr_reg),
+    .icxpsc_o (active_icxpsc ),
+    .icxf_o   (active_icxf   ),
+    .ocxfe_o  (active_ocxfe  ),
+    .ocxpe_o  (active_ocxpe  ),
+    .ocxm_o   (active_ocxm   ),
+    .ocxce_o  (active_ocxce  ),
+    .ccxe_o   (active_ccxe   ),
+    .ccxp_o   (active_ccxp   ),
+    .ccxnp_o  (active_ccxnp  ),
+    .uie_o    (active_uie    ),
+    .ccxie_o  (active_ccxie  ),
+    .tie_o    (active_tie    ),
+    .ude_o    (active_ude    ),
+    .ccxde_o  (active_ccxde  ),
+    .tde_o    (active_tde    ),
+    .arr_o    (active_arr    ),
+    .psc_o    (active_psc    ),
+    .cnt_o    (active_cnt    ),
+    .sms_o    (active_sms    ),
+    .ts_o     (active_ts     ),
+    .msm_o    (active_msm    ),
+    .etf_o    (active_etf    ),
+    .etps_o   (active_etps   ),
+    .ece_o    (active_ece    ),
+    .etp_o    (active_etp    ),
+    .ccxs_o   (active_ccxs   )
+  );
+
   logic                          ti2fp2    ;
   logic                          ti1fp1    ;
   logic [2 * CH_PAIRS_NUM - 1:0] oc_ref_mms;
@@ -1508,94 +1659,97 @@ module gpt_top
 
   logic [2 * CH_PAIRS_NUM - 1:0] tif_arr;
 
+  logic clk_psc;
+
   trigger_controller trig_inst 
   (
-    .clk_i       (aclk_i    ),
-    .rstn_i      (rst_n     ),
-    .itr_i       (itr_i     ),
-    .ckd_i       (ckd       ),
-    .etp_i       (etp       ),
-    .sms_i       (sms       ),
-    .etps_i      (etps      ),
-    .ts_i        (ts        ),
-    .etf_i       (etf       ),
-    .ug_i        (ug        ),
-    .uev_i       (uev       ),
-    .mms_i       (mms       ),
-    .cc1if_i     (ccxif[0]  ),
-    .cnt_en_i    (cnt_en    ),
-    .ece_i       (ece       ),
-    .ti2fp2_i    (ti2fp2    ),
-    .ti1fp1_i    (ti1fp1    ),
-    .ti1f_i      (tif_arr[0]),
-    .ti1_ed_i    (ti1f_ed   ),
-    .etr_i       (etr_i     ),
+    .clk_i       (aclk_i      ),
+    .rstn_i      (rst_n       ),
+    .itr_i       (sync_tim_in ),
+    .ckd_i       (active_ckd  ),
+    .etp_i       (active_etp  ),
+    .sms_i       (active_sms  ),
+    .etps_i      (active_etps ),
+    .ts_i        (active_ts   ),
+    .etf_i       (active_etf  ),
+    .ug_i        (active_ug   ),
+    .uev_i       (active_uev  ),
+    .mms_i       (active_mms  ),
+    .cc1if_i     (ccxif[0]    ),
+    .cnt_en_i    (cnt_en      ),
+    .ece_i       (active_ece  ),
+    .ti2fp2_i    (ti2fp2      ),
+    .ti1fp1_i    (ti1fp1      ),
+    .ti1f_i      (tif_arr[0]  ),
+    .ti1_ed_i    (ti1f_ed     ),
+    .etr_i       (active_etr_i),
 
-    .trc_o       (trc       ),
-    .sm_reset_o  (sm_reset  ),
-    .sm_gate_o   (sm_gate   ),
-    .sm_trig_o   (sm_trig   ),
-    .trg_o       (trg_o     ),
-    .clk_psc_en_o(clk_psc_en)
+    .trc_o       (trc         ),
+    .sm_reset_o  (sm_reset    ),
+    .sm_gate_o   (sm_gate     ),
+    .sm_trig_o   (sm_trig     ),
+    .trg_o       (trg_o       ),
+    .clk_psc_en_o(clk_psc     )
   );
 
+  logic clk_cnt;
   prescaler #(.PSC_WIDTH(PSC_WIDTH)) i_psc
   (
-    .clk_i       (aclk_i    ),
-    .clk_psc_en_i(clk_psc_en),
-    .rstn_i      (rst_n     ),
-    .uev_i       (uev       ),
-    .psc_i       (psc       ),
-    .clk_o       (clk_cnt_en)
+    .clk_i       (clk_psc    ),
+    //.clk_psc_en_i(clk_psc_en),
+    .rstn_i      (rst_n      ),
+    .uev_i       (uev        ),
+    .psc_i       (active_psc ),
+    .clk_o       (clk_cnt    )
   );
 
 
   time_base_unit time_base_inst
   (
-    .clk_i       (aclk_i    ),
-    .rstn_i      (rst_n     ),
-    .cnt_i       (cnt       ),
-    .cen_i       (cen       ),
-    .clk_cnt_en_i(clk_cnt_en),
-    .arr_i       (arr       ),
-    .psc_i       (psc       ),
-    .dir_i       (dir       ),
-    .sm_reset_i  (sm_reset  ),
-    .sm_gate_i   (sm_gate   ),
-    .sm_trig_i   (sm_trig   ),
-    .apre_i      (apre      ),
-    .cms_i       (cms       ),
-    .udis_i      (udis      ),
-    .ug_i        (ug        ),
-    .opm_i       (opm       ),
-    .tif_o       (tif       ),
-    .cnt_en_o    (cnt_en    ),
-    .uif_o       (uif       ),
-    .uev_o       (uev_tbu   ),
-    .cnt_o       (cnt_value )
+    .clk_i       (clk_cnt    ),
+    .rstn_i      (rst_n      ),
+    .cnt_i       (cnt        ),
+    .cen_i       (cen        ),
+    //.clk_cnt_en_i(clk_cnt_en),
+    .arr_i       (active_arr ),
+    .psc_i       (active_psc ),
+    .dir_i       (active_dir ),
+    .sm_reset_i  (sm_reset   ),
+    .sm_gate_i   (sm_gate    ),
+    .sm_trig_i   (sm_trig    ),
+    .apre_i      (active_apre),
+    .cms_i       (active_cms ),
+    .udis_i      (active_udis),
+    .ug_i        (active_ug  ),
+    .opm_i       (active_opm ),
+    .tif_o       (tif        ),
+    .cnt_en_o    (cnt_en     ),
+    .uif_o       (uif        ),
+    .uev_o       (uev_tbu    ),
+    .cnt_o       (cnt_value  )
   );
 
   tim_channel channel_inst_1
   (
     .clk_i          (aclk_i            ),
-    .rstn_i         (rst_n              ),
-    .ckd_i          (ckd               ),
-    .icf_i          (icxf           [0]),
+    .rstn_i         (rst_n             ),
+    .ckd_i          (active_ckd        ),
+    .icf_i          (active_icxf    [0]),
     .cnt_i          (cnt_value         ),
-    .ccr_i          (ccr_reg        [0]),
+    .ccr_i          (active_ccr_reg [0]),
     .uev_i          (uev               ),
-    .ti_i           (ch_i           [0]),
+    .ti_i           (sync_tim_in    [0]),
     .trc_i          (trc               ),
-    .cc1s_i         (ccxs           [0]),
-    .icps_i         (icxpsc         [0]),
-    .cce_i          (ccxe           [0]),
-    .dir_i          (dir               ),
-    .ocxm_i         (ocxm           [0]),
-    .ccg_i          (ccxg           [0]),
-    .ocxpe_i        (ocxpe          [0]),
+    .cc1s_i         (active_ccxs    [0]),
+    .icps_i         (active_icxpsc  [0]),
+    .cce_i          (active_ccxe    [0]),
+    .dir_i          (active_dir        ),
+    .ocxm_i         (active_ocxm    [0]),
+    .ccg_i          (active_ccxg    [0]),
+    .ocxpe_i        (active_ocxpe   [0]),
     .ti_neigx_fpx_i (ti2fp2            ),
-    .cc1p_i         (ccxp           [0]),
-    .cc1np_i        (ccxnp          [0]),
+    .cc1p_i         (active_ccxp    [0]),
+    .cc1np_i        (active_ccxnp   [0]),
 
     .ti1_fd_o       (ti1f_ed           ),
     .oc_ref_o       (oc_ref_mms     [0]),
@@ -1611,23 +1765,23 @@ module gpt_top
   (
     .clk_i         (aclk_i            ),
     .rstn_i        (rst_n             ),
-    .ckd_i         (ckd               ),
-    .icf_i         (icxf           [1]),
+    .ckd_i         (active_ckd        ),
+    .icf_i         (active_icxf    [1]),
     .cnt_i         (cnt_value         ),
-    .ccr_i         (ccr_reg        [1]),
+    .ccr_i         (active_ccr_reg [1]),
     .uev_i         (uev               ),
-    .ti_i          (ch_i           [1]),
+    .ti_i          (sync_tim_in    [1]),
     .trc_i         (trc               ),
-    .cc1s_i        (ccxs           [1]),
-    .icps_i        (icxpsc         [1]),
-    .cce_i         (ccxe           [1]),
-    .dir_i         (dir               ),
-    .ocxm_i        (ocxm           [1]),
-    .ccg_i         (ccxg           [1]),
-    .ocxpe_i       (ocxpe          [1]),
+    .cc1s_i        (active_ccxs    [1]),
+    .icps_i        (active_icxpsc  [1]),
+    .cce_i         (active_ccxe    [1]),
+    .dir_i         (active_dir        ),
+    .ocxm_i        (active_ocxm    [1]),
+    .ccg_i         (active_ccxg    [1]),
+    .ocxpe_i       (active_ocxpe   [1]),
     .ti_neigx_fpx_i(ti1fp1            ),
-    .cc1p_i        (ccxp           [1]),
-    .cc1np_i       (ccxnp          [1]),
+    .cc1p_i        (active_ccxp    [1]),
+    .cc1np_i       (active_ccxnp   [1]),
 
     .ccxif_o       (ccxif          [1]),
     .oc_ref_o      (oc_ref_mms     [1]),
@@ -1646,23 +1800,23 @@ module gpt_top
         (
           .clk_i          (aclk_i                ),
           .rstn_i         (rst_n                 ),
-          .ckd_i          (ckd                   ),
-          .icf_i          (icxf           [i]    ),
+          .ckd_i          (active_ckd            ),
+          .icf_i          (active_icxf    [i]    ),
           .cnt_i          (cnt_value             ),
-          .ccr_i          (ccr_reg        [i]    ),
+          .ccr_i          (active_ccr_reg [i]    ),
           .uev_i          (uev                   ),
-          .ti_i           (ch_i           [i]    ),
+          .ti_i           (sync_tim_in    [i]    ),
           .trc_i          (trc                   ),
-          .cc1s_i         (ccxs           [i]    ),
-          .icps_i         (icxpsc         [i]    ),
-          .cce_i          (ccxe           [i]    ),
-          .dir_i          (dir                   ),
-          .ocxm_i         (ocxm           [i]    ),
-          .ccg_i          (ccxg           [i]    ),
-          .ocxpe_i        (ocxpe          [i]    ),
+          .cc1s_i         (active_ccxs    [i]    ),
+          .icps_i         (active_icxpsc  [i]    ),
+          .cce_i          (active_ccxe    [i]    ),
+          .dir_i          (active_dir            ),
+          .ocxm_i         (active_ocxm    [i]    ),
+          .ccg_i          (active_ccxg    [i]    ),
+          .ocxpe_i        (active_ocxpe   [i]    ),
           .ti_neigx_fpx_i (ti_cur_fp_cur  [i + 1]),
-          .cc1p_i         (ccxp           [i]    ),
-          .cc1np_i        (ccxnp          [i]    ),
+          .cc1p_i         (active_ccxp    [i]    ),
+          .cc1np_i        (active_ccxnp   [i]    ),
 
           .ccxif_o        (ccxif          [i]    ),
           .oc_ref_o       (oc_ref_mms     [i]    ),
@@ -1677,23 +1831,23 @@ module gpt_top
         (
           .clk_i         (aclk_i                ),
           .rstn_i        (rst_n                 ),
-          .ckd_i         (ckd                   ),
-          .icf_i         (icxf           [i + 1]),
+          .ckd_i         (active_ckd            ),
+          .icf_i         (active_icxf    [i + 1]),
           .cnt_i         (cnt_value             ),
-          .ccr_i         (ccr_reg        [i + 1]),
+          .ccr_i         (active_ccr_reg [i + 1]),
           .uev_i         (uev                   ),
-          .ti_i          (ch_i           [i + 1]),
+          .ti_i          (sync_tim_in    [i + 1]),
           .trc_i         (trc                   ),
-          .cc1s_i        (ccxs           [i + 1]),
-          .icps_i        (icxpsc         [i + 1]),
-          .cce_i         (ccxe           [i + 1]),
-          .dir_i         (dir                   ),
-          .ocxm_i        (ocxm           [i + 1]),
-          .ccg_i         (ccxg           [i + 1]),
-          .ocxpe_i       (ocxpe          [i + 1]),
+          .cc1s_i        (active_ccxs    [i + 1]),
+          .icps_i        (active_icxpsc  [i + 1]),
+          .cce_i         (active_ccxe    [i + 1]),
+          .dir_i         (active_dir            ),
+          .ocxm_i        (active_ocxm    [i + 1]),
+          .ccg_i         (active_ccxg    [i + 1]),
+          .ocxpe_i       (active_ocxpe   [i + 1]),
           .ti_neigx_fpx_i(ti_cur_fp_cur  [i]    ),
-          .cc1p_i        (ccxp           [i + 1]),
-          .cc1np_i       (ccxnp          [i + 1]),
+          .cc1p_i        (active_ccxp    [i + 1]),
+          .cc1np_i       (active_ccxnp   [i + 1]),
 
           .oc_ref_o      (oc_ref_mms     [i + 1]),
           .ccxif_o       (ccxif          [i + 1]),
