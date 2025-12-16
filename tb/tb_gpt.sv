@@ -37,15 +37,15 @@ module tb_gpt();
   end
   
   task gen_ch1();
-    repeat (100) begin
+    repeat (130) begin
       ch_i[0] <= 1'b1;
-      repeat ($urandom_range(1, 5)) @(posedge aclk);
+      repeat ($urandom_range(2, 5)) @(posedge aclk);
       ch_i[0] <= 1'b0;
-      repeat ($urandom_range(1, 5)) @(posedge aclk);
+      repeat ($urandom_range(3, 8)) @(posedge aclk);
       ch_i[0] <= 1'b1;
-      repeat ($urandom_range(1, 5)) begin
+      repeat ($urandom_range(2, 11)) begin
         ch_i[0] <= ~ch_i[0];
-        repeat($urandom_range(1, 5)) @(posedge aclk);
+        repeat($urandom_range(5, 20)) @(posedge aclk);
       end
     end
   endtask
@@ -59,6 +59,20 @@ module tb_gpt();
       ch_i[1] <= 1'b1;
       repeat ($urandom_range(1, 10)) begin
         ch_i[1] <= ~ch_i[1];
+        repeat($urandom_range(1, 10)) @(posedge aclk);
+      end
+    end
+  endtask
+
+  task gen_etr();
+    repeat (100) begin
+      etr_i <= 1'b1;
+      repeat ($urandom_range(4, 23)) @(posedge aclk);
+      etr_i <= 1'b0;
+      repeat ($urandom_range(5, 32)) @(posedge aclk);
+      etr_i <= 1'b1;
+      repeat ($urandom_range(11, 55)) begin
+        etr_i <= ~etr_i;
         repeat($urandom_range(1, 10)) @(posedge aclk);
       end
     end
@@ -144,15 +158,17 @@ task up_count_mode();
   // Запись в SMCR
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));         // SMS = 0 - тактирование от внутреннего Clock
   // Запись в TIM_CR1
-  axi_lite_write(.addr('h0), .data(32'b10000000), .strb(4'b1111));  // CEN = 0, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
+  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b1111));  // CEN = 0, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
   // Запись в PSC
   axi_lite_write(.addr('h20), .data(32'd1), .strb(4'b1111));        // PSC = 0x1 - Clock для счетчика = CLK_INT / 2
   // Запись в TIM_ARR
   axi_lite_write(.addr('h24), .data(32'd40), .strb(4'b1111));       // ARR = 40 - Значение автоматической перезагрузки
   // Запись в EGR
   axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
-  // Запись в TIM_CR1
-  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b0001));  // CEN = 1, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 task down_count_mode();
@@ -164,6 +180,10 @@ task down_count_mode();
   axi_lite_write(.addr('h0), .data(32'b10010001), .strb(4'b1111));  // CEN = 1, DIR = 0, CMS = 00 - Простой счет вверх
   // Запись в SMCR
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));         // SMS = 0 - тактирование от внутреннего Clock
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 task stop_counter();
@@ -177,9 +197,17 @@ task trigger_mode();
   axi_lite_write(.addr('h8), .data(32'b1010110), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 110 - Триггерный режим
   // Запись в CCER
   axi_lite_write(.addr('h14), .data(32'b0), .strb(4'b1111));
-  repeat (4) @(posedge aclk);
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
+  repeat (15) @(posedge aclk);
   // Запись в SMCR
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));            // Отключение режима триггера
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 task reset_mode();
@@ -189,8 +217,16 @@ task reset_mode();
   axi_lite_write(.addr('h8), .data(32'b1010100), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 100 - Режим сброса
   // Запись в CCER
   axi_lite_write(.addr('h14), .data(32'b0), .strb(4'b1111));
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
   // Запись в SMCR
   axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));            // Отключение режима сброса
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 task gate_mode();
@@ -200,33 +236,100 @@ task gate_mode();
   axi_lite_write(.addr('h8), .data(32'b1010101), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 100 - Режим сброса
   // Запись в CCER
   axi_lite_write(.addr('h14), .data(32'b0), .strb(4'b1111));
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 task output_pwm_mode();
   // Запись в CCR1
-  axi_lite_write(.addr('h28), .data(32'b0000011), .strb(4'b1111)); // CCR1 = 3
+  axi_lite_write(.addr('h28), .data(32'b0000111), .strb(4'b1111)); // CCR1 = 3
   // Запись в EGR - Загрузка значений в теневые регистры
   axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
   // Запись в CCMR1
   axi_lite_write(.addr('h38), .data(32'b01101000), .strb(4'b1111));    // CC1S = 00 - Режим выхода, OC1M = 110 - Режим ШИМ №1, OC1PE = 1 - Предзагрузка CCR1
   // Запись в CCER - Активация выхода
   axi_lite_write(.addr('h14), .data(32'b01), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 1 - положительная полярность
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 task one_pulse_mode();
 
 endtask
 
+task encoder_mode();
+endtask
+
+task clock_timer_from_ti1();
+  // Запись в CCMR1
+  axi_lite_write(.addr('h38), .data(32'b01100001), .strb(4'b1111));    // CC1S = 01 - Режим входа, IC1F = 0110, IC1PS = 00 - нет прескалера
+  // Запись в CCER
+  axi_lite_write(.addr('h14), .data(32'b00), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 0 - положительная полярность
+  // Запись в SMCR
+  axi_lite_write(.addr('h8), .data(32'b1010111), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 100 - Режим сброса
+  // Запись в TIM_CR1
+  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b1111));  // CEN = 0, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
+  // Запись в TIM_ARR
+  axi_lite_write(.addr('h24), .data(32'd12), .strb(4'b1111));       // ARR = 40 - Значение автоматической перезагрузки
+  // Запись в EGR
+  axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
+endtask
+
+task clock_timer_from_etr();
+  // Запись в CCMR1
+  axi_lite_write(.addr('h38), .data(32'b01100001), .strb(4'b1111));    // CC1S = 01 - Режим входа, IC1F = 0110, IC1PS = 00 - нет прескалера
+  // Запись в CCER
+  axi_lite_write(.addr('h14), .data(32'b00), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 0 - положительная полярность
+  // Запись в SMCR
+  axi_lite_write(.addr('h8), .data(32'b1010111), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 100 - Режим сброса
+  // Запись в TIM_CR1
+  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b1111));  // CEN = 0, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
+  // Запись в TIM_ARR
+  axi_lite_write(.addr('h24), .data(32'd12), .strb(4'b1111));       // ARR = 40 - Значение автоматической перезагрузки
+  // Запись в EGR
+  axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
+endtask
+
 task up_down_cnt();
+  // Запись в SMCR
+  axi_lite_write(.addr('h8), .data(32'b0), .strb(4'b1111));         // SMS = 0 - тактирование от внутреннего Clock
+  // Запись в TIM_CR1
+  axi_lite_write(.addr('h0), .data(32'b10100001), .strb(4'b1111));  // CEN = 0, DIR = 0, CMS = 01, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
+  // Запись в TIM_ARR
+  axi_lite_write(.addr('h24), .data(32'd40), .strb(4'b1111));       // ARR = 40 - Значение автоматической перезагрузки
+  // Запись в EGR
+  axi_lite_write(.addr('h18), .data(32'd1), .strb(4'b1111));        // UG = 1 - Генерация обновления теневых регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 task input_capture_mode();
   // Запись в CCMR1
   axi_lite_write(.addr('h38), .data(32'b01100001), .strb(4'b1111));    // CC1S = 01 - Режим входа, IC1F = 0110, IC1PS = 00 - нет прескалера
   // Запись в CCER - Активация выхода
-  axi_lite_write(.addr('h14), .data(32'b01), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 1 - положительная полярность
+  axi_lite_write(.addr('h14), .data(32'b00), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 0 - положительная полярность
   // Запись в TIM_DIER
   axi_lite_write(.addr('hC), .data(32'b01000000010), .strb(4'b1111));
+  // Запись в TIM_EGR
+    axi_lite_write(.addr('h18), .data(32'd10), .strb(4'b1111)); 
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 // Для входного режима ШИМ необходимо настроить минимум 2 канала. Например TI1 и TI2
@@ -235,6 +338,7 @@ endtask
 
   initial gen_ch1();
   initial gen_ch2();
+  initial gen_etr();
 
   initial begin
     aresetn = 1'b0;
@@ -253,13 +357,13 @@ endtask
     stop_counter();
     @(posedge aclk);
 
-    trigger_mode();
+    //trigger_mode();
     repeat (23) @(posedge aclk);
 
     reset_mode();
     repeat (15) @(posedge aclk);
   
-    gate_mode();
+    //gate_mode();
     repeat (30) @(posedge aclk);
 
     reset_mode();
@@ -267,6 +371,10 @@ endtask
     repeat (400) @(posedge aclk);
     input_capture_mode();
     repeat (100) @(posedge aclk);
+    clock_timer_from_ti1();
+    repeat (15000) @(posedge aclk);
+    up_down_cnt();
+    repeat (2000) @(posedge aclk);
     $finish();
   end
 
