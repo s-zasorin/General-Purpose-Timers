@@ -40,11 +40,12 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   logic                   compare_enable       ; // enable compare mode
   logic                   ic1ps                ; // 
   logic [CCR_WIDTH - 1:0] total_shadow_reg_ccr ; // total shadow register for CCRx
+  logic                   ic1                  ;
 
   assign input_mode  =   cc1s_i[0] | cc1s_i[1] ;
   assign output_mode = ~(cc1s_i[0] | cc1s_i[1]);
 
-  assign capture_enable = input_mode & (cce_i & ic1ps | ccg_i);
+  assign capture_enable = input_mode & (cce_i & ic1);
   assign compare_enable = output_mode & (~ocxpe_i | uev_i);
 
  // Shadow Register logic 
@@ -106,8 +107,6 @@ module tim_channel #(parameter CCR_WIDTH = 32,
   assign ti1_fd_o     = tif_r || tif_f;
   assign tixfpx_o     = cc1p_i ? tif_r : tif_f;
   assign polarity_sel = {cc1p_i, cc1np_i};
-
-  logic ic1;
 
   always_comb begin
     case (cc1s_i)

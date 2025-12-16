@@ -1,4 +1,4 @@
-module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
+module master_slave_mode_controller #(parameter CH_PAIRS_NUM = 2) (
   input  logic         clk_i       ,
   input  logic         rstn_i      ,
   input  logic [3:0]   itr_i       ,
@@ -53,7 +53,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   divider_trigger div_trig_inst
   (
     .clk_i    (etrp     ),
-    .rstn_i   (rst_i    ),
+    .rstn_i   (rstn_i   ),
     .etps_i   (etps_i   ),
     .clk_o    (etrpd    )
   );
@@ -61,7 +61,7 @@ module trigger_controller #(parameter CH_PAIRS_NUM = 2) (
   digital_filter i_digital_filter
   (
     .clk_i    (clk_dts  ),
-    .rstn_i   (rst_i    ),
+    .rstn_i   (rstn_i   ),
     .a_i      (etrpd    ),
     .f_coef_i (etf_i    ),
     .af_o     (etrpdf   )

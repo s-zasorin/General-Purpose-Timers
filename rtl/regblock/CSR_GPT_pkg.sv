@@ -132,10 +132,6 @@ package CSR_GPT_pkg;
 
     typedef struct {
         logic next;
-    } TIM_EGR__UG__in_t;
-
-    typedef struct {
-        logic next;
     } TIM_EGR__CC1G__in_t;
 
     typedef struct {
@@ -155,7 +151,6 @@ package CSR_GPT_pkg;
     } TIM_EGR__TG__in_t;
 
     typedef struct {
-        TIM_EGR__UG__in_t UG;
         TIM_EGR__CC1G__in_t CC1G;
         TIM_EGR__CC2G__in_t CC2G;
         TIM_EGR__CC3G__in_t CC3G;
@@ -240,7 +235,11 @@ package CSR_GPT_pkg;
     } TIM_CR1__out_t;
 
     typedef struct {
-        logic [2:0] value;
+        logic value;
+    } TIM_CR2__COPY__out_t;
+
+    typedef struct {
+        logic [1:0] value;
     } TIM_CR2__RESERVED_2_0__out_t;
 
     typedef struct {
@@ -260,6 +259,7 @@ package CSR_GPT_pkg;
     } TIM_CR2__RESERVED_15_8__out_t;
 
     typedef struct {
+        TIM_CR2__COPY__out_t COPY;
         TIM_CR2__RESERVED_2_0__out_t RESERVED_2_0;
         TIM_CR2__CCDS__out_t CCDS;
         TIM_CR2__MMS__out_t MMS;

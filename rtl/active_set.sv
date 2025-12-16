@@ -1,9 +1,9 @@
 module active_set #(parameter CH_PAIRS_NUM = 2,
                     parameter CNT_WIDTH    = 32,
                     parameter PSC_WIDTH    = 32) (
-  input logic clk_i,
+  input logic clk_i ,
   input logic rstn_i,
-  
+  input logic copy_i,
   // ### PROGRAM SET ###
 
   // TIM_CR1
@@ -23,10 +23,6 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
   // TIM_EGR
   input logic       ug_i                     ,
   input logic       tg_i                     ,
-  input logic [2 * CH_PAIRS_NUM - 1:0] ccxg_i,
-
-  // TIM_CCR
-  input logic [CNT_WIDTH - 1:0] ccr_reg_i [2 * CH_PAIRS_NUM - 1:0],
 
   // TIM_CCMR
   input logic [1:0] icxpsc_i [2 * CH_PAIRS_NUM - 1:0],
@@ -86,10 +82,6 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
   // TIM_EGR
   output logic                          ug_o  ,
   output logic                          tg_o  ,
-  output logic [2 * CH_PAIRS_NUM - 1:0] ccxg_o,
-
-  // TIM_CCR
-  output logic [CNT_WIDTH        - 1:0] ccr_reg_o [2 * CH_PAIRS_NUM - 1:0],
 
   // TIM_CCMR
   output logic [1:0]                    icxpsc_o [2 * CH_PAIRS_NUM - 1:0],
@@ -132,73 +124,61 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
   output logic                          etp_o 
 );
 
-  logic edge_cen;
-
-  edge_detector i_edge
-  (
-    .clk_i      (clk_i   ),
-    .rstn_i     (rstn_i  ),
-    .a_i        (cen_i   ),
-
-    .edge_rise_o(edge_cen),
-    .edge_fall_o(        )
-  );
-
 // TIM_CR1
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       udis_o <= 1'b0;
-    else if (cen_i)
+    else if (copy_i)
       udis_o <= udis_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       opm_o <= 1'b0;
-    else if (cen_i)
+    else if (copy_i)
       opm_o <= opm_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       dir_o <= 1'b0;
-    else if (cen_i)
+    else if (copy_i)
       dir_o <= dir_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       cms_o <= 2'b0;
-    else if (cen_i)
+    else if (copy_i)
       cms_o <= cms_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       apre_o <= 1'b0;
-    else if (cen_i)
+    else if (copy_i)
       apre_o <= apre_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ckd_o <= 2'b0;
-    else if (cen_i)
+    else if (copy_i)
       ckd_o <= ckd_i;
 
 // TIM_CR2
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ti1s_o <= 1'b0;
-    else if (cen_i)
+    else if (copy_i)
       ti1s_o <= ti1s_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       mms_o <= 1'b0;
-    else if (cen_i)
+    else if (copy_i)
       mms_o <= mms_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ccds_o <= 1'b0;
-    else if (cen_i)
+    else if (copy_i)
       ccds_o <= ccds_i;
 
   // TIM_EGR
@@ -206,37 +186,21 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ug_o <= 1'b0;
-    else if (cen_i)
+    else if (copy_i)
       ug_o <= ug_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       tg_o <= 1'b0;
-    else if (cen_i)
+    else if (copy_i)
       tg_o <= tg_i;
-
-  always_ff @(posedge clk_i)
-    if (~rstn_i)
-      ccxg_o <= 1'b0;
-    else if (cen_i)
-      ccxg_o <= ccxg_i;
-
-  generate
-    for (genvar i = 0; i < 2 * CH_PAIRS_NUM; i++) begin
-      always_ff @(posedge clk_i)
-        if (~rstn_i)
-          ccr_reg_o[i] <= 'b0;
-        else if (cen_i)
-          ccr_reg_o[i] <= ccr_reg_i[i];
-    end
-  endgenerate
 
   generate
     for (genvar i = 0; i < 2 * CH_PAIRS_NUM; i++) begin
       always_ff @(posedge clk_i)
         if (~rstn_i)
           icxpsc_o[i] <= 'b0;
-        else if (cen_i)
+        else if (copy_i)
           icxpsc_o[i] <= icxpsc_i[i];
     end
   endgenerate
@@ -246,7 +210,7 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
       always_ff @(posedge clk_i)
         if (~rstn_i)
           icxf_o[i] <= 'b0;
-        else if (cen_i)
+        else if (copy_i)
           icxf_o[i] <= icxf_i[i];
     end
   endgenerate
@@ -256,7 +220,7 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
       always_ff @(posedge clk_i)
         if (~rstn_i)
           ocxfe_o[i] <= 'b0;
-        else if (cen_i)
+        else if (copy_i)
           ocxfe_o[i] <= ocxfe_i[i];
     end
   endgenerate
@@ -266,7 +230,7 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
       always_ff @(posedge clk_i)
         if (~rstn_i)
           ocxpe_o[i] <= 'b0;
-        else if (cen_i)
+        else if (copy_i)
           ocxpe_o[i] <= ocxpe_i[i];
     end
   endgenerate
@@ -276,7 +240,7 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
       always_ff @(posedge clk_i)
         if (~rstn_i)
           ocxce_o[i] <= 'b0;
-        else if (cen_i)
+        else if (copy_i)
           ocxce_o[i] <= ocxce_i[i];
     end
   endgenerate
@@ -286,7 +250,7 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
       always_ff @(posedge clk_i)
         if (~rstn_i)
           ocxm_o[i] <= 'b0;
-        else if (cen_i)
+        else if (copy_i)
           ocxm_o[i] <= ocxm_i[i];
     end
   endgenerate
@@ -296,7 +260,7 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
       always_ff @(posedge clk_i)
         if (~rstn_i)
           ccxs_o[i] <= 'b0;
-        else if (cen_i)
+        else if (copy_i)
           ccxs_o[i] <= ccxs_i[i];
     end
   endgenerate
@@ -305,19 +269,19 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ccxe_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       ccxe_o <= ccxe_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ccxp_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       ccxp_o <= ccxp_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ccxnp_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       ccxnp_o <= ccxnp_i;
 
 // TIM_DIER
@@ -325,101 +289,101 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
   always_ff @(posedge clk_i)
     if (~rstn_i)
       uie_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       uie_o <= uie_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ccxie_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       ccxie_o <= ccxie_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       tie_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       tie_o <= tie_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ude_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       ude_o <= ude_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ccxde_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       ccxde_o <= ccxde_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       tde_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       tde_o <= tde_i;
 
   // TIM_ARR
   always_ff @(posedge clk_i)
     if (~rstn_i)
       arr_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       arr_o <= arr_i;
 
   // TIM_PSC
   always_ff @(posedge clk_i)
     if (~rstn_i)
       psc_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       psc_o <= psc_i;
 
   // TIM_CNT
   always_ff @(posedge clk_i)
     if (~rstn_i)
       cnt_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       cnt_o <= cnt_i;
 
   // TIM_SMCR
   always_ff @(posedge clk_i)
     if (~rstn_i)
       sms_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       sms_o <= sms_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ts_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       ts_o <= ts_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       msm_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       msm_o <= msm_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       etf_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       etf_o <= etf_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       etps_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       etps_o <= etps_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       ece_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       ece_o <= ece_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
       etp_o <= 'b0;
-    else if (cen_i)
+    else if (copy_i)
       etp_o <= etp_i;
 
 endmodule

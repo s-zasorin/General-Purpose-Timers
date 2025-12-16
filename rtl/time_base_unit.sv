@@ -31,13 +31,24 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   logic                   overflow      ;
   logic                   underflow     ;
   logic                   cnt_en_ff     ;
+  logic                   rise_edge_ug  ;
+
+  edge_detector i_edge_ug
+  (
+    .clk_i      (clk_i       ),
+    .rstn_i     (rstn_i      ),
+    .a_i        (ug_i        ),
+    .edge_rise_o(rise_edge_ug),
+    .edge_fall_o(            )
+  );
 
   enum logic [2:0] {
-    IDLE     = 3'b000,
-    STOP     = 3'b001,
-    CNT_UP   = 3'b010,
-    CNT_DOWN = 3'b011,
-    RESET    = 3'b100
+    IDLE            = 3'b000,
+    STOP            = 3'b001,
+    CNT_UP          = 3'b010,
+    CNT_DOWN        = 3'b011,
+    RESET_THEN_DOWN = 3'b100,
+    RESET_THEN_UP   = 3'b101
   } state_ff, next;
 
   always_ff @(posedge clk_i)
@@ -64,7 +75,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
       psc_shadow_reg <= psc_i;
 
 // UEV logic
-  assign uev_o = overflow || underflow || ug_i || sm_reset_i;
+  assign uev_o = overflow || underflow || rise_edge_ug || sm_reset_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i) 
@@ -76,22 +87,24 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   always_comb begin
     next = state_ff;
     case (state_ff)
-      IDLE    : if      (cen_i && ~dir_i)                next = CNT_UP  ;
-                else if (cen_i && dir_i)                 next = CNT_DOWN;
+      IDLE    : if      (cen_i && ~dir_i)                             next = CNT_UP         ;
+                else if (cen_i && dir_i)                              next = CNT_DOWN       ;
 
-      CNT_UP  : if      (sm_reset_i || overflow)         next = RESET   ;
-                else if (~cen_i || sm_gate_i)            next = STOP    ;
-                else if (cms_i != 2'b00 && overflow)     next = CNT_DOWN;                  
+      CNT_UP  : if      (sm_reset_i || (overflow && cms_i == 2'b00))  next = RESET_THEN_UP  ;
+                else if (~cen_i || sm_gate_i)                         next = STOP           ;
+                else if (cms_i != 2'b00 && overflow)                  next = RESET_THEN_DOWN;   
+                else if (cms_i == 2'b00 && dir_i)                     next = CNT_DOWN       ;       
 
-      CNT_DOWN: if      (sm_reset_i || underflow)        next = RESET   ;
-                else if (~cen_i)                         next = STOP    ;
-                else if (cms_i != 2'b00 && underflow)    next = CNT_UP  ;
+      CNT_DOWN: if      (sm_reset_i || (underflow && cms_i == 2'b00)) next = RESET_THEN_DOWN;
+                else if (~cen_i)                                      next = STOP           ;
+                else if (cms_i != 2'b00 && underflow)                 next = RESET_THEN_UP  ;
+                else if (cms_i == 2'b00 && ~dir_i)                    next = CNT_UP         ;
+                
+      RESET_THEN_UP  :                                                next = CNT_UP         ;
+      RESET_THEN_DOWN:                                                next = CNT_DOWN       ;
 
-      RESET   : if      (dir_i)                          next = CNT_DOWN;
-                else if (~dir_i)                         next = CNT_UP  ;
-
-      STOP    : if      ((sm_trig_i || cen_i) && dir_i)  next = CNT_DOWN;
-                else if ((sm_trig_i || cen_i) && ~dir_i) next = CNT_UP  ;
+      STOP    : if      ((sm_trig_i || cen_i) && dir_i)               next = CNT_DOWN       ;
+                else if ((sm_trig_i || cen_i) && ~dir_i)              next = CNT_UP         ;
     endcase
   end
 
@@ -99,11 +112,12 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   always_ff @(posedge clk_i) begin
     if (cnt_en_ff) begin
         case (state_ff)
-          IDLE    : cnt_ff <= {CNT_WIDTH{1'b0}};
-          CNT_UP  : cnt_ff <= cnt_ff + 'b1;
-          CNT_DOWN: cnt_ff <= cnt_ff - 'b1;
-          RESET   : cnt_ff <= dir_i ? arr_i : {CNT_WIDTH{1'b0}};
-          default : cnt_ff <= cnt_ff;
+          IDLE           : cnt_ff <= {CNT_WIDTH{1'b0}};
+          CNT_UP         : cnt_ff <= cnt_ff + 'b1;
+          CNT_DOWN       : cnt_ff <= cnt_ff - 'b1;
+          RESET_THEN_UP  : cnt_ff <= {CNT_WIDTH{1'b0}};
+          RESET_THEN_DOWN: cnt_ff <= arr_i;
+          default        : cnt_ff <= cnt_ff;
         endcase
     end
     else begin
@@ -118,7 +132,7 @@ module time_base_unit # (parameter CNT_WIDTH = 32,
   assign underflow = (cnt_ff   == 1'b0           && state_ff == CNT_DOWN);
 
   assign cnt_o     = cnt_ff                                   ;
-  assign uif_o     = (overflow || underflow) & ~udis_i || ug_i;
+  assign uif_o     = (overflow || underflow) & ~udis_i || rise_edge_ug;
   assign tif_o     = (state_ff == STOP && sm_trig_i)          ;
   
   always_ff @(posedge clk_i)

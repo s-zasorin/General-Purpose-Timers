@@ -299,6 +299,10 @@ module CSR_GPT (
             struct {
                 logic next;
                 logic load_next;
+            } COPY;
+            struct {
+                logic next;
+                logic load_next;
             } CCDS;
             struct {
                 logic [2:0] next;
@@ -664,6 +668,9 @@ module CSR_GPT (
             } CKD;
         } TIM_CR1;
         struct {
+            struct {
+                logic value;
+            } COPY;
             struct {
                 logic value;
             } CCDS;
@@ -1091,7 +1098,27 @@ module CSR_GPT (
     end
     assign hwif_out.TIM_CR1.CKD.value = field_storage.TIM_CR1.CKD.value;
     assign hwif_out.TIM_CR1.RESERVED_15_10.value = 6'h0;
-    assign hwif_out.TIM_CR2.RESERVED_2_0.value = 3'h0;
+    // Field: CSR_GPT.TIM_CR2.COPY
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.TIM_CR2.COPY.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.TIM_CR2 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.TIM_CR2.COPY.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
+            load_next_c = '1;
+        end
+        field_combo.TIM_CR2.COPY.next = next_c;
+        field_combo.TIM_CR2.COPY.load_next = load_next_c;
+    end
+
+    always_ff @(posedge clk) begin
+        if(field_combo.TIM_CR2.COPY.load_next) begin
+            field_storage.TIM_CR2.COPY.value <= field_combo.TIM_CR2.COPY.next;
+        end
+    end
+    assign hwif_out.TIM_CR2.COPY.value = field_storage.TIM_CR2.COPY.value;
+    assign hwif_out.TIM_CR2.RESERVED_2_0.value = 2'h0;
     // Field: CSR_GPT.TIM_CR2.CCDS
     always_comb begin
         automatic logic [0:0] next_c;
@@ -2060,9 +2087,6 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_EGR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_EGR1.UG.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.TIM_EGR1.UG.next;
-            load_next_c = '1;
         end
         field_combo.TIM_EGR1.UG.next = next_c;
         field_combo.TIM_EGR1.UG.load_next = load_next_c;
@@ -2774,7 +2798,8 @@ module CSR_GPT (
     assign readback_array[0][9:8] = (decoded_reg_strb.TIM_CR1 && !decoded_req_is_wr) ? field_storage.TIM_CR1.CKD.value : '0;
     assign readback_array[0][15:10] = (decoded_reg_strb.TIM_CR1 && !decoded_req_is_wr) ? 6'h0 : '0;
     assign readback_array[0][31:16] = '0;
-    assign readback_array[1][2:0] = (decoded_reg_strb.TIM_CR2 && !decoded_req_is_wr) ? 3'h0 : '0;
+    assign readback_array[1][0:0] = (decoded_reg_strb.TIM_CR2 && !decoded_req_is_wr) ? field_storage.TIM_CR2.COPY.value : '0;
+    assign readback_array[1][2:1] = (decoded_reg_strb.TIM_CR2 && !decoded_req_is_wr) ? 2'h0 : '0;
     assign readback_array[1][3:3] = (decoded_reg_strb.TIM_CR2 && !decoded_req_is_wr) ? field_storage.TIM_CR2.CCDS.value : '0;
     assign readback_array[1][6:4] = (decoded_reg_strb.TIM_CR2 && !decoded_req_is_wr) ? field_storage.TIM_CR2.MMS.value : '0;
     assign readback_array[1][7:7] = (decoded_reg_strb.TIM_CR2 && !decoded_req_is_wr) ? field_storage.TIM_CR2.TI1S.value : '0;

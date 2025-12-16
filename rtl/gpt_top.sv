@@ -93,10 +93,22 @@ module gpt_top
   logic       ti1s;
   logic [2:0] mms ;
   logic       ccds;
+  logic       copy;
+  logic       edge_copy;
 
   assign ti1s = gpt_hwif_out.TIM_CR2.TI1S.value;
   assign mms  = gpt_hwif_out.TIM_CR2.MMS.value ;
   assign ccds = gpt_hwif_out.TIM_CR2.CCDS.value;
+  assign copy = gpt_hwif_out.TIM_CR2.COPY.value;
+
+  edge_detector i_edge_copy
+  (
+    .clk_i      (aclk_i   ),
+    .rstn_i     (rst_n    ),
+    .a_i        (copy     ),
+    .edge_rise_o(edge_copy),
+    .edge_fall_o(         )
+  );
 
   // TIM_EGRx
   logic                          ug  ;
@@ -1556,6 +1568,7 @@ module gpt_top
   (
     .clk_i    (aclk_i        ),
     .rstn_i   (rst_n         ),
+    .copy_i   (copy          ),
 
     .cen_i    (cen           ),
     .udis_i   (udis          ),
@@ -1569,8 +1582,6 @@ module gpt_top
     .ccds_i   (ccds          ),
     .ug_i     (ug            ),
     .tg_i     (tg            ),
-    .ccxg_i   (ccxg          ),
-    .ccr_reg_i(ccr_reg       ),
     .icxpsc_i (icxpsc        ),
     .icxf_i   (icxf          ),
     .ocxfe_i  (ocxfe         ),
@@ -1609,8 +1620,6 @@ module gpt_top
     .ccds_o   (active_ccds   ),
     .ug_o     (active_ug     ),
     .tg_o     (active_tg     ),
-    .ccxg_o   (active_ccxg   ),
-    .ccr_reg_o(active_ccr_reg),
     .icxpsc_o (active_icxpsc ),
     .icxf_o   (active_icxf   ),
     .ocxfe_o  (active_ocxfe  ),
@@ -1661,35 +1670,35 @@ module gpt_top
 
   logic clk_psc;
 
-  trigger_controller trig_inst 
+  master_slave_mode_controller trig_inst 
   (
-    .clk_i       (aclk_i      ),
-    .rstn_i      (rst_n       ),
-    .itr_i       (sync_tim_in ),
-    .ckd_i       (active_ckd  ),
-    .etp_i       (active_etp  ),
-    .sms_i       (active_sms  ),
-    .etps_i      (active_etps ),
-    .ts_i        (active_ts   ),
-    .etf_i       (active_etf  ),
-    .ug_i        (active_ug   ),
-    .uev_i       (active_uev  ),
-    .mms_i       (active_mms  ),
-    .cc1if_i     (ccxif[0]    ),
-    .cnt_en_i    (cnt_en      ),
-    .ece_i       (active_ece  ),
-    .ti2fp2_i    (ti2fp2      ),
-    .ti1fp1_i    (ti1fp1      ),
-    .ti1f_i      (tif_arr[0]  ),
-    .ti1_ed_i    (ti1f_ed     ),
-    .etr_i       (active_etr_i),
+    .clk_i       (aclk_i     ),
+    .rstn_i      (rst_n      ),
+    .itr_i       (sync_tim_in),
+    .ckd_i       (active_ckd ),
+    .etp_i       (active_etp ),
+    .sms_i       (active_sms ),
+    .etps_i      (active_etps),
+    .ts_i        (active_ts  ),
+    .etf_i       (active_etf ),
+    .ug_i        (active_ug  ),
+    .uev_i       (uev        ),
+    .mms_i       (active_mms ),
+    .cc1if_i     (ccxif[0]   ),
+    .cnt_en_i    (cnt_en     ),
+    .ece_i       (active_ece ),
+    .ti2fp2_i    (ti2fp2     ),
+    .ti1fp1_i    (ti1fp1     ),
+    .ti1f_i      (tif_arr[0] ),
+    .ti1_ed_i    (ti1f_ed    ),
+    .etr_i       (etr_i      ),
 
-    .trc_o       (trc         ),
-    .sm_reset_o  (sm_reset    ),
-    .sm_gate_o   (sm_gate     ),
-    .sm_trig_o   (sm_trig     ),
-    .trg_o       (trg_o       ),
-    .clk_psc_en_o(clk_psc     )
+    .trc_o       (trc        ),
+    .sm_reset_o  (sm_reset   ),
+    .sm_gate_o   (sm_gate    ),
+    .sm_trig_o   (sm_trig    ),
+    .trg_o       (trg_o      ),
+    .clk_psc_en_o(clk_psc    )
   );
 
   logic clk_cnt;
@@ -1736,7 +1745,7 @@ module gpt_top
     .ckd_i          (active_ckd        ),
     .icf_i          (active_icxf    [0]),
     .cnt_i          (cnt_value         ),
-    .ccr_i          (active_ccr_reg [0]),
+    .ccr_i          (       ccr_reg [0]),
     .uev_i          (uev               ),
     .ti_i           (sync_tim_in    [0]),
     .trc_i          (trc               ),
@@ -1745,7 +1754,7 @@ module gpt_top
     .cce_i          (active_ccxe    [0]),
     .dir_i          (active_dir        ),
     .ocxm_i         (active_ocxm    [0]),
-    .ccg_i          (active_ccxg    [0]),
+    .ccg_i          (ccxg           [0]),
     .ocxpe_i        (active_ocxpe   [0]),
     .ti_neigx_fpx_i (ti2fp2            ),
     .cc1p_i         (active_ccxp    [0]),
@@ -1768,7 +1777,7 @@ module gpt_top
     .ckd_i         (active_ckd        ),
     .icf_i         (active_icxf    [1]),
     .cnt_i         (cnt_value         ),
-    .ccr_i         (active_ccr_reg [1]),
+    .ccr_i         (ccr_reg        [1]),
     .uev_i         (uev               ),
     .ti_i          (sync_tim_in    [1]),
     .trc_i         (trc               ),
@@ -1777,7 +1786,7 @@ module gpt_top
     .cce_i         (active_ccxe    [1]),
     .dir_i         (active_dir        ),
     .ocxm_i        (active_ocxm    [1]),
-    .ccg_i         (active_ccxg    [1]),
+    .ccg_i         (ccxg           [1]),
     .ocxpe_i       (active_ocxpe   [1]),
     .ti_neigx_fpx_i(ti1fp1            ),
     .cc1p_i        (active_ccxp    [1]),
@@ -1803,7 +1812,7 @@ module gpt_top
           .ckd_i          (active_ckd            ),
           .icf_i          (active_icxf    [i]    ),
           .cnt_i          (cnt_value             ),
-          .ccr_i          (active_ccr_reg [i]    ),
+          .ccr_i          (ccr_reg        [i]    ),
           .uev_i          (uev                   ),
           .ti_i           (sync_tim_in    [i]    ),
           .trc_i          (trc                   ),
@@ -1812,7 +1821,7 @@ module gpt_top
           .cce_i          (active_ccxe    [i]    ),
           .dir_i          (active_dir            ),
           .ocxm_i         (active_ocxm    [i]    ),
-          .ccg_i          (active_ccxg    [i]    ),
+          .ccg_i          (ccxg           [i]    ),
           .ocxpe_i        (active_ocxpe   [i]    ),
           .ti_neigx_fpx_i (ti_cur_fp_cur  [i + 1]),
           .cc1p_i         (active_ccxp    [i]    ),
@@ -1834,7 +1843,7 @@ module gpt_top
           .ckd_i         (active_ckd            ),
           .icf_i         (active_icxf    [i + 1]),
           .cnt_i         (cnt_value             ),
-          .ccr_i         (active_ccr_reg [i + 1]),
+          .ccr_i         (ccr_reg        [i + 1]),
           .uev_i         (uev                   ),
           .ti_i          (sync_tim_in    [i + 1]),
           .trc_i         (trc                   ),
@@ -1843,7 +1852,7 @@ module gpt_top
           .cce_i         (active_ccxe    [i + 1]),
           .dir_i         (active_dir            ),
           .ocxm_i        (active_ocxm    [i + 1]),
-          .ccg_i         (active_ccxg    [i + 1]),
+          .ccg_i         (ccxg           [i + 1]),
           .ocxpe_i       (active_ocxpe   [i + 1]),
           .ti_neigx_fpx_i(ti_cur_fp_cur  [i]    ),
           .cc1p_i        (active_ccxp    [i + 1]),
