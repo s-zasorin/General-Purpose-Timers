@@ -11,7 +11,12 @@ package CSR_GPT_pkg;
     } TIM_CR1__CEN__in_t;
 
     typedef struct {
+        logic next;
+    } TIM_CR1__DIR__in_t;
+
+    typedef struct {
         TIM_CR1__CEN__in_t CEN;
+        TIM_CR1__DIR__in_t DIR;
     } TIM_CR1__in_t;
 
     typedef struct {

@@ -10,6 +10,7 @@ module digital_filter (
   logic [3:0] cnt        ;
   logic       start_pulse;
   logic       end_pulse  ;
+  logic       sync_ti    ;
 
   enum logic [1:0] {
     IDLE    = 2'b00,
@@ -35,10 +36,10 @@ module digital_filter (
   always_comb begin
     next = state_ff;
     case (state_ff)
-      IDLE   :  if (start_pulse)                                            next = CNT_IN ;
-      CNT_IN :  if (end_pulse && (cnt >= f_coef_i))                         next = CNT_OUT; 
-                else if (end_pulse && (cnt < f_coef_i) || f_coef_i == 'hx)  next = IDLE   ;    
-      CNT_OUT:  if (cnt == 4'b0)                                            next = IDLE   ;
+      IDLE   :  if (start_pulse)                                           next = CNT_IN ;
+      CNT_IN :  if (end_pulse && (cnt >= f_coef_i))                        next = CNT_OUT; 
+                else if (end_pulse && (cnt < f_coef_i) || f_coef_i == 'hx) next = IDLE   ;    
+      CNT_OUT:  if (cnt == 4'b0)                                           next = IDLE   ;
     endcase
   end
 

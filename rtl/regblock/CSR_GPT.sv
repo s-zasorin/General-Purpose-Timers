@@ -1026,6 +1026,9 @@ module CSR_GPT (
         if(decoded_reg_strb.TIM_CR1 && decoded_req_is_wr) begin // SW write
             next_c = (field_storage.TIM_CR1.DIR.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
             load_next_c = '1;
+        end else begin // HW Write
+            next_c = hwif_in.TIM_CR1.DIR.next;
+            load_next_c = '1;
         end
         field_combo.TIM_CR1.DIR.next = next_c;
         field_combo.TIM_CR1.DIR.load_next = load_next_c;

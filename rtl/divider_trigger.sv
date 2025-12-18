@@ -1,9 +1,10 @@
 module divider_trigger (
   input  logic       clk_i ,
   input  logic       rstn_i,
+  input  logic       etrp_i,
   input  logic [1:0] etps_i,
 
-  output logic       clk_o
+  output logic       etrp_o
 );
 
   logic [3:0] div_cnt;
@@ -24,8 +25,8 @@ module divider_trigger (
       div_cnt <= 4'b0;
     else if (div_cnt == div_value)
       div_cnt <= 4'b0;
-    else
+    else if (etrp_i)
       div_cnt <= div_cnt + 'b1;
 
-  assign clk_o = (div_cnt == div_value);
+  assign etrp_o = (div_cnt == div_value);
 endmodule

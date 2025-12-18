@@ -10,7 +10,6 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
   input logic       cen_i                    ,
   input logic       udis_i                   ,
   input logic       opm_i                    ,
-  input logic       dir_i                    ,
   input logic [1:0] cms_i                    ,
   input logic       apre_i                   ,
   input logic [1:0] ckd_i                    ,
@@ -69,7 +68,6 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
   // TIM_CR1
   output logic                          udis_o,
   output logic                          opm_o ,
-  output logic                          dir_o ,
   output logic [1:0]                    cms_o ,
   output logic                          apre_o,
   output logic [1:0]                    ckd_o ,
@@ -137,12 +135,6 @@ module active_set #(parameter CH_PAIRS_NUM = 2,
       opm_o <= 1'b0;
     else if (copy_i)
       opm_o <= opm_i;
-
-  always_ff @(posedge clk_i)
-    if (~rstn_i)
-      dir_o <= 1'b0;
-    else if (copy_i)
-      dir_o <= dir_i;
 
   always_ff @(posedge clk_i)
     if (~rstn_i)
