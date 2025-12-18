@@ -37,7 +37,7 @@ module tb_gpt();
   end
   
   task gen_ch1();
-    repeat (130) begin
+    repeat (300) begin
       ch_i[0] <= 1'b1;
       repeat ($urandom_range(2, 5)) @(posedge aclk);
       ch_i[0] <= 1'b0;
@@ -51,7 +51,7 @@ module tb_gpt();
   endtask
 
   task gen_ch2();
-    repeat (100) begin
+    repeat (300) begin
       ch_i[1] <= 1'b1;
       repeat ($urandom_range(1, 10)) @(posedge aclk);
       ch_i[1] <= 1'b0;
@@ -194,7 +194,7 @@ task trigger_mode();
   // Запись в CCMR1
   axi_lite_write(.addr('h38), .data(32'b01000001), .strb(4'b1111));    // IC1F = 0100, CC1S = 01 - Режим входа
   // Запись в SMCR
-  axi_lite_write(.addr('h8), .data(32'b1010110), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 110 - Триггерный режим
+  axi_lite_write(.addr('h8), .data(32'b1100110), .strb(4'b1111));      // TS = 101 - источник упраляющего импульса TI1, SMS = 110 - Триггерный режим
   // Запись в CCER
   axi_lite_write(.addr('h14), .data(32'b0), .strb(4'b1111));
   // Запись в TIM_CR2
@@ -252,9 +252,9 @@ task output_pwm_mode();
   // Запись в CCER - Активация выхода
   axi_lite_write(.addr('h14), .data(32'b01), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 1 - положительная полярность
   // Запись в TIM_CR2
-  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b0001));         // COPY = 1 - Обновление ACTIVE множество регистров
   // Запись в TIM_CR2
-  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b0001));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 task one_pulse_mode();
@@ -262,6 +262,18 @@ task one_pulse_mode();
 endtask
 
 task encoder_mode();
+  // Запись в CCMR1
+  axi_lite_write(.addr('h38), .data(32'b0101100001), .strb(4'b1111));    // CC1S = 01 - Режим входа, IC1F = 0110, IC1PS = 00 - нет прескалера
+  // Запись в SMCR
+  axi_lite_write(.addr('h8), .data(32'b1010001), .strb(4'b1111));        //  SMS = 001 - Режим энкодера №1
+  // Запись в CCER
+  axi_lite_write(.addr('h14), .data(32'b00), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 0 - положительная полярность
+  // Запись в TIM_CR1
+  axi_lite_write(.addr('h0), .data(32'b10000001), .strb(4'b1111));       // CEN = 0, DIR = 0, CMS = 00, APRE = 1 - Простой счет вверх. Предзагрузка для ARR
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd1), .strb(4'b1111));         // COPY = 1 - Обновление ACTIVE множество регистров
+  // Запись в TIM_CR2
+  axi_lite_write(.addr('h4), .data(32'd0), .strb(4'b1111));         // COPY = 0 - Обновление ACTIVE множество регистров
 endtask
 
 task clock_timer_from_ti1();
@@ -319,9 +331,9 @@ endtask
 
 task input_capture_mode();
   // Запись в CCMR1
-  axi_lite_write(.addr('h38), .data(32'b01100001), .strb(4'b1111));    // CC1S = 01 - Режим входа, IC1F = 0110, IC1PS = 00 - нет прескалера
+  axi_lite_write(.addr('h38), .data(32'b01101001), .strb(4'b1111));    // CC1S = 01 - Режим входа, IC1F = 0110, IC1PS = 00 - нет прескалера
   // Запись в CCER - Активация выхода
-  axi_lite_write(.addr('h14), .data(32'b00), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 0 - положительная полярность
+  axi_lite_write(.addr('h14), .data(32'b01), .strb(4'b1111)); // CC1E - Выход активирован, CC1PE = 0 - положительная полярность
   // Запись в TIM_DIER
   axi_lite_write(.addr('hC), .data(32'b01000000010), .strb(4'b1111));
   // Запись в TIM_EGR
@@ -334,6 +346,7 @@ endtask
 
 // Для входного режима ШИМ необходимо настроить минимум 2 канала. Например TI1 и TI2
 task input_pwm_mode();
+
 endtask
 
   initial gen_ch1();
@@ -357,23 +370,25 @@ endtask
     stop_counter();
     @(posedge aclk);
 
-    //trigger_mode();
+    trigger_mode();
     repeat (23) @(posedge aclk);
 
     reset_mode();
     repeat (15) @(posedge aclk);
-  
-    //gate_mode();
-    repeat (30) @(posedge aclk);
 
-    reset_mode();
     output_pwm_mode();
-    repeat (400) @(posedge aclk);
+    repeat (4000) @(posedge aclk);
+    gate_mode();
+    repeat (30) @(posedge aclk);
     input_capture_mode();
-    repeat (100) @(posedge aclk);
+    repeat (2000) @(posedge aclk);
     clock_timer_from_ti1();
     repeat (15000) @(posedge aclk);
+    reset_mode();
+    repeat (10) @(posedge aclk);
     up_down_cnt();
+    repeat (2000) @(posedge aclk);
+    encoder_mode();
     repeat (2000) @(posedge aclk);
     $finish();
   end
