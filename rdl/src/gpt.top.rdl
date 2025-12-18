@@ -29,7 +29,7 @@ addrmap CSR_GPT {
           if ($j != $CH_PAIRS_NUM - 1) {
           $current_offset += $REG_SIZE;
         }
-       }
+      }
       }
       elsif ($reg_name eq "TIM_CCR") {
         for (my $j = 0; $j < 2 * $CH_PAIRS_NUM; $j++) { %>

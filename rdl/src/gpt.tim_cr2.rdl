@@ -42,7 +42,15 @@ field {
 field {
     sw = r;
     hw = r;
-} RESERVED_2_0[2:0] = 0;
+} RESERVED_2_0[2:1] = 0;
+
+field {
+    name = "Copy";
+    desc = "0: Нет действия<br>
+            1: Копирования значения регистров из Program Set в Active Set";
+    sw = rw;
+    hw = r ;
+} COPY[0:0];
 };
 
 `endif // TIM2_CR2_REG
